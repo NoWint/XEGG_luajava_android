@@ -380,7 +380,9 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeExecScript(
         }
     }
 
-    if let Some(engine) = engine_lock.as_ref() {
+    set_jni_env(&mut env);
+
+    let result = if let Some(engine) = engine_lock.as_ref() {
         match engine.exec_string(&code_str) as Result<(), _> {
             Ok(()) => 1,
             Err(e) => {
@@ -390,7 +392,10 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeExecScript(
         }
     } else {
         0
-    }
+    };
+
+    clear_jni_env();
+    result
 }
 
 /// 执行 Lua 脚本文件
@@ -416,7 +421,9 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeExecFile(
         }
     }
 
-    if let Some(engine) = engine_lock.as_ref() {
+    set_jni_env(&mut env);
+
+    let result = if let Some(engine) = engine_lock.as_ref() {
         match engine.exec_file(&path_str) as Result<(), _> {
             Ok(()) => 1,
             Err(e) => {
@@ -426,7 +433,10 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeExecFile(
         }
     } else {
         0
-    }
+    };
+
+    clear_jni_env();
+    result
 }
 
 /// 停止脚本引擎
@@ -559,6 +569,108 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeLaunchInVirtualSpac
             0
         }
     }
+}
+
+// --- luajava 桥接操作 ---
+
+use std::cell::RefCell;
+
+thread_local! {
+    static JNI_ENV: RefCell<Option<*mut jni::sys::JNIEnv>> = RefCell::new(None);
+}
+
+/// 设置当前线程的 JNI 环境（由脚本执行函数调用）
+fn set_jni_env(env: &mut JNIEnv) {
+    JNI_ENV.with(|e| {
+        *e.borrow_mut() = Some(env.get_raw());
+    });
+}
+
+/// 清除当前线程的 JNI 环境
+fn clear_jni_env() {
+    JNI_ENV.with(|e| {
+        *e.borrow_mut() = None;
+    });
+}
+
+/// luajava.bindClass JNI 回调
+pub fn jni_bind_class(class_name: &str) -> Option<String> {
+    JNI_ENV.with(|e| {
+        let raw_env = (*e.borrow())?;
+        let mut env = unsafe { JNIEnv::from_raw(raw_env) }.ok()?;
+
+        let j_class_name = env.new_string(class_name).ok()?;
+        let class = env.find_class("com/xegg/bridge/LuaJavaBridge").ok()?;
+        let result = env.call_static_method(
+            &class,
+            "bindClass",
+            "(Ljava/lang/String;)Ljava/lang/String;",
+            &[(&j_class_name).into()],
+        ).ok()?;
+
+        let jstr = result.l().ok()?;
+        let jstr_ref = JString::from(jstr);
+        let rs = env.get_string(&jstr_ref).ok()?;
+        Some(rs.to_string_lossy().into_owned())
+    })
+}
+
+/// luajava.loadLayout JNI 回调
+pub fn jni_load_layout(layout_json: &str) -> i32 {
+    JNI_ENV.with(|e| {
+        let raw_env = (*e.borrow())?;
+        let mut env = unsafe { JNIEnv::from_raw(raw_env) }.ok()?;
+
+        let j_json = env.new_string(layout_json).ok()?;
+        let class = env.find_class("com/xegg/bridge/LuaJavaBridge").ok()?;
+        let result = env.call_static_method(
+            &class,
+            "loadLayout",
+            "(Ljava/lang/String;)I",
+            &[(&j_json).into()],
+        ).ok()?;
+
+        result.i().ok()
+    }).unwrap_or(-1)
+}
+
+/// luajava.findViewById JNI 回调
+pub fn jni_find_view_by_id(view_id: i32) -> bool {
+    JNI_ENV.with(|e| {
+        let raw_env = (*e.borrow())?;
+        let mut env = unsafe { JNIEnv::from_raw(raw_env) }.ok()?;
+
+        let class = env.find_class("com/xegg/bridge/LuaJavaBridge").ok()?;
+        let result = env.call_static_method(
+            &class,
+            "findViewById",
+            "(I)Ljava/lang/Object;",
+            &[view_id.into()],
+        ).ok()?;
+
+        Some(result.l().is_ok())
+    }).unwrap_or(false)
+}
+
+/// luajava.setViewProperty JNI 回调
+pub fn jni_set_view_property(view_id: i32, prop: &str, value: &str) -> bool {
+    JNI_ENV.with(|e| {
+        let raw_env = (*e.borrow())?;
+        let mut env = unsafe { JNIEnv::from_raw(raw_env) }.ok()?;
+
+        let j_prop = env.new_string(prop).ok()?;
+        let j_value = env.new_string(value).ok()?;
+
+        let class = env.find_class("com/xegg/bridge/LuaJavaBridge").ok()?;
+        let result = env.call_static_method(
+            &class,
+            "setViewProperty",
+            "(ILjava/lang/String;Ljava/lang/String;)Z",
+            &[view_id.into(), (&j_prop).into(), (&j_value).into()],
+        ).ok()?;
+
+        Some(result.z().unwrap_or(false))
+    }).unwrap_or(false)
 }
 
 // --- 脚本引擎访问全局状态的辅助函数 ---

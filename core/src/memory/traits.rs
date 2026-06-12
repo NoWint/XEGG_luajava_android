@@ -32,7 +32,7 @@ pub enum AccessMode {
 }
 
 /// 内存访问 trait — 上层模块通过此 trait 读写目标进程内存
-pub trait MemoryAccess: Send {
+pub trait MemoryAccess: Send + Sync {
     /// 附加到目标进程
     fn attach(&mut self, pid: i32) -> io::Result<()>;
 

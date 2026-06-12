@@ -1,4 +1,5 @@
 use std::io;
+use rayon::prelude::*;
 
 /// 搜索数据类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -140,40 +141,49 @@ impl SearchEngine {
             .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "无效的搜索值"))?;
 
         let regions = mem.regions()?;
-        let mut result = SearchResult::new(search_type, SearchMode::Exact, region_filter);
 
-        for region in &regions {
-            // 跳过不可读区域
+        // 先收集需要扫描的区域
+        let scan_regions: Vec<_> = regions.into_iter().filter(|region| {
             if !region.perms.read {
-                continue;
+                return false;
             }
-            // 区域过滤
             if !should_scan_region(region, region_filter) {
-                continue;
+                return false;
             }
-
             let region_size = region.size();
             if region_size < type_size || region_size > 512 * 1024 * 1024 {
-                continue; // 跳过过小或过大的区域
+                return false;
             }
+            true
+        }).collect();
 
-            let mut buf = vec![0u8; region_size];
-            if mem.read(region.start, &mut buf).is_err() {
-                continue;
-            }
-
-            // 滑动窗口搜索
-            for offset in 0..=(buf.len() - type_size) {
-                let window = &buf[offset..offset + type_size];
-                if window == target_bytes.as_slice() {
-                    result.matches.push(MatchItem {
-                        addr: region.start + offset,
-                        value: window.to_vec(),
-                        region_name: region.name.clone().unwrap_or_default(),
-                    });
+        // 并行扫描所有内存区域
+        let matches: Vec<MatchItem> = scan_regions
+            .par_iter()
+            .flat_map(|region| {
+                let mut region_matches = Vec::new();
+                let region_size = region.size();
+                let mut buf = vec![0u8; region_size];
+                if mem.read(region.start, &mut buf).is_err() {
+                    return region_matches;
                 }
-            }
-        }
+
+                for offset in 0..=(buf.len() - type_size) {
+                    let window = &buf[offset..offset + type_size];
+                    if window == target_bytes.as_slice() {
+                        region_matches.push(MatchItem {
+                            addr: region.start + offset,
+                            value: window.to_vec(),
+                            region_name: region.name.clone().unwrap_or_default(),
+                        });
+                    }
+                }
+                region_matches
+            })
+            .collect();
+
+        let mut result = SearchResult::new(search_type, SearchMode::Exact, region_filter);
+        result.matches = matches;
 
         self.current_type = Some(search_type);
         self.region_filter = region_filter;
@@ -199,19 +209,27 @@ impl SearchEngine {
 
         let mut result = SearchResult::new(search_type, SearchMode::Exact, self.region_filter);
 
-        for item in &last.matches {
-            let mut buf = vec![0u8; type_size];
-            if mem.read(item.addr, &mut buf).is_err() {
-                continue;
-            }
-            if buf == target_bytes.as_slice() {
-                result.matches.push(MatchItem {
-                    addr: item.addr,
-                    value: buf,
-                    region_name: item.region_name.clone(),
-                });
-            }
-        }
+        // 并行筛选上次结果
+        let matches: Vec<MatchItem> = last.matches
+            .par_iter()
+            .filter_map(|item| {
+                let mut buf = vec![0u8; type_size];
+                if mem.read(item.addr, &mut buf).is_err() {
+                    return None;
+                }
+                if buf == target_bytes.as_slice() {
+                    Some(MatchItem {
+                        addr: item.addr,
+                        value: buf,
+                        region_name: item.region_name.clone(),
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        result.matches = matches;
 
         self.last_result = Some(result.clone());
         Ok(result)
@@ -232,27 +250,35 @@ impl SearchEngine {
         let type_size = search_type.size();
         let mut result = SearchResult::new(search_type, SearchMode::Fuzzy, self.region_filter);
 
-        for item in &last.matches {
-            let mut buf = vec![0u8; type_size];
-            if mem.read(item.addr, &mut buf).is_err() {
-                continue;
-            }
+        // 并行模糊筛选
+        let matches: Vec<MatchItem> = last.matches
+            .par_iter()
+            .filter_map(|item| {
+                let mut buf = vec![0u8; type_size];
+                if mem.read(item.addr, &mut buf).is_err() {
+                    return None;
+                }
 
-            let matches = match condition {
-                FuzzyCondition::Increased => compare_values(&item.value, &buf, search_type, |old, new| new > old),
-                FuzzyCondition::Decreased => compare_values(&item.value, &buf, search_type, |old, new| new < old),
-                FuzzyCondition::Changed => compare_values(&item.value, &buf, search_type, |old, new| old != new),
-                FuzzyCondition::Unchanged => compare_values(&item.value, &buf, search_type, |old, new| old == new),
-            };
+                let matches = match condition {
+                    FuzzyCondition::Increased => compare_values(&item.value, &buf, search_type, |old, new| new > old),
+                    FuzzyCondition::Decreased => compare_values(&item.value, &buf, search_type, |old, new| new < old),
+                    FuzzyCondition::Changed => compare_values(&item.value, &buf, search_type, |old, new| old != new),
+                    FuzzyCondition::Unchanged => compare_values(&item.value, &buf, search_type, |old, new| old == new),
+                };
 
-            if matches {
-                result.matches.push(MatchItem {
-                    addr: item.addr,
-                    value: buf,
-                    region_name: item.region_name.clone(),
-                });
-            }
-        }
+                if matches {
+                    Some(MatchItem {
+                        addr: item.addr,
+                        value: buf,
+                        region_name: item.region_name.clone(),
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        result.matches = matches;
 
         self.last_result = Some(result.clone());
         Ok(result)
