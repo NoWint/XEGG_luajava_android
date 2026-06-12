@@ -205,10 +205,24 @@ class MainViewModel : ViewModel() {
         val pm = context.packageManager
         val myPackage = context.packageName
 
+        // 先尝试只显示用户应用
+        val userApps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            .filter { it.packageName != myPackage }
+            .filter { it.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM == 0 }
+            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+            .map { appInfo ->
+                val label = pm.getApplicationLabel(appInfo).toString()
+                val pid = getPidForPackage(context, appInfo.packageName)
+                RunningApp(appInfo.packageName, label, pid)
+            }
+            .sortedBy { it.label.lowercase() }
+
+        if (userApps.isNotEmpty()) return userApps
+
+        // 回退：显示所有有启动入口的应用（包括系统应用）
         return pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.packageName != myPackage }  // 排除自己
-            .filter { it.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM == 0 }  // 只显示用户安装的应用
-            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }  // 有启动入口的
+            .filter { it.packageName != myPackage }
+            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
             .map { appInfo ->
                 val label = pm.getApplicationLabel(appInfo).toString()
                 val pid = getPidForPackage(context, appInfo.packageName)

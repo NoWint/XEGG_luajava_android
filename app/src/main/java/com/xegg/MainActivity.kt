@@ -69,6 +69,14 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
         }
         previousAttached = state.isAttached
     }
+
+    // 附加成功后自动启动悬浮窗
+    LaunchedEffect(state.isAttached) {
+        if (state.isAttached && !com.xegg.service.OverlayService.isRunning) {
+            val intent = Intent(context, com.xegg.service.OverlayService::class.java)
+            context.startForegroundService(intent)
+        }
+    }
     var currentTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
