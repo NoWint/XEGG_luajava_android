@@ -60,9 +60,14 @@ XEGG/
 │   │   │   │   └── main/         # 主界面 + 应用选择
 │   │   │   ├── service/          # 悬浮窗 Service
 │   │   │   │   └── OverlayService.kt
-│   │   │   └── bridge/           # JNI 调用封装
-│   │   │       ├── XeggBridge.kt
-│   │   │       └── ScriptCallback.kt
+│   │   │   ├── bridge/           # JNI 调用封装
+│   │   │   │   ├── XeggBridge.kt
+│   │   │   │   └── ScriptCallback.kt
+│   │   │   └── luajava/          # luajava 桥接实现
+│   │   │       ├── LuaLayoutManager.kt   # loadlayout 声明式 UI 构建
+│   │   │       ├── LuaClassBinder.kt     # bindClass / createProxy
+│   │   │       ├── LuaThreadManager.kt   # startThread / getRunnable / getHandler
+│   │   │       └── LuaViewRegistry.kt    # View ID 注册表 + 查找
 │   │   ├── jniLibs/              # 编译产物 libxegg.so
 │   │   └── assets/scripts/       # 内置 Lua 脚本
 │   └── build.gradle.kts
@@ -89,6 +94,7 @@ XEGG/
 │   │   │   ├── mod.rs
 │   │   │   ├── engine.rs         # mlua 引擎封装
 │   │   │   ├── api.rs            # GG/RLGG 兼容 API (gg.xxx)
+│   │   │   ├── luajava.rs        # luajava 桥接层（loadlayout/bindClass/createProxy 等）
 │   │   │   └── compat.rs         # GG→XEGG API 映射
 │   │   ├── speed/                # 变速齿轮
 │   │   │   ├── mod.rs
@@ -99,9 +105,12 @@ XEGG/
 │   │   ├── dump/                 # 内存 Dump
 │   │   │   ├── mod.rs
 │   │   │   └── dumper.rs
-│   │   └── jni/                  # JNI 桥接层
-│   │       ├── mod.rs
-│   │       └── generated.rs
+│   │   ├── jni/                  # JNI 桥接层
+│   │   │   ├── mod.rs
+│   │   │   └── generated.rs
+│   └── assets/                   # 内置 Lua 模块
+│       ├── floatingWindowManager.lua  # RLGG 悬浮窗框架（内置兼容）
+│       └── windowManager.lua          # RLGG 底层窗口管理（内置兼容）
 │   └── tests/
 ├── scripts/                      # 构建脚本
 │   ├── build-android.sh
@@ -290,6 +299,137 @@ impl ScriptEngine {
 
 完整 API 列表需对照 GG/RLGG 文档逐一实现，确保所有脚本零修改运行。
 
+### 4.1 `luajava` 桥接层（脚本悬浮窗 UI 核心）
+
+RLGG 脚本之所以能创建复杂的悬浮窗 UI，核心在于 `luajava` 桥接层——它让 Lua 脚本可以**直接操作 Android Java 框架**。XEGG 必须完整实现此桥接层，否则所有 RLGG 悬浮窗脚本都无法运行。
+
+#### 必须实现的 `luajava` API
+
+| API | 说明 | 示例用法 |
+|-----|------|----------|
+| `luajava.loadlayout(table)` | 从 Lua 表创建 Android View 树 | `luajava.loadlayout({LinearLayout, {Button, text="hi"}})` |
+| `luajava.bindClass(name)` | 加载 Java 类 | `luajava.bindClass("android.view.WindowManager")` |
+| `luajava.newId(name)` | 生成 View ID | `luajava.newId("myButton")` |
+| `luajava.createProxy(iface, table)` | 创建 Java 接口代理 | `luajava.createProxy("View$OnClickListener", {onClick=fn})` |
+| `luajava.startThread(fn)` | 启动新线程 | `luajava.startThread(function() gg.sleep(1000) end)` |
+| `luajava.getRunnable(fn)` | 将函数包装为 Runnable | `handler:post(luajava.getRunnable(fn))` |
+| `luajava.getHandler()` | 获取 UI 线程 Handler | 用于从后台线程调度 UI 操作 |
+| `luajava.getBitmap(path)` | 从路径加载 Bitmap | `luajava.getBitmap("/sdcard/icon.png")` |
+| `luajava.getBitmapDrawable(path)` | 从路径创建 BitmapDrawable | 用于设置 View 背景 |
+| `luajava.getYoYoImpl()` | 获取动画引擎 (YoYo) | `YoYoImpl:with("ZoomInLeft"):playOn(view)` |
+| `luajava.getLockSupport()` | 获取线程阻塞/唤醒机制 | `park, unpark = luajava.getLockSupport()` |
+| `luajava.getBlock()` | 获取线程阻塞对象 | 用于 `windowManager:wait()` |
+| `luajava.isThread()` | 判断当前是否在非 UI 线程 | 决定是否需要 Handler 调度 |
+| `luajava.setFloatingWindowHide(b)` | 隐藏/显示 RLGG 原生悬浮窗 | 脚本接管 UI 时隐藏原生悬浮窗 |
+| `luajava.threadManager` | 线程管理器 | `runOnMainThread(fn)`, `runOnUiThread(fn)` |
+
+#### `loadlayout` 声明式 UI 系统
+
+`luajava.loadlayout` 是最关键的 API，它将 Lua 表声明式地转换为 Android View 树：
+
+```lua
+-- Lua 表 → Android View 树
+local view = luajava.loadlayout({
+    LinearLayout,
+    orientation = 'vertical',
+    padding = '10dp',
+    {
+        Button,
+        id = myId,
+        text = '点击我',
+        onClick = function(view)
+            gg.toast('被点击了')
+        end
+    },
+    {
+        Switch,
+        text = '功能开关',
+        onCheckedChange = function(btn, state)
+            -- 开关逻辑
+        end
+    }
+})
+```
+
+**loadlayout 实现要点**：
+- 表的第一个元素是 View 类名（如 `LinearLayout`、`Button`、`TextView`、`ScrollView`、`CheckBox`、`Switch`、`SeekBar`、`ImageView`、`EditText` 等）
+- 表的其余键值对映射为 View 属性（`text`、`layout_width`、`padding`、`backgroundColor` 等）
+- 嵌套表表示子 View
+- `id` 属性将 View 注册到全局环境，后续可通过名称访问
+- 事件回调（`onClick`、`onCheckedChange`、`onSeekBarChange`、`onTouch` 等）直接映射为 Java 接口代理
+
+**XEGG 实现方案**：
+
+在 Kotlin 侧实现 `LuaLayoutManager` 类，通过 JNI 暴露给 Lua：
+
+```kotlin
+class LuaLayoutManager(private val context: Context) {
+
+    fun loadlayout(table: LuaTable): View {
+        return buildView(table)
+    }
+
+    private fun buildView(table: LuaTable): View {
+        val className = table.get(1) as String  // 第一个元素是类名
+        val view = createView(className)
+
+        // 遍历表属性，设置 View 属性
+        for (key, value in table) {
+            if (key is String) {
+                when (key) {
+                    "text" -> (view as? TextView)?.text = value
+                    "onClick" -> view.setOnClickListener { value.call() }
+                    // ... 更多属性映射
+                }
+            } else if (value is LuaTable) {
+                // 递归构建子 View
+                val childView = buildView(value)
+                (view as? ViewGroup)?.addView(childView)
+            }
+        }
+        return view
+    }
+}
+```
+
+#### RLGG 专有全局对象
+
+| 对象 | 说明 |
+|------|------|
+| `app.context` | Android Application Context |
+| `app.exit()` | 退出脚本 |
+| `storages.create(name)` | 创建持久化存储 |
+| `file.rlggStorage()` | 获取 RLGG 存储目录 |
+| `file.isFile(path)` | 判断文件是否存在 |
+| `file.download(url, path)` | 下载文件 |
+| `file.unzip(src, dest)` | 解压文件 |
+| `file.write(path, data)` | 写入文件 |
+| `file.getCacheName(class)` | 获取缓存文件名 |
+| `dex.loadfile(path, class)` | 加载 DEX 文件中的类 |
+| `import(class)` | 导入 Java 类（等同于 `luajava.bindClass` 的语法糖） |
+| `material3` | Material Design 3 主题模块 |
+
+#### RLGG 悬浮窗框架兼容
+
+RLGG 社区有两个核心悬浮窗框架模块，XEGG 必须确保它们可运行：
+
+1. **`floatingWindowManager`** — 高级悬浮窗框架
+   - 窗口栈管理（`addWindow`/`removeWindow`/`setWindow`）
+   - 窗口生命周期（`onCreate`/`onStart`/`onResume`/`onPause`/`onDestroy`）
+   - 内置窗口控制（最小化/最大化/关闭）
+   - 背景主题管理（透明度/颜色/圆角/边框）
+   - 动画支持（YoYo 动画库）
+   - 图标资源管理
+
+2. **`windowManager`** — 底层悬浮窗管理
+   - 直接操作 Android `WindowManager`
+   - View 的添加/移除/更新
+   - 拖拽移动（`setMoveable`）
+   - View 的显示/隐藏（`show`/`hide`）
+   - 线程阻塞等待（`wait`/`exit`）
+
+**兼容策略**：这两个模块是纯 Lua 代码，只要 XEGG 完整实现 `luajava` 桥接层和 RLGG 专有全局对象，这些模块可以直接作为内置脚本运行，无需修改。
+
 #### JNI 回调机制
 
 脚本需要 UI 交互时（gg.alert/gg.choice/gg.input），通过 JNI 反向调用 Kotlin：
@@ -468,7 +608,7 @@ object XeggBridge {
 
 1. **Phase 1 — 基础框架**: 项目骨架 + 内存访问层 (ptrace) + JNI 桥接 + 基础 UI
 2. **Phase 2 — 搜索引擎**: 精确/模糊/范围搜索 + 结果修改/锁定 + 悬浮窗
-3. **Phase 3 — 脚本引擎**: Lua 引擎 + GG API 兼容 + 脚本 UI
+3. **Phase 3 — 脚本引擎 + luajava 桥接**: Lua 引擎 + GG API 兼容 + `luajava` 桥接层（loadlayout/bindClass/createProxy 等） + RLGG 全局对象 + 脚本 UI
 4. **Phase 4 — 高级功能**: 变速齿轮 + 指针追踪 + 内存 Dump
 5. **Phase 5 — 免 Root 模式**: VirtualSpace 沙箱实现
-6. **Phase 6 — 完善**: RLGG 专有 API + 性能优化 + 测试
+6. **Phase 6 — 完善**: RLGG 悬浮窗框架兼容测试 + 性能优化 + 测试
