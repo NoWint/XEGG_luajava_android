@@ -1,2 +1,0 @@
-local lib = require("math_logic_list_lib")
-lib.test()

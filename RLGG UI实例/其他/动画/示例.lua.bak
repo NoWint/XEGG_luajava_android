@@ -1,2 +1,0 @@
-package.path = package.path .. ";/storage/emulated/0/.AAAA RLGGui/2025 7月开始/动画/YunzhuTransition.lua"
-local mymodule = require("YunzhuTransition")

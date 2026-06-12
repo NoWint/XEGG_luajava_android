@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.ext.ShowApp xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="60dp" android:layout_height="20dp" android:src="@drawable/ic_remove_red_eye_white_18dp"/>

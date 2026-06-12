@@ -1,2 +1,0 @@
-include ':app'
-rootProject.name = "远方ui模板"

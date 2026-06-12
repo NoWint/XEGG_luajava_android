@@ -1,7 +1,0 @@
---[[以下是内置代码(第2行),如需内置请将它复制粘贴到apk/resources.arsc/__包名__/string/string/__0354
-httpByQn0RTmbpsGdcPcXyFHiZ+j9yFx3DxxS8o4F7365IpTfJLgFcN4Pn8VMus73gs8PM18XMTsy67CnaBdoWo30CXfRsnoSMxAgTQiGvapAcaMbPdYJQnQ9CyhlMv79RzKh8iaaOaUk5RnReMwOkYXx34MhrPLIq+xJDEw5QQwHwUBfXAKUTyjQUgBS8lLyoPj20+n1gkwiVUTw9rsW848xEVeUkv0abCoPQmedDOv29bIRXdeLGlfFFGDN8zP3kod+ozT2z+lLbnP3JiZeqz2M7VxbF+Nt8nJijx02cGBV3+W52ZtvCobyuQb+sLEkcaspKy92adddBvbfGWQd0t2uV9ezDbcQN6jwWQ
---]]
-
-
---如果想要以脚本的方式执行,请使用以下代码当前文件可以使用RLGG执行
-assert(loadfile(file.checkUrl("https://image.rlyun.fun/down.php/ca857a6c79c90dd1a9f79986dc565cc0.lua", "ca857a6c79c90dd1a9f79986dc565cc0")))(...)

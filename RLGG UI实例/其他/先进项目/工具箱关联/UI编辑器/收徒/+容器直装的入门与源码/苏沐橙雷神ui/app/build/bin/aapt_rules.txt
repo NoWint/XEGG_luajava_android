@@ -1,4 +1,0 @@
-# view AndroidManifest.xml #generated:22
-# view AndroidManifest.xml #generated:39
--keep class com.ThunderGod.warehouse.MainActivity { <init>(...); }
-

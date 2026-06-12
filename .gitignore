@@ -9,6 +9,9 @@ local.properties
 *.apk
 *.aab
 
+# RLGG 参考文件（太大不提交）
+RLGG UI实例/
+
 # IDE
 .idea/
 *.iml

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.fix.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:gravity="start|center_vertical" android:orientation="vertical" android:id="@+id/custom_title" android:paddingLeft="24dp" android:paddingTop="8dp" android:paddingRight="24dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-    <android.fix.TextView android:textAppearance="@style/MediumText" android:ellipsize="end" android:id="@+id/alertTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:singleLine="true" android:textAlignment="viewStart"/>
-    <android.fix.TextView android:textAppearance="@style/SmallText" android:id="@+id/subTitle" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAlignment="viewStart"/>
-</android.fix.LinearLayout>

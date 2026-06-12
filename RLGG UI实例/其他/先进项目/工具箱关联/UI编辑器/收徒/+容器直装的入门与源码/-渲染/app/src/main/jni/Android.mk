@@ -1,8 +1,0 @@
-LOCAL_PATH := $(call my-dir)
-
-include $(CLEAR_VARS)
-LOCAL_C_INCLUDES +=$(LOCAL_PATH)/
-LOCAL_MODULE    := ECmod
-LOCAL_SRC_FILES := ECmod.c
-
-include $(BUILD_SHARED_LIBRARY)
