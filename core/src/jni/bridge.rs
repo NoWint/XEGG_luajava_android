@@ -487,9 +487,17 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeInjectSpeedHack(
 pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeRemoveSpeedHack(
     _env: JNIEnv,
     _class: JClass,
-) {
+) -> jboolean {
+    let mem = MEMORY_ACCESS.lock().unwrap();
+    let access = match mem.as_ref() {
+        Some(a) => a,
+        None => return 0,
+    };
     let mut hack = SPEED_HACK.lock().unwrap();
-    hack.remove();
+    match hack.remove(access.as_ref()) {
+        Ok(()) => 1,
+        Err(_) => 0,
+    }
 }
 
 // --- 指针追踪操作 ---

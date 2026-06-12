@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xegg.bridge.ShizukuHelper
+import com.xegg.ui.dump.DumpScreen
 import com.xegg.ui.home.HomeScreen
 import com.xegg.ui.script.ScriptScreen
 import com.xegg.ui.search.SearchScreen
@@ -65,6 +67,7 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
                 NavigationBarItem(selected = currentTab == 1, onClick = { currentTab = 1 }, icon = { Icon(Icons.Default.Search, null) }, label = { Text("搜索") })
                 NavigationBarItem(selected = currentTab == 2, onClick = { currentTab = 2 }, icon = { Icon(Icons.Default.Code, null) }, label = { Text("脚本") })
                 NavigationBarItem(selected = currentTab == 3, onClick = { currentTab = 3 }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text("设置") })
+                NavigationBarItem(selected = currentTab == 4, onClick = { currentTab = 4 }, icon = { Icon(Icons.Default.Info, null) }, label = { Text("Dump") })
             }
         }
     ) { padding ->
@@ -120,6 +123,7 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
                 onDetach = { viewModel.detach(); Toast.makeText(context, "已断开", Toast.LENGTH_SHORT).show() },
                 modifier = Modifier.padding(padding)
             )
+            4 -> DumpScreen(isAttached = state.isAttached, modifier = Modifier.padding(padding))
         }
     }
 }

@@ -60,7 +60,7 @@ object XeggBridge {
     // 变速齿轮
     external fun nativeSetSpeed(speed: Double): Boolean
     external fun nativeInjectSpeedHack(): Boolean
-    external fun nativeRemoveSpeedHack()
+    external fun nativeRemoveSpeedHack(): Boolean
 
     // 指针追踪
     external fun nativeResolvePointer(baseAddr: Long, offsets: ByteArray): Long
