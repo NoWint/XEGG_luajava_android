@@ -58,6 +58,17 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
     val state by viewModel.state.collectAsState()
+    var previousAttached by remember { mutableStateOf(false) }
+
+    // 监听附加状态变化，显示 Toast
+    LaunchedEffect(state.isAttached) {
+        if (state.isAttached && !previousAttached) {
+            Toast.makeText(context, "附加成功", Toast.LENGTH_SHORT).show()
+        } else if (!state.isAttached && previousAttached && state.statusMessage.contains("失败")) {
+            Toast.makeText(context, state.statusMessage, Toast.LENGTH_SHORT).show()
+        }
+        previousAttached = state.isAttached
+    }
     var currentTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -89,12 +100,6 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
                         if (pid > 0) viewModel.attachByPid(context, pid)
                     } else {
                         viewModel.attach(context, identifier)
-                    }
-                    // 延迟检查结果
-                    if (state.isAttached) {
-                        Toast.makeText(context, "附加成功", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "附加失败", Toast.LENGTH_SHORT).show()
                     }
                 },
                 onDetach = {

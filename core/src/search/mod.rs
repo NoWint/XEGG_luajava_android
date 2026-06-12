@@ -151,32 +151,53 @@ impl SearchEngine {
                 return false;
             }
             let region_size = region.size();
-            if region_size < type_size || region_size > 512 * 1024 * 1024 {
+            if region_size < type_size || region_size > 2 * 1024 * 1024 * 1024 {
                 return false;
             }
             true
         }).collect();
 
-        // 并行扫描所有内存区域
+        // 并行扫描所有内存区域（分块读取避免 OOM）
+        const CHUNK_SIZE: usize = 4 * 1024 * 1024; // 4MB 分块
         let matches: Vec<MatchItem> = scan_regions
             .par_iter()
             .flat_map(|region| {
                 let mut region_matches = Vec::new();
                 let region_size = region.size();
-                let mut buf = vec![0u8; region_size];
-                if mem.read(region.start, &mut buf).is_err() {
-                    return region_matches;
-                }
+                let mut chunk = vec![0u8; CHUNK_SIZE.min(region_size)];
+                let mut offset = 0;
 
-                for offset in 0..=(buf.len() - type_size) {
-                    let window = &buf[offset..offset + type_size];
-                    if window == target_bytes.as_slice() {
-                        region_matches.push(MatchItem {
-                            addr: region.start + offset,
-                            value: window.to_vec(),
-                            region_name: region.name.clone().unwrap_or_default(),
-                        });
+                while offset < region_size {
+                    let read_size = CHUNK_SIZE.min(region_size - offset);
+                    let read_buf = &mut chunk[..read_size];
+
+                    if mem.read(region.start + offset, read_buf).is_err() {
+                        offset += read_size;
+                        continue;
                     }
+
+                    // 扫描当前分块
+                    let scan_end = if offset + read_size >= region_size {
+                        read_size  // 最后一个分块
+                    } else {
+                        read_size.saturating_sub(type_size - 1)  // 留出跨块匹配的余量
+                    };
+
+                    for i in 0..scan_end {
+                        let window = &read_buf[i..i + type_size.min(read_buf.len() - i)];
+                        if window.len() < type_size {
+                            break;
+                        }
+                        if window == target_bytes.as_slice() {
+                            region_matches.push(MatchItem {
+                                addr: region.start + offset + i,
+                                value: window.to_vec(),
+                                region_name: region.name.clone().unwrap_or_default(),
+                            });
+                        }
+                    }
+
+                    offset += read_size;
                 }
                 region_matches
             })

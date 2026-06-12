@@ -102,8 +102,7 @@ fn gg_search_number(_lua: &Lua, (value, search_type_code): (mlua::Value, i64)) -
     let search_type = SearchType::from_code(type_code)
         .ok_or_else(|| mlua::Error::external(format!("无效的搜索类型: {}", type_code)))?;
 
-    let mem = crate::jni::bridge::get_memory_access();
-    let access = match mem.as_ref() {
+    let access = match crate::jni::bridge::get_memory_access() {
         Some(a) => a,
         None => return Err(mlua::Error::external("未附加到目标进程")),
     };
@@ -111,7 +110,7 @@ fn gg_search_number(_lua: &Lua, (value, search_type_code): (mlua::Value, i64)) -
     let mut engine = crate::jni::bridge::get_search_engine();
     let region_filter = engine.region_filter;
 
-    match engine.first_search(access.as_ref(), &value_str, search_type, region_filter) {
+    match engine.first_search(access.as_ref().as_ref(), &value_str, search_type, region_filter) {
         Ok(result) => Ok(result.count() as i64),
         Err(e) => Err(mlua::Error::external(format!("搜索失败: {}", e))),
     }
@@ -145,8 +144,7 @@ fn gg_get_result_count(_lua: &Lua, _: ()) -> mlua::Result<i64> {
 
 /// gg.setValues(tbl) - tbl 是 {{address=, value=, flags=}, ...}
 fn gg_set_values(_lua: &Lua, tbl: Table) -> mlua::Result<bool> {
-    let mem = crate::jni::bridge::get_memory_access();
-    let access = match mem.as_ref() {
+    let access = match crate::jni::bridge::get_memory_access() {
         Some(a) => a,
         None => return Err(mlua::Error::external("未附加到目标进程")),
     };
@@ -162,7 +160,7 @@ fn gg_set_values(_lua: &Lua, tbl: Table) -> mlua::Result<bool> {
             .unwrap_or(SearchType::I32);
 
         if let Ok(data) = value_str_to_bytes(&value_str, search_type) {
-            let _ = ValueWriter::write_value(access.as_ref(), addr as usize, &data);
+            let _ = ValueWriter::write_value(access.as_ref().as_ref(), addr as usize, &data);
         }
     }
 

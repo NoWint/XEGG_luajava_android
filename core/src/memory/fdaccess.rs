@@ -1,7 +1,7 @@
 use crate::memory::traits::{AccessMode, MemoryAccess, MemoryRegion};
 use crate::memory::region;
 use std::fs::File;
-use std::io::{self, Read, Seek, SeekFrom, Write};
+use std::io;
 use std::os::unix::io::FromRawFd;
 
 /// 文件描述符内存访问实现（Shizuku 框架模式）
@@ -32,7 +32,7 @@ impl FdAccess {
 
         // 验证文件可读
         let mut test_buf = [0u8; 1];
-        file.try_clone()?.read_exact(&mut test_buf).ok(); // 可能失败，不强制要求
+        nix::sys::uio::pread(&file, &mut test_buf, 0).ok(); // 可能失败，不强制要求
 
         self.pid = Some(pid);
         self.mem_file = Some(file);
@@ -62,10 +62,15 @@ impl MemoryAccess for FdAccess {
         let file = self.mem_file.as_ref().ok_or_else(|| {
             io::Error::new(io::ErrorKind::NotConnected, "未附加到目标进程")
         })?;
-
-        let mut file = file.try_clone()?;
-        file.seek(SeekFrom::Start(addr as u64))?;
-        file.read_exact(buf)?;
+        let mut total = 0;
+        while total < buf.len() {
+            let n = nix::sys::uio::pread(file, &mut buf[total..], (addr + total) as i64)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if n == 0 {
+                return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected eof"));
+            }
+            total += n;
+        }
         Ok(())
     }
 
@@ -73,10 +78,15 @@ impl MemoryAccess for FdAccess {
         let file = self.mem_file.as_ref().ok_or_else(|| {
             io::Error::new(io::ErrorKind::NotConnected, "未附加到目标进程")
         })?;
-
-        let mut file = file.try_clone()?;
-        file.seek(SeekFrom::Start(addr as u64))?;
-        file.write_all(buf)?;
+        let mut total = 0;
+        while total < buf.len() {
+            let n = nix::sys::uio::pwrite(file, &buf[total..], (addr + total) as i64)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if n == 0 {
+                return Err(io::Error::new(io::ErrorKind::WriteZero, "write zero"));
+            }
+            total += n;
+        }
         Ok(())
     }
 

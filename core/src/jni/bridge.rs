@@ -4,10 +4,10 @@ use crate::search::{FuzzyCondition, SearchEngine, SearchType};
 use jni::objects::{JClass, JPrimitiveArray, JString};
 use jni::sys::{jboolean, jint, jlong, jbyteArray, jdouble, jstring};
 use jni::JNIEnv;
-use std::sync::{LazyLock, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 
-/// 全局内存访问实例（支持 Root / VirtualSpace / Shizuku 模式）
-static MEMORY_ACCESS: Mutex<Option<Box<dyn MemoryAccess>>> = Mutex::new(None);
+/// 全局内存访问实例（Arc<Box<dyn>> 包装，支持跨线程共享 + Sized 以便 try_unwrap）
+static MEMORY_ACCESS: Mutex<Option<Arc<Box<dyn MemoryAccess>>>> = Mutex::new(None);
 
 /// 全局搜索引擎实例
 static SEARCH_ENGINE: LazyLock<Mutex<SearchEngine>> = LazyLock::new(|| Mutex::new(SearchEngine::new()));
@@ -24,7 +24,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeAttach(
     match access.attach(pid) {
         Ok(()) => {
             let mut mem = MEMORY_ACCESS.lock().unwrap();
-            *mem = Some(Box::new(access));
+            *mem = Some(Arc::new(Box::new(access)));
             1
         }
         Err(e) => {
@@ -40,8 +40,12 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeDetach(
     _class: JClass,
 ) {
     let mut mem = MEMORY_ACCESS.lock().unwrap();
-    if let Some(mut access) = mem.take() {
-        let _ = access.detach();
+    if let Some(arc) = mem.take() {
+        // Arc<Box<dyn>> — try_unwrap 得到 Box<dyn MemoryAccess>（Sized）
+        if let Ok(mut boxed) = Arc::try_unwrap(arc) {
+            let _ = boxed.detach();
+        }
+        // 否则搜索完成后 Arc drop 会自动清理
     }
     // 同时清空搜索结果
     SEARCH_ENGINE.lock().unwrap().clear();
@@ -62,7 +66,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeAttachWithFd(
     match access.attach_with_fd(pid, fd) {
         Ok(()) => {
             let mut mem = MEMORY_ACCESS.lock().unwrap();
-            *mem = Some(Box::new(access));
+            *mem = Some(Arc::new(Box::new(access)));
             1
         }
         Err(e) => {
@@ -196,14 +200,13 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeSearchNumber(
         None => return -1,
     };
 
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return -1,
     };
 
     let mut engine = SEARCH_ENGINE.lock().unwrap();
-    match engine.first_search(access.as_ref(), &value_str, search_type, region_filter as u32) {
+    match engine.first_search(access.as_ref().as_ref(), &value_str, search_type, region_filter as u32) {
         Ok(result) => result.count() as jint,
         Err(_) => -1,
     }
@@ -221,14 +224,13 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeRefineSearch(
         Err(_) => return -1,
     };
 
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return -1,
     };
 
     let mut engine = SEARCH_ENGINE.lock().unwrap();
-    match engine.refine_search(access.as_ref(), &value_str) {
+    match engine.refine_search(access.as_ref().as_ref(), &value_str) {
         Ok(result) => result.count() as jint,
         Err(_) => -1,
     }
@@ -250,14 +252,13 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeFuzzySearch(
         _ => return -1,
     };
 
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return -1,
     };
 
     let mut engine = SEARCH_ENGINE.lock().unwrap();
-    match engine.fuzzy_search(access.as_ref(), cond) {
+    match engine.fuzzy_search(access.as_ref().as_ref(), cond) {
         Ok(result) => result.count() as jint,
         Err(_) => -1,
     }
@@ -335,8 +336,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeSetValue(
     addr: jlong,
     data: jbyteArray,
 ) -> jboolean {
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return 0,
     };
@@ -347,7 +347,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeSetValue(
     let _ = env.get_byte_array_region(&data_arr, 0, &mut buf);
 
     let unsigned_buf: Vec<u8> = buf.iter().map(|&b| b as u8).collect();
-    match crate::modify::ValueWriter::write_value(access.as_ref(), addr as usize, &unsigned_buf) {
+    match crate::modify::ValueWriter::write_value(access.as_ref().as_ref(), addr as usize, &unsigned_buf) {
         Ok(()) => 1,
         Err(_) => 0,
     }
@@ -471,13 +471,12 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeInjectSpeedHack(
     _env: JNIEnv,
     _class: JClass,
 ) -> jboolean {
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return 0,
     };
     let mut hack = SPEED_HACK.lock().unwrap();
-    match hack.inject(access.as_ref()) {
+    match hack.inject(access.as_ref().as_ref()) {
         Ok(()) => 1,
         Err(_) => 0,
     }
@@ -488,13 +487,12 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeRemoveSpeedHack(
     _env: JNIEnv,
     _class: JClass,
 ) -> jboolean {
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return 0,
     };
     let mut hack = SPEED_HACK.lock().unwrap();
-    match hack.remove(access.as_ref()) {
+    match hack.remove(access.as_ref().as_ref()) {
         Ok(()) => 1,
         Err(_) => 0,
     }
@@ -506,27 +504,49 @@ use crate::pointer::PointerTracker;
 static POINTER_TRACKER: LazyLock<Mutex<PointerTracker>> = LazyLock::new(|| Mutex::new(PointerTracker::new()));
 
 /// 解析指针链
+/// base_addr: 基地址
+/// offsets: i32 数组的字节数组（每个偏移 4 字节，小端序）
 /// 返回最终地址，-1 表示错误
 #[no_mangle]
 pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeResolvePointer(
-    _env: JNIEnv,
+    env: JNIEnv,
     _class: JClass,
     base_addr: jlong,
-    _offsets: jbyteArray,
+    offsets: jbyteArray,
 ) -> jlong {
-    let mem = MEMORY_ACCESS.lock().unwrap();
-    let access = match mem.as_ref() {
+    let access = match get_memory_access() {
         Some(a) => a,
         None => return -1,
     };
 
-    // 简化：不解析 offsets 字节数组，直接从 base_addr 读取指针
-    let mut ptr_bytes = [0u8; 8];
-    match access.read(base_addr as usize, &mut ptr_bytes) {
-        Ok(()) => {
-            let ptr_value = usize::from_le_bytes(ptr_bytes);
-            ptr_value as jlong
-        }
+    // 解析 offsets 字节数组为 i32 数组
+    let data_arr: JPrimitiveArray<i8> = unsafe { JPrimitiveArray::from_raw(offsets) };
+    let len = env.get_array_length(&data_arr).unwrap_or(0);
+    let mut buf = vec![0i8; len as usize];
+    let _ = env.get_byte_array_region(&data_arr, 0, &mut buf);
+
+    // 每 4 字节一个 i32 偏移
+    let offset_count = (buf.len() / 4) as usize;
+    let offsets_vec: Vec<usize> = (0..offset_count)
+        .filter_map(|i| {
+            let start = i * 4;
+            if start + 4 <= buf.len() {
+                let bytes = [
+                    buf[start] as u8,
+                    buf[start + 1] as u8,
+                    buf[start + 2] as u8,
+                    buf[start + 3] as u8,
+                ];
+                Some(i32::from_le_bytes(bytes) as usize)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let tracker = POINTER_TRACKER.lock().unwrap();
+    match tracker.resolve(access.as_ref().as_ref(), base_addr as usize, &offsets_vec) {
+        Ok(addr) => addr as jlong,
         Err(_) => -1,
     }
 }
@@ -548,7 +568,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeHexDump(
         None => return std::ptr::null_mut(),
     };
 
-    match crate::dump::MemoryDumper::hex_view_string(access.as_ref(), addr as usize, len as usize) {
+    match crate::dump::MemoryDumper::hex_view_string(access.as_ref().as_ref(), addr as usize, len as usize) {
         Ok(hex_str) => match env.new_string(hex_str) {
             Ok(s) => s.into_raw(),
             Err(_) => std::ptr::null_mut(),
@@ -569,7 +589,7 @@ pub extern "system" fn Java_com_xegg_bridge_XeggBridge_nativeLaunchInVirtualSpac
     match access.attach(pid) {
         Ok(()) => {
             let mut mem = MEMORY_ACCESS.lock().unwrap();
-            *mem = Some(Box::new(access));
+            *mem = Some(Arc::new(Box::new(access)));
             1
         }
         Err(e) => {
@@ -683,10 +703,10 @@ pub fn jni_set_view_property(view_id: i32, prop: &str, value: &str) -> bool {
 
 // --- 脚本引擎访问全局状态的辅助函数 ---
 
-/// 获取内存访问实例的 MutexGuard
-/// 注意：调用者应尽快释放锁以避免死锁
-pub fn get_memory_access() -> std::sync::MutexGuard<'static, Option<Box<dyn MemoryAccess>>> {
-    MEMORY_ACCESS.lock().unwrap()
+/// 获取内存访问实例的 Arc 克隆（不持有锁）
+/// 注意：返回 Arc<Box<dyn MemoryAccess>> 克隆，调用者不再持有锁
+pub fn get_memory_access() -> Option<Arc<Box<dyn MemoryAccess>>> {
+    MEMORY_ACCESS.lock().unwrap().clone()
 }
 
 /// 获取搜索引擎实例的 MutexGuard

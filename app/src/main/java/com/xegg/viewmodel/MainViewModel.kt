@@ -260,8 +260,27 @@ class MainViewModel : ViewModel() {
     }
 
     private fun getPidForPackage(context: Context, packageName: String): Int {
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val processes = am.runningAppProcesses ?: return -1
-        return processes.find { it.processName == packageName }?.pid ?: -1
+        // 方法1: ActivityManager
+        try {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val processes = am.runningAppProcesses ?: emptyList()
+            val pid = processes.find { it.processName == packageName }?.pid
+            if (pid != null && pid > 0) return pid
+        } catch (_: Exception) {}
+
+        // 方法2: 扫描 /proc/pid/cmdline
+        return try {
+            val procDir = java.io.File("/proc")
+            procDir.listFiles()
+                ?.filter { it.isDirectory }
+                ?.mapNotNull { dir ->
+                    val p = dir.name.toIntOrNull() ?: return@mapNotNull null
+                    try {
+                        val cmdline = java.io.File("/proc/$p/cmdline").readText().trim('\u0000')
+                        if (cmdline == packageName || cmdline.startsWith("$packageName:")) p else null
+                    } catch (_: Exception) { null }
+                }
+                ?.firstOrNull() ?: -1
+        } catch (_: Exception) { -1 }
     }
 }

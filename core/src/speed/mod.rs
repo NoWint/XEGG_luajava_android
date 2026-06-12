@@ -71,6 +71,15 @@ impl SpeedHack {
             return Ok(());
         }
 
+        // 检查架构：当前仅支持 ARM64
+        #[cfg(not(target_arch = "aarch64"))]
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::Unsupported,
+                "变速齿轮当前仅支持 ARM64 设备，x86_64 模拟器暂不支持",
+            ));
+        }
+
         log::info!("SpeedHack: 开始注入，速度 = {}", self.speed);
 
         // 1. 找到 libc.so 基址

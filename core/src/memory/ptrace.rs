@@ -1,7 +1,7 @@
 use crate::memory::traits::{AccessMode, MemoryAccess, MemoryRegion};
 use crate::memory::region;
 use std::fs::{File, OpenOptions};
-use std::io::{self, Read, Seek, SeekFrom, Write};
+use std::io;
 use std::path::PathBuf;
 
 /// Ptrace 内存访问实现（Root 模式）
@@ -57,10 +57,15 @@ impl MemoryAccess for PtraceAccess {
         let file = self.mem_file.as_ref().ok_or_else(|| {
             io::Error::new(io::ErrorKind::NotConnected, "未附加到目标进程")
         })?;
-
-        let mut file = file.try_clone()?;
-        file.seek(SeekFrom::Start(addr as u64))?;
-        file.read_exact(buf)?;
+        let mut total = 0;
+        while total < buf.len() {
+            let n = nix::sys::uio::pread(file, &mut buf[total..], (addr + total) as i64)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if n == 0 {
+                return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected eof"));
+            }
+            total += n;
+        }
         Ok(())
     }
 
@@ -68,10 +73,15 @@ impl MemoryAccess for PtraceAccess {
         let file = self.mem_file.as_ref().ok_or_else(|| {
             io::Error::new(io::ErrorKind::NotConnected, "未附加到目标进程")
         })?;
-
-        let mut file = file.try_clone()?;
-        file.seek(SeekFrom::Start(addr as u64))?;
-        file.write_all(buf)?;
+        let mut total = 0;
+        while total < buf.len() {
+            let n = nix::sys::uio::pwrite(file, &buf[total..], (addr + total) as i64)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if n == 0 {
+                return Err(io::Error::new(io::ErrorKind::WriteZero, "write zero"));
+            }
+            total += n;
+        }
         Ok(())
     }
 
