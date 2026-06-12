@@ -1,0 +1,2603 @@
+if (rlgg.VERSION < 2.09) then
+	gg.alert('请使用大于等于2.09版本的RLGG')
+	os.exit()
+end
+
+local baseWindow = require 'floatingWindowManager2'
+
+if not baseWindow.getContext then
+	gg.alert('请重启一下RLGG')
+	app.exit()
+end
+function 设置控件宽(控件,宽度)
+  local linearParams = 控件.getLayoutParams()
+  linearParams.width=宽度
+  控件.setLayoutParams(linearParams)
+end
+function 设置控件高(控件,高度)
+  local linearParams = 控件.getLayoutParams()
+  linearParams.height=高度
+  控件.setLayoutParams(linearParams)
+end
+
+local context = baseWindow:getContext()
+
+--[[
+
+floatingWindowManager2 是基于RLGG开发的悬浮窗模块,帮助开发者高效实现UI
+
+目前模块尚未完成开发,还有大量工作需要完成
+暂时提供一个示例简单,具体自己探索实现 (后期逐步更新更多示例)
+
+
+]]
+material={"animation","appbar","badge","behavior","bottomappbar","bottomnavigation","bottomsheet","button","canvas","card","checkbox","chip","circularreveal","color","datepicker","dialog","divider","drawable","elevation","expandable","floatingactionbutton","imageview","internal","math","navigation","navigationrail","progressindicator","radiobutton","resources","ripple","shadow","shape","slider","snackbar","stateful","switchmaterial","tabs","textfield","textview","theme","timepicker","tooltip","transformation","transition",}
+local path="com.google.android.material."
+import (path.."*")
+for _,v in pairs(material) do
+  import(path..v..".*")
+end
+
+import "android.graphics.Color"
+import "android.content.res.ColorStateList"
+
+import "android.view.animation.TranslateAnimation"
+import "android.view.animation.Animation"
+import "android.animation.ArgbEvaluator"
+import "android.animation.LayoutTransition"
+import "android.graphics.drawable.GradientDrawable"
+import "android.graphics.drawable.ClipDrawable"
+import "android.media.MediaPlayer"
+MediaPlayer=MediaPlayer()
+import "java.io.File"
+import "android.graphics.Typeface"
+import "android.animation.LayoutTransition"
+layoutTransition=LayoutTransition()
+  layoutTransition:setDuration(700)
+import 'com.google.android.material.imageview.ShapeableImageView'
+import 'com.google.android.material.shape.CornerFamily'
+import 'com.google.android.material.materialswitch.MaterialSwitch'
+import 'com.google.android.material.button.MaterialButton'
+import 'com.google.android.material.dialog.MaterialAlertDialogBuilder'
+import 'com.google.android.material.slider.Slider'
+import 'com.google.android.material.snackbar.Snackbar'
+import 'com.google.android.material.sidesheet.SideSheetDialog'
+import 'com.google.android.material.bottomsheet.BottomSheetDialog'
+import 'com.google.android.material.bottomsheet.BottomSheetBehavior'
+import 'com.google.android.material.progressindicator.LinearProgressIndicator'
+import 'com.google.android.material.progressindicator.CircularProgressIndicator'
+import 'com.google.android.material.chip.ChipGroup'
+import 'com.google.android.material.chip.Chip'
+import 'com.google.android.material.radiobutton.MaterialRadioButton'
+import 'com.google.android.material.checkbox.MaterialCheckBox'
+
+import 'androidx.coordinatorlayout.widget.CoordinatorLayout'
+import 'androidx.core.widget.NestedScrollView'
+
+import 'android.graphics.drawable.Icon'
+
+import 'android.widget.LinearLayout'
+import 'android.widget.Button'
+import 'android.widget.TextView'
+import 'android.widget.ScrollView'
+import 'android.widget.RadioGroup'
+
+
+import 'java.lang.CharSequence'
+import 'java.lang.Boolean'
+import 'java.lang.reflect.Array'
+--import 'androidx.compose.material3.ColorScheme'  
+--import 'androidx.compose.ui.graphics.Color'  
+  
+--[[local colorScheme = ColorScheme{
+    primary = '0xFF6200EE', 
+    onPrimary = '0xff000000', 
+    
+}]]
+--SwitchMaterial switchMaterial = findViewById(R.id.switchMaterial);
+
+function SliderColor(id,color1,color2,color3)
+  id:setTrackActiveTintList(ColorStateList({{}},{"0xff"..color1}))
+  id:setTrackInactiveTintList(ColorStateList({{}},{"0x50"..color2}))
+  id:setThumbTintList(ColorStateList({{}},{"0xff"..color3}))
+  end
+  function SwitchColor(id,color1,color2)
+  id:setTrackTintList(ColorStateList({{android.R.attr.state_checked},{}},{color1,color2}))
+  end
+
+function f1()
+	gg.alert('功能1')
+end
+--Snackbar:make(ckou,"启动进程结束 欢迎使用",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()
+-- 浅色模式
+baseWindow:lightMode()
+
+-- 深色模式
+--baseWindow:darkMode()
+
+local t = {}
+function t:addCardDemo(className, layout)
+				self:addLayout({
+					MaterialCardView,
+					layout_width = 'match_parent',
+					layout_height = 'wrap_content',
+					layout_margin = "12dp",
+					elevation = '8dp',
+					{
+						LinearLayout,
+						layout_margin = "8dp",
+						layout_width = 'match_parent',
+						layout_height = 'wrap_content',
+						orientation = 'vertical',
+						{
+							TextView,
+							layout_width = 'match_parent',
+							layout_height = 'wrap_content',
+							text = className,
+						},
+						layout
+					}
+				})
+			end
+		
+function t:submit(title)
+				bottomTab:addLayout({
+					title = title,
+					{
+						ScrollView,
+						layout_width = 'match_parent',
+						layout_height = 'match_parent',
+						layouts
+					}
+				})
+				bottomTab:notifyDataSetChanged()
+			end
+----md3配置--
+
+function particle3()
+local webView = luajava.webView(function(webView)
+	webView:loadData([[
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+ 
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color:;
+    }
+ 
+    .box {
+      position: relative;
+      width: 300px;
+      height: 600px;
+      background: #666;
+      border-radius: 50px;
+    }
+ 
+    .box::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: #000;
+      border-radius: 48px;
+    }
+ 
+    .inner {
+      position: absolute;
+      inset: 3px;
+      background: url('https://cdn.ytechb.com/wp-content/uploads/2022/09/iPhone-14-Pro-Wallpaper-purple.webp');
+      background-size: cover;
+      background-position: center;
+      border-radius: 48px;
+      border: 10px solid #000;
+      display: flex;
+      justify-content: center;
+      opacity: 1;
+      transition: 0.5s;
+    }
+ 
+    .box:hover .inner {
+      opacity: 1;
+    }
+ 
+    .btn {
+      position: absolute;
+      top: 110px;
+      left: -2px;
+      width: 3px;
+      height: 26px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .btn.btn2 {
+      top: 160px;
+      height: 40px;
+    }
+ 
+    .btn.btn3 {
+      top: 220px;
+      height: 40px;
+    }
+ 
+    .rightSlideBtn {
+      position: absolute;
+      top: 170px;
+      right: -2px;
+      width: 3px;
+      height: 70px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .island-popup {
+      position: absolute;
+      width: 90px;
+      height: 25px;
+      top: 10px;
+      background: #000;
+      border-radius: 20px;
+      transition: 0.5s ease-in-out;
+    }
+ 
+    .island-popup:hover {
+      width: 200px;
+      height: 25px;
+    }
+ 
+    .island-popup.active {
+      width: 250px;
+      height: 60px;
+ 
+    }
+  </style>
+</head>
+ 
+<body>
+  <div class="box">
+    <div class="inner">
+      <div class="island-popup">
+        <div class="content">
+          <div class="details">
+            <div class="imgBx">
+              <img src="" alt="">
+            </div>
+            <p</p>
+          </div>
+          <div class="action">
+ 
+          </div>
+        </div>
+      </div>
+    </div>
+    <i class="btn btn1"></i>
+    <i class="btn btn2"></i>
+    <i class="btn btn3"></i>
+    <i class="rightSlideBtn"></i>
+  </div>
+ 
+  <script>
+    let popup = document.querySelector('.island-popup')
+ 
+    popup.onclick = function () {
+      popup.classList.toggle('active')
+    }
+  </script>
+</body>
+</html>
+]], 'text/html', 'UTF-8')
+	webView:setBackgroundColor(0x0)
+	webView:setVerticalScrollBarEnabled(false)
+		webView:setHorizontalScrollBarEnabled(false)
+		webView:setScrollContainer(false)
+end)
+return webView
+end
+
+function particleldd()
+local webView = luajava.webView(function(webView)
+	webView:loadData([[
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Island</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #f0f0f0; /* Light background */
+    }
+
+    .dynamic-island {
+      position: fixed;
+      top: 10px; /* Small offset from the top */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background-color: #000; /* Black background */
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: width 0.3s, height 0.3s, background-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+      overflow: hidden;
+    }
+
+    .dynamic-island:hover,
+    .dynamic-island.active {
+      width: 300px;
+      height: 60px;
+      border-radius: 30px;
+      background-color: rgba(0, 0, 0, 0.9); /* Darker background when active */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); /* Enhanced shadow */
+    }
+
+    .dynamic-island .content {
+      color: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      text-align: left;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateX(-100%);
+      padding: 0 15px;
+    }
+
+    .dynamic-island.active .content {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .dynamic-island .notification {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateY(-100%);
+      color: black;
+      background: white;
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      margin-to了解您的需求，我们将重新设计灵动岛，使其更加自然和流畅。以下是优化后的代码：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Island</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #f0f0f0; /* Light background */
+    }
+
+    .dynamic-island {
+      position: fixed;
+      top: 10px; /* Small offset from the top */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background-color: #000; /* Black background */
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: width 0.3s, height 0.3s, background-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+      overflow: hidden;
+    }
+
+    .dynamic-island:hover,
+    .dynamic-island.active {
+      width: 300px;
+      height: 60px;
+      border-radius: 30px;
+      background-color: rgba(0, 0, 0, 0.9); /* Darker background when active */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); /* Enhanced shadow */
+    }
+
+    .dynamic-island .content {
+      color: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      text-align: left;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateX(-100%);
+      padding: 0 15px;
+    }
+
+    .dynamic-island.active .content {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .dynamic-island .notification {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      transform: translateY(-100%);
+      color: black;
+      background: white;
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .dynamic-island.active .notification {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dynamic-island">
+  <div class="content">
+    <p>Dynamic Island</p>
+  </div>
+  <div class="notification">
+    <p>Notification: You have a new message!</p>
+  </div>
+</div>
+
+<script>
+  // JavaScript to add active class on click and remove on body click (outside the island)
+  const dynamicIsland = document.querySelector('.dynamic-island');
+
+  dynamicIsland.addEventListener('click', function() {
+    this.classList.toggle('active');
+  });
+
+  document.body.addEventListener('click', function(e) {
+    if (!dynamicIsland.contains(e.target)) {
+      dynamicIsland.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>
+]], 'text/html', 'UTF-8')
+	webView:setBackgroundColor(0x0)
+	webView:setVerticalScrollBarEnabled(false)
+		webView:setHorizontalScrollBarEnabled(false)
+		webView:setScrollContainer(false)
+end)
+return webView
+end
+function particle4()
+local webView = luajava.webView(function(webView)
+	webView:loadData([[
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #f0f0f0; /* Light background */
+      background-size:auto; 
+    }
+
+    .dynamic-island {
+      position: fixed;
+      top: 10px; /* Small offset from the top */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background-color: #000; /* Black background */
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: 
+        width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        border-radius 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+      overflow: hidden;
+      z-index: 1000;
+      text-align: center;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+
+    .dynamic-island.active {
+      width: 160px; /* Adjusted to maintain the same height as the circle's diameter */
+      height: 30px;
+      border-radius: 15px;
+      background-color: rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    }
+
+    .dynamic-island.expanded {
+      width: 300px;
+      height: 130px; /* Adjusted to fit the music player */
+      border-radius: 15px;
+    }
+
+    .dynamic-island .content {
+      color: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: scale(0.5);
+    }
+
+    .dynamic-island.active .content {
+      opacity: 1;
+      transform: scale(1);
+      transition-delay: 0.15s;
+    }
+
+    .dynamic-island .state-text {
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: translateY(-10px);
+    }
+
+    .dynamic-island.active .state-text {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.3s;
+    }
+
+    /* Music Player Styles */
+    .music-player {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      padding: 10px;
+      box-sizing: border-box;
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
+      background-color: rgba(0, 0, 0, 0.9);
+      border-radius: 15px;
+      color: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      overflow: hidden;
+    }
+
+    .dynamic-island.expanded .music-player {
+      display: block;
+      opacity: 1;
+    }
+
+    .music-player .track-info {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .music-player .track-info h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .music-player .track-info p {
+      margin: 5px 0 0 0;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .music-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 20px;
+    }
+
+    .music-controls button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.3s ease;
+    }
+
+    .music-controls .prev,
+    .music-controls .next {
+      background-color: #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      margin: 0 5px;
+    }
+
+    .music-controls .play {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .music-controls .play::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 14px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 10px 0 10px 16px;
+      border-color: transparent transparent transparent #fff;
+    }
+
+    .music-player .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #ddd;
+      position: relative;
+      top: -5px;
+    }
+
+    .music-player .progress-bar .progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: #004eff;
+      width: 50%; /* Initial progress */
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dynamic-island">
+  <div class="content">
+    <div class="state-text">
+      <p>Dynamic Island</p>
+    </div>
+  </div>
+  <div class="music-player">
+    <div class="track-info">
+      <h2>Song Title</h2>
+      <p>Artist Name</p>
+    </div>
+    <div class="music-controls">
+      <button class="prev"></button>
+      <button class="play"></button>
+      <button class="next"></button>
+    </div>
+    <div class="progress-bar">
+      <div class="progress"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeIndex = 0; // To keep track of the current state
+  const states = ['default', 'active', 'expanded'];
+  const dynamicIsland = document.querySelector('.dynamic-island');
+  const musicPlayer = document.querySelector('.music-player');
+  const progressBar = document.querySelector('.progress');
+
+  dynamicIsland.addEventListener('click', function() {
+    // Remove existing active state
+    dynamicIsland.classList.remove(...states);
+    // Add next state
+    activeIndex = (activeIndex + 1) % states.length;
+    dynamicIsland.classList.add(states[activeIndex]);
+
+    if (activeIndex === 2) {
+      // When expanded, show the music player
+      musicPlayer.style.display = 'block';
+      musicPlayer.style.opacity = '1';
+      progressBar.style.width = '50%'; // Set initial progress
+    } else {
+      // When not expanded, hide the music player
+      musicPlayer.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
+
+]], 'text/html', 'UTF-8')
+	webView:setBackgroundColor(0x0)
+	webView:setVerticalScrollBarEnabled(true)
+		webView:setHorizontalScrollBarEnabled(true)
+		webView:setScrollContainer(true)
+end)
+return webView
+end
+
+print("本次运行包含套餐：尊享版")
+
+function getTimeStamp(t)
+  local str = os.date("%m-%d-%H:%M:%S", t)
+  return str
+end
+缩放=true
+Yunzhu = {}
+colorvs = {}
+local Yunzhu = Yunzhu
+local android = import("android.*")
+write=file.write
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+read=file.read
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+function checkimg(tmp,ii)
+if panduan("/sdcard/云烛/图片/"..tmp) ~= true then
+gg.toast("正在下载资源"..ii.."/"..#ckimg.."\n请耐心等待")
+luajava.download("https://escape2020-1303126286.cos.ap-shenzhen-fsi.myqcloud.com/"..tmp,"/sdcard/云烛/图片/"..tmp)
+else
+if file.length("/sdcard/云烛/图片/"..tmp) <= 1 then
+gg.toast("正在下载资源"..ii.."/"..#ckimg.."\n请耐心等待")
+luajava.download("https://escape2020-1303126286.cos.ap-shenzhen-fsi.myqcloud.com/"..tmp,"/sdcard/云烛/图片/"..tmp)
+end
+end
+if panduan("/sdcard/云烛/图片/"..tmp) ~= true then
+gg.toast("正在下载资源"..ii.."/"..#ckimg.."\n请耐心等待")
+luajava.download("https://rl-1303126286.cos.ap-beijing-fsi.myqcloud.com/"..tmp,"/sdcard/云烛/图片/"..tmp)
+else
+	if file.length("/sdcard/云烛/图片/"..tmp) <= 1 then
+gg.toast("正在下载资源"..ii.."/"..#ckimg.."\n请耐心等待")
+luajava.download("https://rl-1303126286.cos.ap-beijing-fsi.myqcloud.com/"..tmp,"/sdcard/云烛/图片/"..tmp)
+end
+end
+end
+ckimg = {
+	"heir",
+	"hei_right",
+	"heix",
+	"heic",
+	"heik",
+	"arlogo",
+	"classes3.dex","CircleImageView.dex",
+	'heis','heisuo',
+	'quarkcheckoff','quarkcheckon',
+}
+
+for i = 1,#ckimg do
+jindu = i
+checkimg(ckimg[i],i)
+end
+dex.loadfile("/sdcard/云烛/图片/CircleImageView.dex")
+import("android.widget.CircleImageView")
+context = app.context
+import'android.hardware.*';
+local sensor = luajava.createProxy('android.hardware.SensorEventListener', {
+  onSensorChanged = functions.debounce(function()
+    if 摇一摇==false then return 0 end
+    if qhkai~=0 then
+      qhkai=0
+      luajava.runUiThread(function()
+        floatWindow:setVisibility(View.VISIBLE)
+        YoYoImpl:with("FadeIn"):duration(300):playOn(floatWindow)
+      end)
+     else
+      qhkai=1
+      luajava.newThread(function()
+        luajava.runUiThread(function()
+          YoYoImpl:with("FadeOut"):duration(300):playOn(floatWindow)
+        end)
+        gg.sleep(400)
+        luajava.runUiThread(function()
+          floatWindow:setVisibility(View.GONE)
+        end)
+        draw.remove()
+        gg.toast("HIDE")
+      end):start()
+
+    end
+  end,500)
+})
+dexloader=dex.loadfile('/sdcard/云烛/图片/classes3.dex')
+MySensorManager = dexloader:loadClass('yaocn.rlyun.yaoyiyao.MySensorManager')
+luajava.runOnUiThread(function()
+  MySensorManager(context, sensor)
+end)
+
+window = context:getSystemService("window") -- 获取窗口管理器
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+function getLayoutParams()
+  LayoutParams = WindowManager.LayoutParams
+  layoutParams = luajava.new(LayoutParams)
+  if (Build.VERSION.SDK_INT >= 26) then -- 设置悬浮窗方式
+    layoutParams.type = LayoutParams.TYPE_APPLICATION_OVERLAY
+   else
+    layoutParams.type = LayoutParams.TYPE_PHONE
+  end
+  layoutParams.format = PixelFormat.RGBA_8888 -- 设置背景
+  layoutParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL -- 焦点设置Finish
+  layoutParams.gravity = Gravity.TOP|Gravity.LEFT -- 重力设置
+  layoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+  layoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+  return layoutParams
+end
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+  if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+  local jianbians = luajava.new(GradientDrawable)
+  jianbians:setCornerRadius(gtvb3)
+  jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+  jianbians:setColors(gtvb1)
+  jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+  return jianbians
+end
+function getCorner(gtvb1,gtvb3,gtvb4,gtvb5,g1,g2,g3,g4)
+  if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+  local jianbians = luajava.new(GradientDrawable)
+  jianbians:setCornerRadius(gtvb3)
+  jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+  jianbians:setColors(gtvb1)
+  jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+  jianbians:setCornerRadii({g1,g1,g2,g2,g3,g3,g4,g4})
+  return jianbians
+end
+function newbg2(gtvb1,gtvb3,gtvb4,gtvb5)
+  if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+  local jianbians = luajava.loadlayout({
+    GradientDrawable,
+    color = {gtvb1},
+    cornerRadius=gtvb3,
+    gradientType = GradientDrawable.LINEAR_GRADIENT,
+    orientation = GradientDrawable.Orientation.TOP_BOTTOM ,
+    strokeWidth = 10,
+    strokeColor = gtvb5
+  })
+  return jianbians
+end
+function topSelect()
+  local selector = luajava.getStateListDrawable()
+  selector:addState({
+    android.R.attr.state_pressed
+  }, getVerticalBG({0x22161616,0x22161616},30))
+  selector:addState({
+    -android.R.attr.state_pressed
+  }, empty)
+  return selector
+end
+hanshu = function(v, event)
+  local Action = event:getAction()
+  if Action == MotionEvent.ACTION_DOWN then
+    isMove = false
+    RawX = event:getRawX()
+    RawY = event:getRawY()
+    x = mainLayoutParams.x
+    y = mainLayoutParams.y
+   elseif Action == MotionEvent.ACTION_MOVE then
+    isMove = true
+    mainLayoutParams.x = tonumber(x) + (event:getRawX() - RawX)
+    mainLayoutParams.y = tonumber(y) + (event:getRawY() - RawY)
+    window:updateViewLayout(floatWindow, mainLayoutParams)
+  end
+end
+suofang = function(v, event)
+  if 缩放 then
+    local Action = event:getAction()
+    if Action == MotionEvent.ACTION_DOWN then
+      isMove = false
+      RawX = event:getRawX()
+      RawY = event:getRawY()
+      x = mainLayoutParams.height
+      y = mainLayoutParams.width
+      if x==0 or x==-2 then x=1700 y=1300 end
+        ckou:setBackground(getVerticalBG({0xffF8F9FF,0xffF8F9FF},15,5,主题色))     
+     elseif Action == MotionEvent.ACTION_MOVE then
+      isMove = true
+      mubx=tonumber(x) + (event:getRawY() - RawY)
+      if mubx>=600 and mubx<=11000 then
+        mainLayoutParams.height = mubx
+      end
+      muby=tonumber(y) + (event:getRawX() - RawX)
+      if muby>=800 and muby<=11000 then
+        mainLayoutParams.width = muby
+      end
+     elseif event:getAction() == MotionEvent.ACTION_UP then
+      ckou:setBackground(getVerticalBG({0xffF8F9FF,0xffF8F9FF},15,0,0xaa232323))
+    end
+    window:updateViewLayout(floatWindow, mainLayoutParams)
+  end
+end
+
+Yunzhu.controlWater = function(control,time)
+  luajava.runUiThread(function()
+    import "android.animation.ObjectAnimator"
+    ObjectAnimator():ofFloat(control,"scaleX", {
+      1, 0.8, 0.9, 1
+    }):setDuration(time):start()
+    ObjectAnimator():ofFloat(control,"scaleY", {
+      1,0.8,0.9,1
+    }):setDuration(time):start()
+end) end
+import("android.media.AudioManager")
+audi = context:getSystemService("audio")
+audiotype = {
+  AudioManager.STREAM_ALARM, --手机闹铃的声音
+  AudioManager.STREAM_MUSIC, --手机音乐的声音
+  AudioManager.STREAM_NOTIFICATION, --系统提示的通知
+  AudioManager.STREAM_RING, --电话铃声的声音
+  AudioManager.STREAM_SYSTEM, --手机系统的声音
+  AudioManager.STREAM_VOICE_CALL, --语音电话的声音
+  AudioManager.STREAM_DTMF, --DTMF音调的声音
+}
+yinl = {}
+for i = 1, #audiotype do
+  yinl[i] = {}
+  yinl[i].type = audiotype[i]
+  yinl[i].min = audi:getStreamMinVolume(audiotype[i])
+  yinl[i].max = audi:getStreamMaxVolume(audiotype[i])
+  yinl[i].now = audi:getStreamVolume(audiotype[i])
+end
+yltype = 0
+function jianting3(func)
+  yinln = {}
+  for i = 1, #audiotype do
+    yinln[i] = {}
+    yinln[i].type = audiotype[i]
+    yinln[i].now = audi:getStreamVolume(audiotype[i])
+    if yinln[i].now > yinl[i].now then
+      yinl[i].now = yinln[i].now
+      if yltype == 1 then
+        yltype = 0
+        func()
+      end
+     elseif yinln[i].now < yinl[i].now then
+      yinl[i].now = yinln[i].now
+      if yltype == 0 then
+        yltype = 1
+        func()
+      end
+    end
+  end
+end
+qhkai = 0
+qiehuan = function()
+  if qhkai == 0 then
+    qhkai = 1
+    draw.remove()
+    luajava.runUiThread(function()
+      YoYoImpl:with("FadeOut"):duration(300):playOn(floatWindow)
+    end)
+    gg.sleep(300)
+    luajava.runUiThread(function()
+      floatWindow:setVisibility(View.GONE)
+    end)
+   else
+    qhkai = 0
+    huiz()
+    --draw.text('.', -9200,-9200)
+    luajava.runUiThread(function()
+      floatWindow:setVisibility(View.VISIBLE)
+      YoYoImpl:with("FadeIn"):duration(500):playOn(floatWindow)
+    end)
+  end
+end
+function getRes(x)
+  return 获取图片("/sdcard/云烛/图片/"..x)
+end
+function 获取图片(txt)
+  ntxt=string.sub(string.gsub(txt,"/","."),-10,-1)
+  if string.find(tostring(txt),"http")~=nil then
+    if panduan("/sdcard/云烛/图片/"..ntxt)==false then
+      download(txt,"/sdcard/云烛/图片/"..ntxt)
+    end
+    txt="/sdcard/云烛/图片/"..ntxt
+  end
+  return luajava.getBitmapDrawable(txt)
+end
+local isswitch
+YoYoImpl = luajava.getYoYoImpl()
+Yunzhu.menu = function(sview)
+  cebian = {
+    LinearLayout,
+    id = "侧边",
+    layout_height = "30dp",
+    layout_width = "wrap_content",
+    orientation = "horizontal",
+    gravity = "center",
+    background = {
+      GradientDrawable,
+      color = "#00ffffff",
+      cornerRadius = 10
+    }
+  }
+  function 切换(x)
+    当前ui = x
+    luajava.runUiThread(function()
+      for i = 1, #stab do
+        _ENV["jmt"..i]:setTextColor(0xff000000)--未选中的字体颜色
+       -- _ENV["jm"..i]:setBackground(getVerticalBG({0xffF8F9FF,0xffF8F9FF},15))--未选中的颜色
+        _ENV["layout"..i]:setVisibility(View.GONE)
+      end
+      _ENV["jmt"..当前ui]:setTextColor(主题色)--选中的字体颜色
+     -- _ENV["jm"..当前ui]:setBackground(getVerticalBG({主题色,主题色},15))--选中后颜色
+      _ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+      YoYoImpl:with("FadeIn"):duration(400):playOn(_ENV['layout'..当前ui])      
+    end)
+  end
+  for i = 1,#stab do
+    cebian[#cebian+1] = {
+      LinearLayout,
+      id = 'jm'..i,
+      gravity="center",
+      layout_height = "31dp",
+      layout_width = "50dp",
+      layout_marginTop = "3dp",
+      layout_marginBottom = "3dp",
+      layout_marginRight = "3dp",
+      layout_marginLeft = "10dp",
+   --   background=getVerticalBG({0xffF8F9FF,0xffF8F9FF},15),
+      onClick = function()
+        切换(i)
+      end,
+      {
+        TextView,
+        text = stab[i],
+        id="jmt"..i,
+        gravity = "center",
+        textColor = "#ffffff",
+        layout_height = "23dp",
+        layout_width = "68dp",
+      }
+    }
+
+  end
+  ViewList = {
+    LinearLayout,
+    orientation = "horizontal",
+    layout_width = "match_parent",
+    layout_height = "match_parent",
+  }
+  for i = 1,#stab do
+    _ENV["layout"..i] =luajava.loadlayout({
+      ScrollView ;
+      layout_height = "match_parent" ;
+      layout_width = "match_parent",
+      layout_marginLeft="5dp",
+      layout_marginRight="5dp",
+      VerticalScrollBarEnabled=false,
+      {
+        LinearLayout,
+        id ="layoutm"..i,
+        layout_height = "match_parent" ;
+        orientation = "vertical" ;
+        layout_width = "match_parent" ;
+        gravity = "center_horizontal",
+      }
+    })
+    ViewList[#ViewList+1] = _ENV["layout"..i]
+  end
+  ViewList = luajava.loadlayout(ViewList)
+  function UI缩放()
+    vibra:vibrate(15)
+    if 缩放==false then
+      缩放=true
+      luajava.newThread(function()
+        gg.toast("UI缩放已解锁")      
+      end):start()
+      lockui:setImageDrawable(getRes("heis"))
+     else
+      缩放=false
+      luajava.newThread(function()
+        gg.toast("UI缩放已锁定")        
+      end):start()
+      lockui:setImageDrawable(getRes("heisuo"))
+    end
+  end
+  function 隐藏()
+    vibra:vibrate(15)
+    luajava.runUiThread(function()
+      if tonumber(tostring(menu:getVisibility())) ~= 8.0 then
+        显示 = 0
+        menu:setVisibility(View.GONE)
+        control:setVisibility(View.VISIBLE)
+        mainLayoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+        mainLayoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+        mainLayoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE
+        window : updateViewLayout (floatWindow , mainLayoutParams)
+        YoYoImpl:with("FadeIn"):duration(600):playOn(floatWindow)
+       else
+        显示 = 1
+        mainLayoutParams.width = muby -- 布局宽度
+        mainLayoutParams.height = mubx -- 布局高度
+        mainLayoutParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
+        window : updateViewLayout (floatWindow , mainLayoutParams)
+        menu:setVisibility(View.VISIBLE)
+        control:setVisibility(View.GONE)
+        YoYoImpl:with("FadeIn"):duration(600):playOn(floatWindow)
+      end
+    end)
+  end
+  topbar = luajava.loadlayout({
+    FrameLayout,
+    layout_width="match_parent",
+    layout_height="35dp", 
+ background=getCorner({0xffF8F9FF,0xffF8F9FF},15,0,0xff232323,15,15,0,0),
+ elevation = "3dp",
+
+    {FrameLayout,
+      layout_width="wrap_content",
+      layout_height="match_parent",
+      background=getCorner({0xffF8F9FF,0xffF8F9FF},15,0,0xff232323,45,0,0,0),
+      
+      {FrameLayout,
+        layout_gravity="left|center",
+     background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+        layout_width = "20dp",
+        layout_height = "20dp",
+        layout_marginLeft = "9dp",
+        onClick = 隐藏,
+        onTouch = hanshu,
+        {LinearLayout,
+          layout_height="2dp",
+          layout_width="10dp",
+          layout_gravity="center",
+         background=getVerticalBG({0xff2c2c2c,0xff2c2c2c},45),
+        },
+        {LinearLayout,
+          layout_height="10dp",
+          layout_width="2dp",
+          id="xYunzhu",
+          layout_gravity="center",
+          visibility="gone",
+          background=getVerticalBG({0xff2c2c2c,0xff2c2c2c},45),
+        }
+      },
+      {
+        ImageView,
+        padding = "5dp",
+        src = getRes("heic"),
+        layout_gravity="left|center",
+        layout_marginLeft = "40dp",
+       background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+        layout_width = "20dp",
+        layout_height = "20dp",
+        onClick= function()
+          vibra:vibrate(15)
+          gfz=mainLayoutParams.width
+          kfz=mainLayoutParams.height
+          mainLayoutParams.height=gfz
+          mainLayoutParams.width=kfz
+          window:updateViewLayout(floatWindow, mainLayoutParams)
+        end,
+        onTouch = hanshu,
+      }
+    },
+    {FrameLayout,
+      layout_width="wrap_content",
+     background=getCorner({0xffF8F9FF,0xffF8F9FF},15,0,0xff232323,0,45,0,0),
+      layout_height="match_parent",
+      layout_gravity="right|center",
+      {
+        ImageView,
+        padding = "5dp",
+        layout_gravity="right|center",
+       src = getRes("heix"),
+      background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+        layout_width = "20dp",
+        layout_height = "20dp",
+        layout_marginRight = "9dp",
+        layout_marginLeft="0dp",
+        onClick = 隐藏,
+        onTouch = hanshu,
+      },
+      {
+        ImageView,
+        padding = "5dp",
+        layout_gravity="right|center",
+      src = getRes("heis"),
+        id = "lockui",
+       background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+        layout_width = "20dp",
+        layout_height = "20dp",
+        layout_marginRight = "40dp",
+        layout_marginLeft="0dp",
+        onClick = UI缩放,
+        onTouch = hanshu,
+      }
+    }
+  })
+  ckou = {
+    FrameLayout,
+    id = "chuangk",
+    layout_width = "match_parent",
+    layout_height = "match_parent",
+    orientation = "vertical",
+    background = getVerticalBG({0xffF8F9FF,0xffF8F9FF},15),
+   -- particle4(),
+    topbar,
+    {
+      LinearLayout,
+      layout_height = "match_parent",
+      layout_width = "match_parent",
+      layout_marginLeft="5dp",
+      layout_marginTop = "40dp",
+      layout_marginRight="5dp",
+      layout_marginBottom = "30dp",
+      ViewList
+    },
+    {
+      FrameLayout,
+      layout_height = "22dp",--底部
+      layout_width = "match_parent",
+      layout_gravity = "bottom",
+      {
+        HorizontalScrollView,
+        layout_height = "35dp",
+        layout_gravity="center",
+        layout_marginLeft="10dp",
+        layout_marginRight="10dp",
+        layout_width = "match_parent",
+        layout_marginBottom = "3dp",
+        HorizontalScrollBarEnabled=false,
+        cebian
+      },{LinearLayout,
+      layout_width="match_parent",
+      layout_height="match_parent",
+      gravity="center",
+      id="ldd",
+      {LinearLayout,
+        layout_height="match_parent",
+        layout_width="wrap_concert",
+        background=topSelect(),
+        onClick=function() end,
+        gravity="top_center",
+        padding = "8dp",
+        onTouch=hanshu,
+        {LinearLayout,
+          --layout_height="25dp",
+         -- layout_width="85dp",
+         
+         -- background=getVerticalBG({"0xff000000","0xff000000"},60),
+        -- onTouch=tcbTouch,
+       --[[Yunzhu.lddbox({
+	"TinyStudio GhostClient",
+	Yunzhu.text("Powered by 云烛 QQ群827953713",主题色[2],"10sp",true),
+	Yunzhu.seek("00:00","lt",1,100,1),--名字，变量名字，最小，最大，初始
+	}),]]
+	Yunzhu.lddbox({
+	"TinyStudio GhostClient",
+	Yunzhu.text("Powered By 云烛",主题色[2],"10sp",true),
+	
+	Yunzhu.seek("00:00","lt",1,100,1),--名字，变量名字，最小，最大，初始
+	Yunzhu.switch(
+    '启动AppleIOS灵动岛',
+    function()
+    
+    Snackbar:make(ckou,"加载成功 已完成操作✅",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()
+   -- Snackbar:make(view,"正在为你启动灵动岛程序",Snackbar.LENGTH_SHORT):show()
+    --view弹窗
+      baseWindow=require 'floatingWindowManager2'
+context = baseWindow:getContext()
+view={
+	LinearLayout,
+}
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+:setTitle('灵动岛预览')
+:setView(luajava.loadlayout(
+
+particle3()
+
+))
+:setPositiveButton('我已知晓')
+    luajava.showAlert(dialogBuilder)
+    end,
+    function()
+      
+    end),
+    Yunzhu.box({
+	"展开灵动岛",
+	Yunzhu.switch("开关",function() gg.alert("开") end,function() gg.alert("关") end),
+	Yunzhu.switch("开关",function() gg.alert("开") end,function() gg.alert("关") end),
+	Yunzhu.switch("开关",function() gg.alert("开") end,function() gg.alert("关") end),
+	Yunzhu.switch("开关",function() gg.alert("开") end,function() gg.alert("关") end),
+	}),
+	}),
+          
+        }
+      }
+    },
+    --以上灵动岛
+    }
+  }
+  ckou = luajava.loadlayout(ckou)
+  motion=luajava.loadlayout({FrameLayout,
+    id = "motion1",
+    layout_width = "match_parent",
+    layout_height="match_parent",
+    gravity="center",
+    {LinearLayout,
+      layout_width = "25dp",
+      layout_height = "25dp",
+      id="jiaobiao",
+      layout_gravity="right|bottom",
+      onClick=function() end,
+      onTouch = suofang
+    }
+  })
+  floatWindow = {
+	LinearLayout,
+	id = "motion",	
+	orientation="vertical",
+	layout_height = "match_parent",
+	layout_width = "match_parent",
+	elevation='5dp',
+    {FrameLayout,
+      layout_width="match_parent",
+      layout_height='match_parent',
+      id="menu",
+      elevation='2dp',
+      ckou,
+      motion,     
+      {FrameLayout,
+	id = "layoutldd",
+	layout_width = "match_parent",
+	layout_height="match_parent",
+	gravity="center",
+	LayoutTransition = layoutTransitiond,
+	{LinearLayout,
+	  layout_width = "match_parent",
+	  layout_height = "120dp",
+	  layoutTransition=LayoutTransition(),
+	  background = getVerticalBG({0xFF000000,0xFF000000},40),
+	  layout_marginTop = "5dp",
+	  layout_marginRight = "40dp",
+	  layout_marginLeft = "40dp",
+	  id="ldd",
+	  layout_gravity="top",
+	  onClick=function() 
+	 
+	  layoutTransition=LayoutTransition(),
+	  ldd:setVisibility(View.GONE)
+	  end,
+	  
+	}
+  }
+    },
+    {LinearLayout,
+      gravity = "center",
+      {CircleImageView,
+        id = "control",
+        visibility="gone",
+        onClick = 隐藏,
+        src = xfcpic,
+        layout_width = "45dp",
+        layout_height = "45dp",
+      }
+    },
+  }
+  local function invoke()
+    mainLayoutParams = getLayoutParams()
+    floatWindow = luajava.loadlayout(floatWindow)
+    local function invoke2()  
+    for k = 1,#stab do
+        for i = 1,#sview[k] do
+          _ENV["layoutm"..k]:addView(sview[k][i])
+        end
+      end    
+      mainLayoutParams.height = mubx
+      mainLayoutParams.width = muby
+      window:addView(floatWindow,mainLayoutParams)      
+    end
+    local runnable = luajava.getRunnable(invoke2)
+    local handler = luajava.getHandler()    
+    handler:post(runnable)    
+    local isMove
+    luajava.runUiThread(function()YoYoImpl:with("FadeIn"):duration(600):playOn(floatWindow)end)
+    motion.onTouch = hanshu
+    control.onTouch = hanshu
+  end
+  invoke(swib1,swib2)
+  gg.setVisible(false)
+  setOnExitListener(function()
+    window:removeView(floatWindow)
+    tuichu=1
+  end)
+  huiz()  
+  if ylfunc~=nil then ylfunc() end
+  if yyfunc~=nil then yyfunc() end
+  切换(1)
+  while true do
+    if tuichu == 1 then break end
+    if 音量键 then
+      jianting3(qiehuan)
+    end
+    gg.sleep(120)
+  end
+end
+function 退出UI()
+  tuichu=1
+end
+function Yunzhu.setedit(name,txt)
+  txt = tostring(txt)
+  luajava.runUiThread(function()
+    luajava.getIdValue(_ENV[name]):setText(txt)
+  end)
+end
+function guid()
+  seed = {
+    'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
+  }
+  tb = {}
+  for i = 1,32 do
+    table.insert(tb,seed[math.random(1,16)])
+  end
+  sid = table.concat(tb)
+  return string.format('%s%s%s%s%s',
+  string.sub(sid,1,8),
+  string.sub(sid,10,12),
+  string.sub(sid,21,22))
+  ..string.format('%s%s%s%s%s',
+  string.sub(sid,1,6),
+  string.sub(sid,21,25)
+  )
+end
+function Yunzhu.switch(name,func1,func2,miaoshu)
+  if not checkbg then
+    checkbga = getVerticalBG({0xffE4E4E4,0xffE4E4E4},360)
+    checkbg = getVerticalBG({0xff006dff,0xff006dff},360)
+    switchbg1 = getVerticalBG({0xff000000,0xff000000},360,4,0x00ffffff)
+    switchbg2 = getVerticalBG({0xff000000,0xff000000},360,4,0x00ffffff)
+  end
+  nid = name..guid()
+  local func = 开关3(name,func1,func2,nid)
+  if not name then name = "未设置" end
+  switches["1s"..nid] = luajava.loadlayout {
+    FrameLayout,
+    layout_width = '40dp',
+    layout_height = '20dp',
+    gravity = "center_vertical",
+    {
+      LinearLayout,
+      layout_gravity = "left|center_vertical",
+      id = luajava.newId(nid.."k"),
+      background = switchbg1,
+      onClick = function() luajava.newThread(function() func() end):start() end,
+      layout_width = '20dp',
+      layout_height = '20dp',
+
+    },
+  }
+  switches["2s"..nid] = luajava.loadlayout {
+    FrameLayout,
+    onClick = function() luajava.newThread(function() func() end):start() end,
+    layout_width = '40dp',
+    layout_height = '20dp',
+    gravity = "center_vertical",
+    {
+      LinearLayout,
+      visibility = "gone",
+      layout_gravity = "right|center_vertical",
+      id = luajava.newId(nid.."g"),
+      background = switchbg2,
+      onClick = function() luajava.newThread(function() func() end):start() end,
+      layout_width = '20dp',
+      layout_height = '20dp',
+
+
+    }
+  }
+  rest = luajava.loadlayout({
+    LinearLayout,
+    layout_width = 'match_parent',
+    layout_height = "47dp",
+    gravity = "center",
+   
+    {
+      LinearLayout,
+      layout_width = 'match_parent',
+      layout_height = "40dp",
+      layout_gravity = "center",
+      gravity = "center",
+      layout_marginRight = "4dp",
+      layout_marginLeft = "4dp",
+      elevation='2dp',
+      background = luajava.loadlayout {
+        GradientDrawable ,
+        color = 0xffF8F9FF ,
+        cornerRadius = 17
+        } ,padding = {
+        "0dp","0dp","6dp","0dp"
+      },
+      {
+				LinearLayout,
+				layout_width = 'match_parent',
+				layout_height = 'match_parent',
+				orientation = 'vertical',
+				
+				{
+					MaterialSwitch,
+				id=nid,
+					layout_width = 'match_parent',
+					layout_height = 'wrap_content',
+					text = name,
+					textSize = "13sp",
+       -- setTrackTintList('0xff000000'),
+--mddd3:setTrackTintList(ColorStateList({{android.R.attr.state_checked},{}},{0xff2000ff,0xffd7d7d7})),
+---setThumbTintList('0xff000000'),
+
+        layout_marginLeft = "10dp",
+        layout_weight = 1,
+        textColor = "0xff000000",
+        --setThumbTintList='0xff000000',
+        onClick = function() luajava.newThread(function() func() end):start() end,
+        
+		},
+			
+		
+			}}
+  })
+  SwitchColor(_ENV[nid],主题色,0xffE1E2E8)
+  return rest
+end
+switches = {}
+function 开关3(name,func1,func2,nid)
+  local sname = nid
+  local localname=name
+  name = nid
+  _ENV[name] = "关"
+  if func1 == nil then func1 = "" end
+  if func2 == nil then func2 = "" end
+  if type(func1) == "function" then
+    local outfunc=function()
+      namers = _ENV[name]
+      if namers ~= "开" then
+        vibra:vibrate(9)
+        luajava.runUiThread(function()
+          luajava.getIdValue(nid.."k"):setVisibility(View.GONE)
+          YoYoImpl:with("ZoomInLeft"):duration(600):playOn(switches["2s"..sname])
+          luajava.getIdValue(nid.."g"):setVisibility(View.VISIBLE)
+          luajava.getIdValue(nid):setBackground(checkbg)
+        end)
+        _ENV[name] = "开"        
+        pcall(func1)        
+       else
+        vibra:vibrate(9)
+        luajava.runUiThread(function()
+          luajava.getIdValue(nid.."g"):setVisibility(View.GONE)
+          YoYoImpl:with("ZoomInRight"):duration(600):playOn(switches["1s"..sname])
+          luajava.getIdValue(nid.."k"):setVisibility(View.VISIBLE)
+          luajava.getIdValue(nid):setBackground(checkbga)
+        end)        
+        _ENV[name] = "关"
+        pcall(func2)        
+      end
+    end
+    if localname=="摇一摇隐藏UI" then yyfunc=outfunc end
+    if localname=="音量键隐藏UI" then ylfunc=outfunc end
+    return outfunc
+  end
+end
+function Yunzhu.text(txt,color,size,ftc)
+  if not txt then txt = "未设置文字" end
+  if not color then color = "0xff000000" end
+  if not size then size = "18sp" end
+  if ftc then ltc = "center" else ltc = "left" end
+  return luajava.loadlayout({
+    TextView,
+    text = txt,
+    textSize = size,
+    textColor = color,
+    layout_width = "match_parent",
+    layout_marginTop = "10dp" ,
+    layout_marginBottom = "10dp" ,
+    gravity = ltc,
+  })
+end
+chazhi={} chajv={}
+function Yunzhu.seek(name,bian,smin,smax,nows)
+_ENV[bian] =nows
+smin=tonumber(smin) smax=tonumber(smax)
+chajv[bian]=smax-smin
+chazhi[bian]=1-smin
+if smin==nil then smin=1 smax=10 end
+truesmin=1
+truesmax=truesmin+chajv[bian]
+if not nows then nows = smin tnows=(smin-nows)
+else
+tnows=(nows-smin)+1
+end
+if _ENV[bian] == nil then _ENV[bian] = 1.0 end
+if not name then name = "未设置" end
+local names = name..guid()
+rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_hight = "fill_parent",
+{
+				LinearLayout,
+				layout_width = 'match_parent',
+				layout_height = 'match_parent',
+				orientation = 'horizontal',
+				{
+			TextView,
+		padding={"5dp","15dp","0dp","15dp",},
+			gravity = "center",
+			text = name,--..":"..nows,
+			id = luajava.newId(names),
+			--layout_width = '100dp',
+			textSize="15sp",
+		--	layout_marginLeft = "5dp",
+		--	layout_marginRight = "0dp",
+		},
+				{
+				Slider,
+				id=nid,
+				layout_width = 'match_parent',
+				layout_height = 'wrap_content',
+				value = nows,
+				valueTo = smax,
+				valueFrom = smin,
+				stepSize = 0.5,
+				tickVisible=false,
+					onClick = function() luajava.newThread(function() func() end):start() end,
+				addOnChangeListener = function(slider, value, fromUser) -- 如果执行的功能不是修改器的函数,或者不带阻塞的,可以不用 window:threadWraper 包裹,性能更好(属于UI线程)
+
+				-- 如果不是用户触发的,不处理
+				if not fromUser then
+					return
+				end
+
+				Snackbar:make(slider, '已选择数值 > '..value, Snackbar.LENGTH_SHORT):show()
+			end
+				},
+			
+		
+			}})
+			SliderColor(_ENV[nid],主题色六位,主题色六位,主题色六位)
+return rest
+end
+buts={}
+function Yunzhu.button(txt,func,txtc)
+  if not txt then txt = "未设置" end
+  if not txtc then txtc="#000000" end
+  local tid="Cbutton"..guid()
+  buts[tid]=luajava.loadlayout(
+  {
+    LinearLayout,
+    layout_width = 'match_parent',
+    layout_height = "47dp", {
+      LinearLayout,
+      layout_width = "match_parent",
+      layout_height = "40dp",
+      layout_gravity = "center",
+      layout_marginRight = "4dp",
+      layout_marginLeft = "4dp",
+      background = getButtonBG(),
+      elevation='2dp',
+      padding="10dp",
+      onClick = function()        
+        Yunzhu.controlWater(buts[tid],300)
+        vibra:vibrate(10)
+        luajava.newThread(func):start() end,
+      {
+        TextView,
+        --id = luajava.newId(tid),
+        textColor = txtc,
+        text = txt,
+        textSize = "16sp",
+        layout_height = "wrap_content",
+        layout_width = "match_parent",
+        layout_weight=1,
+        },{ImageView,
+        src=getRes("heir"),
+        layout_height="14dp",
+        layout_gravity = "center",
+        layout_width="14dp",
+
+      }
+  }})
+
+  return buts[tid]
+end
+function getButtonBG()
+  local selector = luajava.getStateListDrawable()
+  selector:addState({
+    android.R.attr.state_pressed
+  }, getVerticalBG({0x34000400,0x34000400},17))
+  selector:addState({
+    -android.R.attr.state_pressed
+  }, getVerticalBG({0xffF8F9FF,0xffF8F9FF},17))--0xffF8F9FF,0xffF8F9FF
+  return selector
+end
+
+
+function getHorizontalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+  if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+  local jianbians = luajava.new(GradientDrawable)
+  jianbians:setCornerRadius(gtvb3)
+  jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+  jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+  jianbians:setColors(gtvb1)
+  jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+  return jianbians
+end
+function 开关(name,func1,func2,nid)
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = function() end end
+if func2 == nil then func2 = function() end end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+luajava.runUiThread(function()	
+	luajava.getIdValue(nid.."k"):setBackground(getHorizontalBG({0x00C24C38,0x00F78F5C},5))
+	luajava.getIdValue(nid.."g"):setBackground(getHorizontalBG({主题色,主题色,主题色},5,3,主题色))
+	end)
+_ENV[name] = "开"
+vibra:vibrate(6)
+pcall(func1)
+else
+	luajava.runUiThread(function()
+	luajava.getIdValue(nid.."g"):setBackground(getHorizontalBG({0x00C24C38,0x00F78F5C},5))
+	luajava.getIdValue(nid.."k"):setBackground(getHorizontalBG({主题色,主题色,主题色},5,3,主题色))
+	end)
+_ENV[name] = "关"
+vibra:vibrate(6)
+pcall(func2)
+end
+end
+end
+end
+function Yunzhu.intcheck(name,func1,func2)
+nid = name..guid()
+local func = 开关(name,func1,func2,nid)
+if not name then name = "未设置" end
+local rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = '111dp',
+	layout_height = "60dp",	
+	{
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "fill_parent",
+	layout_marginLeft = "8dp",	
+	layout_marginRight = "8dp",	
+	layout_marginTop="2dp",
+    layout_marginBottom="2dp",
+	orientation = "vertical",
+	{
+			TextView,
+			text = name,
+			textColor = "#ffffff",
+			textSize = "11sp",
+			layout_width = '55dp',
+		},
+	{
+		LinearLayout,
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = 'fill_parent',
+		layout_height = "34dp",
+		gravity = "center",
+		background = getHorizontalBG({0xffF8F9FF,0xffF8F9FF},5,3,0xffF8F9FF),
+		elevation='2dp',
+		{
+		TextView,
+		text="关",		
+		id = luajava.newId(nid.."k"),
+		background = getHorizontalBG({主题色,主题色,主题色},5,3,主题色),
+		textColor="#ffffff",
+		layout_width = '40dp',
+		gravity = "center",
+		layout_height = '25dp',
+	}, {
+		TextView,	
+		textColor="#ffffff",
+		text="开",			
+		id = luajava.newId(nid.."g"),
+		background = getHorizontalBG({0x00C24C38,0x00F78F5C},5),
+		layout_width = '40dp',
+		gravity = "center",
+		layout_height = '25dp',
+	}
+	}
+}
+})
+return rest
+end
+function Yunzhu.check(cklist)
+local rest = {
+	GridLayout,
+	columnCount = '2',
+	layout_width = 'match_parent',
+	layout_height = "wrap_content",
+	layout_marginLeft = "12dp",
+	layout_marginRight = "12dp",
+	layout_marginTop="3.5dp",
+      layout_marginBottom="3.5dp",
+	gravity = "center"
+}
+for i = 1,#cklist do
+local name = cklist[i][1]
+local func1 = cklist[i][2]
+local func2 = cklist[i][3]
+if not name then name = "未设置" end
+rstt = Yunzhu.intcheck(name,func1,func2)
+rest[#rest+1] = rstt
+end
+return luajava.loadlayout({
+	LinearLayout,rest
+})
+end
+
+----m3check
+function Yunzhu.intcheck(name,func1,func2)
+nid = name..guid()
+local func = 开关5(name,func1,func2,nid)
+if not name then name = "未设置" end
+switchs[nid] = {
+	LinearLayout,
+	layout_width = 'match_parent',
+	layout_weight=1,
+	layout_height = "42dp",
+	layout_marginTop = "1dp",
+	layout_marginBottom = "1dp",
+	padding = "1dp",
+	{
+		LinearLayout,
+		padding="3dp",
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = 'fill_parent',
+		layout_height = "wrap_content",
+		gravity = "center_vertical",
+		--background=getVerticalBG({0xffFFFDF2,0xddffffff,0xffFFFDF2},15,8,0xffFFDA71),
+		{
+			MaterialCheckBox,
+			id = luajava.newId(nid),
+			onClick = function() luajava.newThread(function() func() end):start() end,
+			--background = checkbg1,
+			layout_width = '32dp',
+			layout_height = '32dp',
+			padding = "0dp",
+		},{
+			TextView,
+			id=luajava.newId(nid.."t"),
+			gravity = "left",
+			text = name,
+			textColor=0xff000000,
+			textSize = "14sp",
+--layout_marginLeft="8dp",
+			layout_width = 'match_parent',
+	layout_weight=1,
+		},
+		}
+}
+return switchs[nid]
+end
+function 开关5(name,func1,func2,nid)
+local sname = nid
+local localname=name
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setChecked(true)
+	--luajava.getIdValue(nid.."t"):setTextColor(0xff232323)
+	--Yunzhu.controlWater(switchs[nid],300)
+	end)
+_ENV[name] = "开"
+pcall(func1)
+else
+	vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setChecked(false)
+	--luajava.getIdValue(nid.."t"):setTextColor(0xff232323)
+	--Yunzhu.controlWater(switchs[nid],300)
+	end)
+_ENV[name] = "关"
+pcall(func2)
+end
+end
+end
+end
+function Yunzhu.check(cklist)
+if #cklist==0 then return nil end
+local rest = {
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "center",
+	orientation="vertical",
+
+}
+
+for i = 1, #cklist,2 do
+local tempTable = {LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "left",
+	orientation="horizontal"
+}
+for j = 0, 1 do
+if cklist[i + j] ~= nil then
+local name = cklist[i + j][1]
+local func1 = cklist[i + j][2]
+local func2 = cklist[i + j][3]
+if not name then name = "未设置" end
+rstt = Yunzhu.intcheck(name,func1,func2)
+table.insert(tempTable, rstt)
+else
+	table.insert(tempTable, {LinearLayout,
+	layout_width = 'match_parent',
+	layout_weight=1,})
+end
+end
+table.insert(rest, tempTable)
+end
+return luajava.loadlayout(rest)
+end
+
+spics={
+}
+for i=1,55 do
+	spics[i]="opo"..i
+end
+switchs={}
+tcheck=10
+function Yunzhu.intcard(name,name2,func1,func2)
+if tcheck==56 then
+	tcheck=1
+else
+	tcheck=tcheck+1
+end
+tocheck=spics[tcheck]
+gid = name..guid()
+local func = 开关6(name,name2,func1,func2,gid)
+if not name then name = "未设置" end
+if not name2 then name2="" end
+switchs[gid] = {
+	LinearLayout,
+	id = luajava.newId(gid),
+	layout_width = 'match_parent',
+	layout_weight=1,
+	layout_height = "wrap_content",
+	layout_marginTop="5dp",
+	layout_marginBottom="5dp",
+	layout_marginLeft="3dp",
+	layout_marginRight="3dp",
+	
+	{
+		LinearLayout,
+		padding="3dp",
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = 'fill_parent',
+		layout_height = "wrap_content",
+		gravity = "left",
+		background=getButtonBG(),
+		layout_marginLeft = "5dp",
+			layout_marginRight = "5dp",
+			layout_marginTop = "5dp",
+			layout_marginBottom = "5dp",
+			elevation="2dp",
+		id = luajava.newId(gid.."cardbg"),
+		orientation="vertical",
+		padding="5dp",
+		--background=getVerticalBG({0xffFFFDF2,0xddffffff,0xffFFFDF2},15,8,0xffFFDA71),
+		{
+			ImageView,
+			id = luajava.newId(gid.."p"),
+			src = getRes(tocheck),
+			gravity="left",
+			layout_width = '30dp',
+			layout_height = '30dp',
+			padding = "3dp",
+		},{
+			TextView,
+			id=luajava.newId(gid.."t"),
+			gravity = "left",
+			text = name,
+			textColor="#ffffff",
+			textSize = "12sp",
+			layout_width = 'match_parent',
+			layout_weight=1,
+		},{
+			TextView,
+			id=luajava.newId(gid.."t2"),
+			gravity = "left",
+			text = name2,
+			textColor="#ffffff",
+			textSize = "9sp",
+			layout_width = 'match_parent',
+			layout_weight=1,
+		}
+		}
+}
+return switchs[gid]
+end
+function Yunzhu.alertDialog(title,text)
+    context = baseWindow:getContext()
+    view={
+    	LinearLayout,
+    }
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+        :setTitle(title)
+        :setMessage(text)
+        :setView(luajava.loadlayout(view))
+        :setPositiveButton('确定')
+        luajava.showAlert(dialogBuilder)
+end
+
+function Yunzhu.alertViewDialog(title,view)
+baseWindow=require 'floatingWindowManager2'
+context = baseWindow:getContext()
+view={
+	LinearLayout,
+}
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+:setTitle(title)
+:setView(luajava.loadlayout(view))
+:setPositiveButton('确定')
+    luajava.showAlert(dialogBuilder)
+end
+function 开关2(name,func1,func2,nid)
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(luajava.getBitmapDrawable("/sdcard/长安/图片/check2"))
+	end)
+_ENV[name] = "开"
+func1()
+else
+	luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(luajava.getBitmapDrawable("/sdcard/长安/图片/check1"))
+	end)
+_ENV[name] = "关"
+func2()
+end
+
+end
+end
+end
+Yunzhu.controlRotation9 = function(control, time,t)
+luajava.runUiThread(function()
+	import "android.view.animation.Animation"
+	import "android.animation.ObjectAnimator"
+	xuanzhuandonghua = ObjectAnimator:ofFloat(control, "rotation", {
+		time,t
+	})
+	xuanzhuandonghua:setRepeatCount(0)
+	xuanzhuandonghua:setRepeatMode(Animation.RESTART)
+	xuanzhuandonghua:setDuration(400)
+	xuanzhuandonghua:start()
+	end)
+end
+function visi (tid , ttid)
+vibra:vibrate(4)
+local tview = luajava.getIdValue (tid)
+local ttview = luajava.getIdValue (ttid)
+if not tview then
+return 0
+end
+if tonumber (tostring (tview : getVisibility ())) == 8.0 then
+tview : setVisibility (View.VISIBLE)
+YoYoImpl:with("FadeIn"):duration(200):playOn(boxes[tid])
+Yunzhu.controlRotation9(boxpic[tid],0,90)
+boxpic[tid]:setColorFilter(控件颜色)
+else
+	tview : setVisibility (View.GONE)
+Yunzhu.controlWater (_ENV [tid.."6"] , 200)
+Yunzhu.controlRotation9(boxpic[tid],90,0)
+boxpic[tid]:setColorFilter(0xff000000)
+end
+end
+function visi2 (tid , ttid)
+local tview = luajava.getIdValue (tid)
+local ttview = luajava.getIdValue (ttid)
+if not tview then
+return 0
+end
+if tonumber (tostring (tview : getVisibility ())) == 8.0 then
+	tview : setVisibility (View.VISIBLE)
+else
+	tview : setVisibility (View.GONE)
+end
+end
+boxes = {} boxpic = {}
+function Yunzhu.box(views)
+local tid = "box"..guid ()
+local ttid = tid.."6"
+local t1id = guid ()
+kgid = views[1].."关"
+id = views[1].."id"
+local func = 开关(views[1],func1,func2)
+ID = views[1].."id"..guid()
+boxpic[tid] = luajava.loadlayout {
+	MaterialSwitch,
+	padding = {
+        "0dp","0dp","0dp","0dp"
+      },
+	id = nid,
+    layout_width = 'match_parent',
+    layout_height = 'wrap_content',
+	onClick = function() visi2 (tid , ttid)  end
+}
+SwitchColor(_ENV[nid],主题色,0xffE1E2E8)
+--MSwitch[#MSwitch+1] = ID
+firadio = {
+    LinearLayout,
+    layout_width="match_parent",
+    layout_height = "wrap_content" ,
+    gravity = "center",
+    orientation = "vertical",
+  --  background = luajava.loadlayout{GradientDrawable,color=0xffffffff,cornerRadius=20},
+    LayoutTransition=layoutTransition
+}
+if type (views [1]) == "string" or type (views [1]) == "number" then
+firadio [# firadio + 1] = {
+      LinearLayout,
+      layout_width = 'match_parent',
+      layout_height = "40dp",
+      gravity = "center",
+      elevation = "2dp",
+      layout_marginRight = "4dp",
+	  layout_marginLeft = "4dp",
+	gravity = "center_vertical",
+	LayoutTransition=layoutTransition,
+	{
+	LinearLayout ,
+	layout_width = 'fill_parent' ,
+	layout_height = "40dp",
+	gravity = "center_vertical" ,	
+	--onClick = function () visi2 (tid , ttid) end,
+	background = getButtonBG(),
+	{
+		TextView , text = views [1] ,
+		textSize = "13sp" ,
+		layout_marginLeft = "15dp" ,
+		layout_width = "match_parent" ,
+		layout_weight=1,
+		textColor = "0xff000000" ,
+		gravity = "left" ,
+	},{
+		LinearLayout ,
+		padding={"0dp","0dp","0dp","0dp"},
+		layout_width = "60dp" ,
+		layout_height = "47dp" ,
+		gravity = "center",
+		--background = getHorizontalBG({0xffe9e9e9,0xffe9e9e9},25),
+		boxpic[tid],
+	}
+} 
+}else
+	gg.alert ("Yunzhu.box的table内第一个元素必须是string") os.exit ()
+end
+radios = {
+	LinearLayout ,
+	orientation = "vertical" ,
+	visibility = "gone" ,
+	id = luajava.newId (tid) ,
+	layout_width = 'fill_parent' ,
+	elevation = "3dp",
+	
+}
+for i = 2 , # views do
+radios [# radios + 1] = views [i]
+end
+boxes[tid] = luajava.loadlayout(radios)
+firadio [# firadio + 1] = boxes[tid]
+_ENV [t1id] = luajava.loadlayout ({
+    LinearLayout,
+    layout_width="match_parent",
+    layout_height = "wrap_content",
+    gravity = "center",
+    {
+      LinearLayout,
+      layout_width = 'match_parent',
+      layout_height = "wrap_content",
+      gravity = "center",
+      elevation = "2dp",
+      layout_marginRight = "4dp",
+	  layout_marginLeft = "4dp",
+      background = luajava.loadlayout{GradientDrawable,color="0xffF8F9FF",cornerRadius=20},
+      firadio
+      }
+      })
+return _ENV [t1id]
+end
+--box版本灵动岛--
+function 灵动岛开关(name,func1,func2,nid)
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = function() end end
+if func2 == nil then func2 = function() end end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+luajava.runUiThread(function()	
+	luajava.getIdValue(nid.."k"):setBackground(getHorizontalBG({0x00C24C38,0x00F78F5C},5))
+	luajava.getIdValue(nid.."g"):setBackground(getHorizontalBG({"0xffff0000","0xffff0000","0xffff0000"},5,3,"0xffff0000"))
+	end)
+_ENV[name] = "开"
+vibra:vibrate(6)
+pcall(func1)
+else
+	luajava.runUiThread(function()
+	luajava.getIdValue(nid.."g"):setBackground(getHorizontalBG({0x00C24C38,0x00F78F5C},5))
+	luajava.getIdValue(nid.."k"):setBackground(getHorizontalBG({"0xffff0000","0xffff0000","0xffff0000"},5,3,"0xffff0000"))
+	end)
+_ENV[name] = "关"
+vibra:vibrate(6)
+pcall(func2)
+end
+end
+end
+end
+boxes = {} boxpic = {}
+function Yunzhu.lddbox(views)
+local tid = "box"..guid ()
+local ttid = tid.."6"
+local t1id = guid ()
+kgid = views[1].."关"
+id = views[1].."id"
+local func = 灵动岛开关(views[1],func1,func2)
+ID = views[1].."id"..guid()
+boxpic[tid] = luajava.loadlayout {
+	ImageView ,
+	src = getRes("hei_right"),
+	layout_width = "0dp" ,
+	layout_height = "0dp" ,
+	
+}
+SwitchColor(_ENV[nid],主题色[1],主题switin)
+--MSwitch[#MSwitch+1] = ID
+firadio = {
+    LinearLayout,
+    layout_width="match_parent",
+    layout_height = "wrap_content" ,
+    gravity = "center",
+    orientation = "vertical",
+  --background = luajava.loadlayout{GradientDrawable,color=0xffffffff,cornerRadius=20},
+    LayoutTransition=layoutTransition,
+    onClick = function() visi2 (tid , ttid) 
+    end
+}
+if type (views [1]) == "string" or type (views [1]) == "number" then
+firadio [# firadio + 1] = {
+      LinearLayout,
+   ---   layout_width = 'match_parent',
+     -- layout_height = "40dp",
+     ------
+    --new灵动岛只加这个 如果要小的就 layout_width = 'wrap_concert',
+    layout_width = 'match_parent',
+    
+     layout_height = "20dp",
+      gravity = "center",
+      elevation = "2dp",
+      layout_marginRight = "4dp",
+	  layout_marginLeft = "4dp",
+	gravity = "center_vertical",
+	LayoutTransition=layoutTransition,
+	{
+	LinearLayout ,
+	layout_width = 'fill_parent' ,
+	layout_height = "60dp",
+	gravity = "center_vertical" ,	
+	--onClick = function () visi2 (tid , ttid) end,
+	background = getButtonBG(),
+	{
+		TextView , text = views [1] ,
+		textSize = "13sp" ,
+		Typeface=font,
+	--	layout_marginLeft = "15dp" ,
+		layout_width = "match_parent" ,
+		layout_weight=1,
+		textColor = "0xffffffff" ,
+	
+		gravity = "center" ,
+	},{
+		LinearLayout ,
+		padding={"0dp","0dp","0dp","0dp"},
+		layout_width = "0dp" ,
+		layout_height = "0dp" ,
+		gravity = "center",
+	--	background = getHorizontalBG({0xffe9e9e9,0xffe9e9e9},25),
+		boxpic[tid],
+	}
+} 
+}else
+	gg.alert ("Yunzhu.box的table内第一个元素必须是string") os.exit ()
+end
+radios = {
+	LinearLayout ,
+	orientation = "vertical" ,
+	visibility = "gone" ,
+	id = luajava.newId (tid) ,
+	layout_width = 'fill_parent' ,
+	elevation = "3dp",
+	
+}
+for i = 2 , # views do
+radios [# radios + 1] = views [i]
+end
+boxes[tid] = luajava.loadlayout(radios)
+firadio [# firadio + 1] = boxes[tid]
+_ENV [t1id] = luajava.loadlayout ({
+    LinearLayout,
+    layout_width="match_parent",
+    layout_height = "wrap_content",
+    gravity = "center",
+    {
+      LinearLayout,
+      layout_width = 'match_parent',
+      layout_height = "wrap_content",
+      gravity = "center",
+      elevation = "2dp",
+      layout_marginRight = "4dp",
+	  layout_marginLeft = "4dp",
+      background = luajava.loadlayout{GradientDrawable,color=主题色[3],cornerRadius=20},
+      firadio
+      }
+      })
+return _ENV [t1id]
+end
+--以上为box灵动岛---
+function Yunzhu.alertDialog(title,text,control)
+local Tit = {LinearLayout,
+			layout_height="wrap_content",
+			layout_width="match_parent",
+			orientation="vertical",}
+    context = baseWindow:getContext()
+    if control==nil then
+    view={}
+    else
+    for i, v in ipairs(control) do
+    Tit[#Tit+1] = v.view
+    end
+    view=Tit
+    end
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+        :setTitle(title)
+        :setMessage(text)
+        :setView(luajava.loadlayout(view))
+        :setPositiveButton('确定')
+        luajava.showAlert(dialogBuilder)
+end
+ 
+          
+
+
+
+
+
+      
+function huiz()
+end
+muby=800
+--初始宽度
+mubx=1100
+--初始高度
+stab = {
+  "防封",
+  "功能",
+  "美化",
+  "音乐",
+  "设置"
+}
+主题色="0xff36618E"
+主题色六位="36618E"
+
+
+xfcpic="/sdcard/云烛/图片/arlogo"
+
+layoutTransition=LayoutTransition()
+layoutTransition:enableTransitionType(LayoutTransition.CHANGING)
+layoutTransition:setDuration(LayoutTransition.CHANGE_APPEARING,300)
+layoutTransition:setDuration(LayoutTransition.CHANGE_DISAPPEARING,300)
+
+
+Yunzhu.menu(
+{
+  {
+  Yunzhu.text("EchoTinyUI",主题色,"18sp"),
+  
+  Yunzhu.text("Powered by Yunzhu",主题色,"10sp"),
+  Yunzhu.box({
+			"XXX区",
+			
+				Yunzhu.button(
+					"调用输入框",
+					function()
+					
+					end),
+				
+				
+				
+				
+		
+    Yunzhu.switch("退出",function()
+      退出UI()
+    end,function() end),
+    Yunzhu.seek("拉条例子","ltlz",1,100,1),--名字，变量名字，最小，最大，初始
+    Yunzhu.button("按钮测试",function() Snackbar:make(ckou,"加载成功 已完成操作✅",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()end),
+    	Yunzhu.check({
+				{
+					"套娃",
+					function()
+					--Yunzhu.alertViewDialog("布局套娃","Yunzhu.switch(    '摇一摇隐藏UI',   function()      摇一摇=true    end,    function()      摇一摇=false    end),")
+						
+					end,
+					function()
+					gg.alert("关")
+						
+					end
+				}, {
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				},{
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				},{
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				},
+				
+				
+			}),
+			}),
+			
+			Yunzhu.switch(
+    '启动AppleIOS灵动岛',
+    function()
+    Snackbar:make(ckou,"加载成功 已完成操作✅",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()
+   -- Snackbar:make(view,"正在为你启动灵动岛程序",Snackbar.LENGTH_SHORT):show()
+    --view弹窗
+      baseWindow=require 'floatingWindowManager2'
+context = baseWindow:getContext()
+view={
+	LinearLayout,
+}
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+:setTitle('灵动岛预览')
+:setView(luajava.loadlayout(
+
+particle3()
+
+))
+:setPositiveButton('我已知晓')
+    luajava.showAlert(dialogBuilder)
+    end,
+    function()
+      
+    end),
+    Yunzhu.switch(
+    '音量键隐藏UI',
+    function()
+ --   Snackbar:make(view,text,Snackbar.LENGTH_SHORT):show()
+    Snackbar:make(ckou,"加载成功 已完成操作✅",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()
+      音量键=true
+    end,
+    function()
+      音量键=false
+    end),
+    Yunzhu.switch(
+    '摇一摇隐藏UI',
+    function()
+    Snackbar:make(ckou,"加载成功 已完成操作✅",Snackbar.LENGTH_SHORT):setBackgroundTint("0xff161616"):show()
+      摇一摇=true
+    end,
+    function()
+      摇一摇=false
+    end),
+    }, {
+   
+    particleldd(),
+    
+    Yunzhu.switch("对话框",function() --gg.alert("开") 
+    
+    
+baseWindow=require 'floatingWindowManager2'
+context = baseWindow:getContext()
+local dialogBuilder = MaterialAlertDialogBuilder(context)
+:setTitle('欢迎使用')
+:setMessage("谷歌AOSP MaterialDesign UI")
+:setPositiveButton('确定')
+luajava.showAlert(dialogBuilder)
+    end,function() gg.alert("关") end),
+    }, {
+    Yunzhu.switch("测试",function() end,function() end),
+    }, {
+    Yunzhu.switch("测试",function() end,function() end),
+    }, {
+
+    },{
+    Yunzhu.switch("退出",function() end,function() end),
+    },{
+
+    },{
+
+    },{
+
+    },{
+
+    },{
+
+    },{
+
+  }
+})

@@ -1,0 +1,2 @@
+rootProject.name = "MuCuteUIX"
+include ':app'

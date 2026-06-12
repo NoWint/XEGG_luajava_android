@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FixTheme" parent="@android:style/Theme.Holo">
+        <item name="android:listPreferredItemHeight">48dp</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:textColorAlertDialogListItem">#ffffff</item>
+    </style>
+</resources>

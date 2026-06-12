@@ -18,14 +18,19 @@ fi
 
 export ANDROID_NDK_HOME="$NDK_HOME"
 
+# 设置 Android API level，修复 Lua C 代码 ftello 兼容性
+export TARGET_ANDROID_API_LEVEL=24
+
 echo "=== 编译 XEGG Core (Android) ==="
 
 # 编译目标列表
 TARGETS=(
     "arm64-v8a:aarch64-linux-android"
-    "armeabi-v7a:armv7-linux-androideabi"
     "x86_64:x86_64-linux-android"
 )
+
+# armv7 暂时跳过（Lua ftello 兼容问题，后续修复）
+# "armeabi-v7a:armv7-linux-androideabi"
 
 JNI_LIBS_DIR="$PROJECT_DIR/app/src/main/jniLibs"
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="16142" android:versionName="101.1" android:compileSdkVersion="29" android:compileSdkVersionCodename="10" cache="Application" package="catch_.me_.if_.you_.can_" plague="black" platformBuildVersionCode="29" platformBuildVersionName="10">
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22"/>
+    <uses-permission android:name="android.permission.ACCESS_SUPERUSER"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.READ_CLIPBOARD"/>
+    <uses-permission android:name="android.permission.WRITE_CLIPBOARD"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.REAL_GET_TASKS"/>
+    <uses-permission android:name="android.permission.GET_DETAILED_TASKS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.UPDATE_APP_OPS_STATS"/>
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
+    <uses-feature android:name="android.software.leanback" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:name="android.permission.RECORD_AUDIO" android:required="false"/>
+    <application android:theme="@style/FixTheme" android:label="GameGuardian" android:icon="@drawable/ic_gg_48dp" android:name="Application" android:allowBackup="true" android:hardwareAccelerated="false" android:isGame="true" plague="white">
+        <meta-data android:name="android.max_aspect" android:value="3"/>
+        <receiver android:name="Receiver" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="catch_.me_.if_.you_.can_"/>
+            </intent-filter>
+        </receiver>
+        <activity android:label="Game" android:icon="@mipmap/ic_sw_48dp" android:name="MainActivity" android:launchMode="singleInstance" android:configChanges="fontScale|layoutDirection|density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|navigation|keyboardHidden|keyboard|touchscreen|locale|mnc|mcc" android:hardwareAccelerated="false" android:banner="@drawable/tv_sw">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:label="Game" android:icon="@mipmap/ic_hw_48dp" android:name="ActivityMain" android:launchMode="singleInstance" android:configChanges="fontScale|layoutDirection|density|smallestScreenSize|screenSize|uiMode|screenLayout|orientation|navigation|keyboardHidden|keyboard|touchscreen|locale|mnc|mcc" android:hardwareAccelerated="true" android:banner="@drawable/tv_hw">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <provider android:name="FileProvider" android:exported="false" android:authorities="catch_.me_.if_.you_.can_" android:grantUriPermissions="true"/>
+        <service android:name="AnalyticsService" android:exported="false"/>
+    </application>
+    <instrumentation android:name="Instrumentation" android:targetPackage="catch_.me_.if_.you_.can_"/>
+</manifest>

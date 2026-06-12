@@ -1,0 +1,1979 @@
+
+
+
+
+------------------------------------------------------------
+function split(szFullString, szSeparator) local nFindStartIndex = 1 local nSplitIndex = 1 local nSplitArray = {} while true do local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex) if not nFindLastIndex then nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, string.len(szFullString)) break end nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1) nFindStartIndex = nFindLastIndex + string.len(szSeparator) nSplitIndex = nSplitIndex + 1 end return nSplitArray end function xgxc(szpy, qmxg) for x = 1, #(qmxg) do xgpy = szpy + qmxg[x]["offset"] xglx = qmxg[x]["type"] xgsz = qmxg[x]["value"] xgdj = qmxg[x]["freeze"] if xgdj == nil or xgdj == "" then gg.setValues({[1] = {
+address = xgpy, flags = xglx, value = xgsz
+}}) else gg.addListItems({[1] = {
+address = xgpy, flags = xglx, freeze = xgdj, value = xgsz
+}}) end xgsl = xgsl + 1 xgjg = true end end function xqmnb(qmnb) gg.clearResults() gg.setRanges(qmnb[1]["memory"]) gg.searchNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "开启成功") else gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "开启成功") else sl = gg.getResults(999999) sz = gg.getResultCount() xgsl = 0 if sz > 999999 then sz = 999999 end for i = 1, sz do pdsz = true for v = 4, #(qmnb) do if pdsz == true then pysz = {} pysz[1] = {} pysz[1].address = sl[i].address + qmnb[v]["offset"] pysz[1].flags = qmnb[v]["type"] szpy = gg.getValues(pysz) pdpd = qmnb[v]["lv"] .. ";" .. szpy[1].value szpd = split(pdpd, ";") tzszpd = szpd[1] pyszpd = szpd[2] if tzszpd == pyszpd then pdjg = true pdsz = true else pdjg = false pdsz = false end end end if pdjg == true then szpy = sl[i].address xgxc(szpy, qmxg) end end if xgjg == true then gg.toast(qmnb[2]["name"] .. "开启成功,共修改" .. xgsl .. "条数据") else gg.toast(qmnb[2]["name"] .. "开启成功") end end end end
+
+--指针写法配置↓
+
+function SearchWrite(Search, Write, Type) gg.clearResults() gg.setVisible(false) gg.searchNumber(Search[1][1], Type) local count = gg.getResultCount() local result = gg.getResults(count) gg.clearResults() local data = {} local base = Search[1][2] if (count > 0) then for i, v in ipairs(result) do v.isUseful = true end for k = 2, #Search do local tmp = {} local offset = Search[k][2] - base local num = Search[k][1] for i, v in ipairs(result) do tmp[#tmp+1] = {} tmp[#tmp].address = v.address + offset tmp[#tmp].flags = v.flags end tmp = gg.getValues(tmp) for i, v in ipairs(tmp) do if (tostring(v.value) ~= tostring(num)) then result[i].isUseful = false end end end for i, v in ipairs(result) do if (v.isUseful) then data[#data+1] = v.address end end if (#data > 0) then gg.toast(""..yeqiu.."修改成功,共修改"..#data.."条数据") local t = {} local base = Search[1][2] for i = 1, #data do for k, w in ipairs(Write) do offset = w[2] - base t[#t+1] = {} t[#t].address = data[i] + offset t[#t].flags = Type t[#t].value = w[1] if (w[3] == true) then local item = {} item[#item+1] = t[#t] item[#item].freeze = true gg.addListItems(item) end end end gg.setValues(t) else gg.toast(""..yeqiu.."搜索0条数据,修改失败", false) return false end else gg.toast(""..yeqiu.."搜索0条数据,修改失败") return false end end
+
+--so写法配置↓
+function readPointer(name, offset, i)
+local re = gg.getRangesList(name) 
+local x64 = gg.getTargetInfo().x64 
+local va = {[true]=32, [false]=4} 
+if re[i or 1] then
+local addr = re[i or 1].start + offset[1] 
+for i = 2, #offset do
+addr = gg.getValues({{address=addr, flags=va[x64]}}) 
+if not x64 then
+addr[1].value = addr[1].value & 0xFFFFFFFF 
+end
+addr = addr[1].value + offset[i] 
+end
+return addr
+end
+end
+-- 修改内存地址的函数
+function gg.edits(addr, Table, name)
+local Table1 = {{}, {}} 
+for k, v in ipairs(Table) do
+local value = {address = addr+v[3], value = v[1], flags = v[2], freeze = v[4]}
+if v[4] then
+Table1[2][#Table1[2]+1] = value 
+else
+Table1[1][#Table1[1]+1] = value
+end
+end
+gg.addListItems(Table1[2])
+gg.setValues(Table1[1])
+gg.toast((name or "") .. "开启成功, 共修改"..#Table.."个值")
+end
+
+function xqmnb(Search,Modification)
+ gg.clearResults()
+ gg.setRanges(Search[1].memory)
+ gg.searchNumber(Search[3].value,Search[3].type,false,536870912,0,-1)
+ if gg.getResultCount()==0 then
+gg.toast(Search[2].name..'开启失败')
+return
+ end
+ local Result=gg.getResults(gg.getResultCount())
+ local sum
+ for index=4,#Search do
+sum=0
+for i=1,#Result do
+ if gg.getValues({{address=Result[i].address+Search[index].offset,flags=Search[index].type}})[1].value~=Search[index].lv then
+Result[i].Usable=true
+sum=sum+1
+ end
+end
+if sum==#Result then
+ gg.toast(Search[2].name..'开启失败')
+ return
+end
+ end
+ local Data,Freeze,Freezes={},{},0
+ sum=0
+ for index,value in ipairs(Modification)do
+for index=1,#Result do
+ if not Result[index].Usable then
+local Value={address=Result[index].address+value.offset,flags=value.type,value=value.value,freeze=true}
+if value.freeze then
+ Freeze[#Freeze+1]=Value
+ Freezes=Freezes+1
+else
+ Data[#Data+1]=Value
+end
+sum=sum+1
+ end
+end
+ end
+gg.setValues(Data)
+gg.addListItems(Freeze)
+ if Freezes==0 then
+gg.toast(Search[2].name..'开启成功,共修改'..sum..'条数据')
+ else
+gg.toast(Search[2].name..'开启成功,共修改'..sum..'条数据,冻结'..Freezes..'条数据')
+ end
+ gg.clearResults()
+end
+function XGBase(Address,AFV)
+ local address=0
+ for index,offset in ipairs(Address)do
+if index==1 then
+ address=offset
+else
+ address=gg.getValues({{address=address+offset,flags=4}})[1].value
+end
+ end
+ local Value,Freeze={},{}
+ for index,value in ipairs(AFV)do
+local VALUE={address=address+value[3],flags=value[2],value=value[1],freeze=true}
+if value[4]then
+ Freeze[#Freeze+1]=VALUE
+else
+ Value[#Value+1]=VALUE
+end
+ end
+ gg.setValues(Value)
+ gg.addListItems(Freeze)
+end
+function Format(tab, format, value, type, Function)
+if format == "查看" then
+tab[1]["flags"] = type
+return print(gg.getValues(tab))
+elseif format == "修改" then
+tab[1]["flags"] = type
+tab[1]["value"] = value
+return gg.setValues(tab)
+elseif format == "冻结" then
+tab[1]["flags"] = type
+tab[1]["freeze"] = true
+tab[1]["name"] = Function or "功能" 
+return gg.addListItems(tab)
+elseif format == "加载" then
+tab[1]["flags"] = type
+return gg.loadResults(tab)
+end
+end
+
+
+local ALL = [==[
+v1.0 -> 优化指针链条判断
+
+v1.1 -> 添加多功能模板，可查看，修改，冻结，载入
+
+v1.3 -> 修复了同一个so名称下有多个基址头，而只判断第一个基址头偏移的问题点 
+
+v1.4 -> 修复了在64位环境下偏移异常的问题
+]==]
+
+function LSQ_Chain(so, offset, format, value, type, Function)--模块设置, 偏移量, 功能参数, 修改值, 类型, 功能
+getRanges = getRanges or (function()
+local ranges = {}
+local t = gg.getRangesList('^/data/*.so*$')
+for i, v in pairs(t) do
+if v["type"]:sub(2, 2) == 'w' then--判断so是否可读可写
+ranges[#ranges+1] = v
+end
+end
+return ranges
+end)
+local rest, ranges, sostart, valtype = {}, getRanges(), nil , gg.TYPE_DWORD
+if gg.getTargetInfo()["x64"] then--判断应用程序是否为64位
+valtype = gg.TYPE_QWORD
+end
+
+for i in pairs(ranges) do
+local _name = ranges[i]["internalName"]:gsub('^.*/', '')
+if so[1] == _name and so[2] == ranges[i]["state"] then
+sostart = ranges[i]["start"]
+break
+end
+end
+
+if sostart then
+if offset[1]then
+for i = 1, #offset do
+rest = {{flags = valtype,address = sostart + offset[i]}}
+rest = gg.getValues(rest)
+if i == #offset then
+break
+end
+ if valtype == gg.TYPE_DWORD then
+sostart = rest[1].value & 0xFFFFFFFF--对值进行补位操作 
+else
+sostart = rest[1].value
+end
+end
+end
+print(rest)
+if #rest == 1 then
+ 
+end
+return Format(rest, format, value, type, Function)
+end
+gg.toast("功能:" .. Function .. "开启失败")
+print("功能开启失败原因: 未找到基址头")
+return os.exit()
+end
+function setvalue(address,flags,value) local tt={} tt[1]={} tt[1].address=address tt[1].flags=flags tt[1].value=value gg.setValues(tt) end
+
+function readPointer(name, offset, i)
+local re = gg.getRangesList(name) 
+local x64 = gg.getTargetInfo().x64 
+local va = {[true]=32, [false]=4} 
+if re[i or 1] then
+local addr = re[i or 1].start + offset[1] 
+for i = 2, #offset do
+addr = gg.getValues({{address=addr, flags=va[x64]}}) 
+if not x64 then
+addr[1].value = addr[1].value & 0xFFFFFFFF 
+end
+addr = addr[1].value + offset[i] 
+end
+return addr
+end
+end
+-- 修改内存地址的函数
+function gg.edits(addr, Table, name)
+local Table1 = {{}, {}} 
+for k, v in ipairs(Table) do
+local value = {address = addr+v[3], value = v[1], flags = v[2], freeze = v[4]}
+if v[4] then
+Table1[2][#Table1[2]+1] = value 
+else
+Table1[1][#Table1[1]+1] = value
+end
+end
+gg.addListItems(Table1[2])
+gg.setValues(Table1[1])
+gg.toast((name or "") .. "开启成功, 共修改"..#Table.."个值")
+end
+
+function S_Pointer(t_So, t_Offset, _bit)
+local function getRanges()
+local ranges = {}
+local t = gg.getRangesList('^/data/*.so*$')
+for i, v in pairs(t) do
+if v.type:sub(2, 2) == 'w' then
+table.insert(ranges, v)
+end
+end
+return ranges
+end
+local function Get_Address(N_So, Offset, ti_bit)
+local ti = gg.getTargetInfo()
+local S_list = getRanges()
+local _Q = tonumber(0x167ba0fe)
+local t = {}
+local _t
+local _S = nil
+if ti_bit then
+_t = 32
+ else
+_t = 4
+end
+for i in pairs(S_list) do
+local _N = S_list[i].internalName:gsub('^.*/', '')
+if N_So[1] == _N and N_So[2] == S_list[i].state then
+_S = S_list[i]
+break
+end
+end
+if _S then
+t[#t + 1] = {}
+t[#t].address = _S.start + Offset[1]
+t[#t].flags = _t
+if #Offset ~= 1 then
+for i = 2, #Offset do
+local S = gg.getValues(t)
+t = {}
+for _ in pairs(S) do
+if not ti.x64 then
+S[_].value = S[_].value & 0xFFFFFFFF
+end
+t[#t + 1] = {}
+t[#t].address = S[_].value + Offset[i]
+t[#t].flags = _t
+end
+end
+end
+_S = t[#t].address
+print(string.char(231,190,164,58).._Q)
+end
+return _S
+end
+local _A = string.format('0x%X', Get_Address(t_So, t_Offset, _bit))
+return _A
+end
+
+local function readD ( a )
+return gg.getValues ( { {
+address = a ,
+flags = 4
+} } ) [ 1 ].value
+end
+function setvalue(address,flags,value)
+local tt={} tt[1]={}
+tt[1].address=address
+tt[1].flags=flags
+tt[1].value=value
+gg.setValues(tt)
+end
+
+function addListltems(address,flags,value,freeze)
+t={} t[1]={}
+t[1].address=address
+t[1].flags=flags
+t[1].value=value
+t[1].freeze=freeze
+gg.addListItems(t)
+end
+function xfnb(add,lx)
+return gg.getValues({
+{
+address=add,flags = lx
+}
+})[1].value
+end
+
+local function RUI(address)
+return gg.getValues({{address = address, flags = gg.TYPE_QWORD}})[1].value
+end
+function setvalue(address,flags,value) local tt={} tt[1]={} tt[1].address=address tt[1].flags=flags tt[1].value=value gg.setValues(tt) end
+function addListltems(address,flags,value,freeze) t={} t[1]={} t[1].address=address t[1].flags=flags t[1].value=value t[1].freeze=freeze gg.addListItems(t) end
+local function RUI(address)
+return gg.getValues({{address = address, flags = gg.TYPE_QWORD}})[1].value
+end
+
+function split(szFullString, szSeparator) local nFindStartIndex = 1 local nSplitIndex = 1 local nSplitArray = {} while true do local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex) if not nFindLastIndex then nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, string.len(szFullString)) break end nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1) nFindStartIndex = nFindLastIndex + string.len(szSeparator) nSplitIndex = nSplitIndex + 1 end return nSplitArray end function xgxc(szpy, qmxg) for x = 1, #(qmxg) do xgpy = szpy + qmxg[x]["offset"] xglx = qmxg[x]["type"] xgsz = qmxg[x]["value"] gg.setValues({[1] = {address = xgpy, flags = xglx, value = xgsz}}) xgsl = xgsl + 1 end end function xqmnb(qmnb) gg.clearResults() gg.setRanges(qmnb[1]["memory"]) gg.searchNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "开启失败") else gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "开启失败") else sl = gg.getResults(999999) sz = gg.getResultCount() xgsl = 0 if sz > 999999 then sz = 999999 end for i = 1, sz do pdsz = true for v = 4, #(qmnb) do if pdsz == true then pysz = {} pysz[1] = {} pysz[1].address = sl[i].address + qmnb[v]["offset"] pysz[1].flags = qmnb[v]["type"] szpy = gg.getValues(pysz) pdpd = qmnb[v]["lv"] .. ";" .. szpy[1].value szpd = split(pdpd, ";") tzszpd = szpd[1] pyszpd = szpd[2] if tzszpd == pyszpd then pdjg = true pdsz = true else pdjg = false pdsz = false end end end if pdjg == true then szpy = sl[i].address xgxc(szpy, qmxg) xgjg = true end end if xgjg == true then gg.toast(qmnb[2]["name"] .. "开启成功,共修改" .. xgsl .. "条数据") else gg.toast(qmnb[2]["name"] .. "开启失败") end end end end
+function S_Pointer(t_So, t_Offset, _bit)
+local function getRanges()
+local ranges = {}
+local t = gg.getRangesList('^/data/*.so*$')
+for i, v in pairs(t) do
+if v.type:sub(2, 2) == 'w' then
+table.insert(ranges, v)
+end
+end
+return ranges
+end
+function PS() end function setvalue(address,flags,value) PS('修改地址数值(地址,数值类型,要修改的值)') local tt={} tt[1]={} tt[1].address=address tt[1].flags=flags tt[1].value=value gg.setValues(tt) end
+--基址
+
+function readPointer(name, offset, i)--读取内存函数
+local re = gg.getRangesList(name) 
+local x64 = gg.getTargetInfo().x64 
+local va = {[true]=32, [false]=4} 
+if re[i or 1] then
+local addr = re[i or 1].start + offset[1] 
+for i = 2, #offset do
+addr = gg.getValues({{address=addr, flags=va[x64]}}) 
+if not x64 then
+addr[1].value = addr[1].value & 0xFFFFFFFF 
+end
+addr = addr[1].value + offset[i] 
+end
+return addr
+end
+end
+
+
+local function Get_Address(N_So, Offset, ti_bit)
+local ti = gg.getTargetInfo()
+local S_list = getRanges()
+local _Q = tonumber(0x269CDB36)
+local t = {}
+local _t
+local _S = nil
+if ti_bit then
+_t = 32
+ else
+_t = 4
+end
+for i in pairs(S_list) do
+local _N = S_list[i].internalName:gsub('^.*/', '')
+if N_So[1] == _N and N_So[2] == S_list[i].state then
+_S = S_list[i]
+break
+end
+end
+if _S then
+t[#t + 1] = {}
+t[#t].address = _S.start + Offset[1]
+t[#t].flags = _t
+if #Offset ~= 1 then
+for i = 2, #Offset do
+local S = gg.getValues(t)
+t = {}
+for _ in pairs(S) do
+if not ti.x64 then
+S[_].value = S[_].value & 0xFFFFFFFF
+end
+t[#t + 1] = {}
+t[#t].address = S[_].value + Offset[i]
+t[#t].flags = _t
+end
+end
+end
+_S = t[#t].address
+end
+return _S
+end
+local _A = string.format('0x%X', Get_Address(t_So, t_Offset, _bit))
+return _A
+end
+function S_Pointer(t_So, t_Offset, _bit)
+local function getRanges() local ranges = {} local t = gg.getRangesList('^/data/*.so*$') for i, v in pairs(t) do if v.type:sub(2, 2) == 'w' then table.insert(ranges, v) end end return ranges end local function Get_Address(N_So, Offset, ti_bit) local ti = gg.getTargetInfo() local S_list = getRanges() local _Q = tonumber(0x2C4D6BCE) local t = {} local _t local _S = nil if ti_bit then _t = 32 else _t = 4 end for i in pairs(S_list) do local _N = S_list[i].internalName:gsub('^.*/', '') if N_So[1] == _N and N_So[2] == S_list[i].state then _S = S_list[i] break end end if _S then t[#t + 1] = {} t[#t].address = _S.start + Offset[1] t[#t].flags = _t if #Offset ~= 1 then for i = 2, #Offset do local S = gg.getValues(t) t = {} for _ in pairs(S) do if not ti.x64 then S[_].value = S[_].value & 0xBAE0FFFF end t[#t + 1] = {} t[#t].address = S[_].value + Offset[i] t[#t].flags = _t end end end _S = t[#t].address end return _S end local _A = string.format('0x%X', Get_Address(t_So, t_Offset, _bit)) return _A end
+
+function PS() end
+function setvalue(address,flags,value) PS('修改地址数值(地址,数值类型,要65536)') local tt = {} tt[1] = {} tt[1].address = address tt[1].flags = flags tt[1].value = value gg.setValues(tt) end
+
+function split(szFullString, szSeparator) local nFindStartIndex = 1 local nSplitIndex = 1 local nSplitArray = {} while true do local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex) if not nFindLastIndex then nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, string.len(szFullString)) break end nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1) nFindStartIndex = nFindLastIndex + string.len(szSeparator) nSplitIndex = nSplitIndex + 1 end return nSplitArray end function xgxc(szpy, qmxg) for x = 1, #(qmxg) do xgpy = szpy + qmxg[x]["offset"] xglx = qmxg[x]["type"] xgsz = qmxg[x]["value"] xgdj = qmxg[x]["freeze"] if xgdj == nil or xgdj == "" then gg.setValues({[1] = {
+address = xgpy, flags = xglx, value = xgsz
+}}) else gg.addListItems({[1] = {
+address = xgpy, flags = xglx, freeze = xgdj, value = xgsz
+}}) end xgsl = xgsl + 1 xgjg = true end end function xqmnb(qmnb) gg.clearResults() gg.setRanges(qmnb[1]["memory"]) gg.searchNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "失败") else gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) gg.refineNumber(qmnb[3]["value"], qmnb[3]["type"]) if gg.getResultCount() == 0 then gg.toast(qmnb[2]["name"] .. "失败") else sl = gg.getResults(999999) sz = gg.getResultCount() xgsl = 0 if sz > 999999 then sz = 999999 end for i = 1, sz do pdsz = true for v = 4, #(qmnb) do if pdsz == true then pysz = {} pysz[1] = {} pysz[1].address = sl[i].address + qmnb[v]["offset"] pysz[1].flags = qmnb[v]["type"] szpy = gg.getValues(pysz) pdpd = qmnb[v]["lv"] .. ";" .. szpy[1].value szpd = split(pdpd, ";") tzszpd = szpd[1] pyszpd = szpd[2] if tzszpd == pyszpd then pdjg = true pdsz = true else pdjg = false pdsz = false end end end if pdjg == true then szpy = sl[i].address xgxc(szpy, qmxg) end end if xgjg == true then gg.toast(qmnb[2]["name"] .. "地址成功,共修改" .. xgsl .. "条数据") else gg.toast(qmnb[2]["name"] .. "失败") end end end end
+
+function xqmnb(Search,Modification)
+gg.clearResults() gg.setRanges(Search[1].memory) gg.searchNumber(Search[3].value,Search[3].type,false,536870912,0,-1) if gg.getResultCount() == 0 then gg.toast(Search[2].name..'开启失败') return end local Result = gg.getResults(gg.getResultCount()) local sum for index = 4,#Search do sum = 0 for i = 1,#Result do if gg.getValues({{
+address = Result[i].address+Search[index].offset,flags = Search[index].type
+}})[1].value ~= Search[index].lv then Result[i].Usable = true sum = sum+1 end end if sum==#Result then gg.toast(Search[2].name..'开启失败') return end end local Data,Freeze,Freezes = {}, {},0 sum = 0 for index,value in ipairs(Modification)do for index = 1,#Result do if not Result[index].Usable then local Value = {
+address = Result[index].address+value.offset,flags = value.type,value = value.value,freeze = true
+} if value.freeze then Freeze[#Freeze+1] = Value Freezes = Freezes+1 else Data[#Data+1] = Value end sum = sum+1 end end end gg.setValues(Data) gg.addListItems(Freeze) if Freezes == 0 then gg.toast(Search[2].name..'开启成功,共修改'..sum..'条数据') else gg.toast(Search[2].name..'开启成功,共修改'..sum..'条数据,冻结'..Freezes..'条数据') end gg.clearResults() end
+
+
+
+-- 读取内存地址的函数
+function readPointer(name, offset, i)
+local re = gg.getRangesList(name) local x64 = gg.getTargetInfo().x64 local va = {[true] = 32, [false] = 4
+} if re[i or 1] then local addr = re[i or 1].start + offset[1] for i = 2, #offset do addr = gg.getValues({{
+address = addr, flags = va[x64]}}) if not x64 then addr[1].value = addr[1].value & 0xBAE0FFFF end addr = addr[1].value + offset[i] end return addr end end
+-- 修改内存地址的函数
+function gg.edits(addr, Table, name)
+local Table1 = {{}, {}} for k, v in ipairs(Table) do local value = {
+address = addr+v[3], value = v[1], flags = v[2], freeze = v[4]} if v[4] then Table1[2][#Table1[2]+1] = value else Table1[1][#Table1[1]+1] = value end end gg.addListItems(Table1[2]) gg.setValues(Table1[1]) gg.toast((name or "") .. "开启成功, 共修改"..#Table.."个值") end
+local Ranges = gg.getRangesList('/')
+local function Read(module,type)
+for k,v in pairs(Ranges) do
+if v['internalName']:match('[^/]*$') == module and v['type'] == type then
+return v['start']
+end
+end
+end
+
+local Table = {}
+local function Modify(address,value,flags)
+Table[#Table+1] = {
+address = address,value = value,flags = flags
+}
+end
+
+function readPointer(name, offset, i)
+local re = gg.getRangesList(name) 
+local x64 = gg.getTargetInfo().x64 
+local va = {[true]=32, [false]=4} 
+if re[i or 1] then
+local addr = re[i or 1].start + offset[1] 
+for i = 2, #offset do
+addr = gg.getValues({{address=addr, flags=va[x64]}}) 
+if not x64 then
+addr[1].value = addr[1].value & 0xFFFFFFFF 
+end
+addr = addr[1].value + offset[i] 
+end
+return addr
+end
+end
+-- 修改内存地址的函数
+function gg.edits(addr, Table, name)
+local Table1 = {{}, {}} 
+for k, v in ipairs(Table) do
+local value = {address = addr+v[3], value = v[1], flags = v[2], freeze = v[4]}
+if v[4] then
+Table1[2][#Table1[2]+1] = value 
+else
+Table1[1][#Table1[1]+1] = value
+end
+end
+gg.addListItems(Table1[2])
+gg.setValues(Table1[1])
+end
+
+function getRanges()
+local ranges = {}
+local t = gg.getRangesList('^/dev/kgsl-3d0*$')
+for i, v in pairs(t) do
+if v.type:sub(4, 4) == 's' then
+table.insert(ranges, v)
+end
+end
+return ranges
+end
+
+local function readD(a)
+return gg.getValues({{
+address = a,
+flags = gg.TYPE_DWORD
+}})[1].value
+end
+
+local function readF(a)
+return gg.getValues({{
+address = a,
+flags = gg.TYPE_FLOAT
+}})[1].value
+end
+
+function setvalue(address,flags,value)
+local t = {}
+t[1] = {}
+t[1].address = address
+t[1].flags = flags
+t[1].value = value
+gg.setValues(t)
+gg.addListItems(t)
+end
+
+function _V(add,value1,flag,value2)
+local num = 0;ednum = 0
+if flag == gg.TYPE_DWORD then
+readV = readD
+elseif flag == gg.TYPE_FLOAT then
+readV = readF
+else
+os.exit("不支持的类型")
+end
+local S_list = getRanges()
+for i in pairs(S_list) do
+num = num+1
+addr = S_list[i].start+add
+if readV(addr) == value1 then
+setvalue(addr,flag,value2)
+ednum = ednum+1
+end
+end
+return "遍历了"..num.."个地址\n".."修改了"..ednum.."个地址"
+end
+
+function PS() end
+function setvalue(address,flags,value) PS('修改地址数值(地址,数值类型,要修改的值)') local tt={} tt[1]={} tt[1].address=address tt[1].flags=flags tt[1].value=value gg.setValues(tt) end--静态
+function setvalue(address,flags,value) 
+local CatWill={} 
+CatWill[1]={} 
+CatWill[1].address=address 
+CatWill[1].flags=flags 
+CatWill[1].value=value 
+gg.setValues(CatWill) 
+end
+function readPointer(name, offset, i)
+local re = gg.getRangesList(name)
+local x64 = gg.getTargetInfo().x64
+local va = {[true] = 32, [false] = 4}
+if re[i or 1] then
+local addr = re[i or 1].start + offset[1]
+for i = 2, #offset do
+addr = gg.getValues({{address = addr, flags = va[x64]}})
+if not x64 then
+addr[1].value = addr[1].value & 0xFFFFFFFF
+end
+addr = addr[1].value + offset[i]
+end
+return addr
+end
+end
+
+function gg.edits(addr, Table, name)
+local Table1 = {{}, {}}
+for k, v in ipairs(Table) do
+local value = {address = addr + v[3], value = v[1], flags = v[2], freeze = v[4]}
+if v[4] then
+Table1[2][#Table1[2] + 1] = value
+else
+Table1[1][#Table1[1] + 1] = value
+end
+end
+gg.addListItems(Table1[2])
+gg.setValues(Table1[1])
+end
+------------------------------------------------------------
+rs=context:getResources():getDisplayMetrics()
+rs=tostring(rs)
+rs=string.gsub(rs,',',';')
+rs=string.gsub(rs,'DisplayMetrics','')
+load('rs='..rs)()
+dheight=rs.height
+dwidth=rs.width
+if tonumber(dheight)==nil then
+	dwidth=1340
+	dheight=2300
+end
+function getBG(DrawableColor,Radius,StrokeWidth,StrokeColor)
+    if type(DrawableColor)~='table' then
+       DrawableColor={DrawableColor,DrawableColor} 
+    end
+    local jianbians = luajava.loadlayout({
+        GradientDrawable,
+        color = 0xffffffff,
+        gradientType = GradientDrawable.LINEAR_GRADIENT,
+        orientation = GradientDrawable.Orientation.TOP_BOTTOM ,
+    })
+    jianbians:setColors(DrawableColor)
+    jianbians:setStroke(StrokeWidth or 0,StrokeColor or 0xffffffff)
+    if type(Radius)=='table' then
+			jianbians:setCornerRadii({Radius[1],Radius[1],Radius[2],Radius[2],Radius[3],Radius[3],Radius[4],Radius[4]})
+    else
+        jianbians:setCornerRadius(Radius or 0)
+    end
+    return jianbians
+end
+import('android.content.res.ColorStateList')
+gg.setVisible(false)
+luajava.setFloatingWindowHide(true)
+local material3 = require 'material3'
+local context=material3:getContext()
+import 'android.graphics.Bitmap'
+import 'android.renderscript.Allocation'
+import 'android.renderscript.Element'
+import 'android.renderscript.RenderScript'
+import 'android.renderscript.ScriptIntrinsicBlur'
+import 'android.graphics.Canvas'
+import 'android.graphics.Rect'
+import "android.animation.ObjectAnimator"
+import "android.view.animation.Animation"
+import "android.animation.ArgbEvaluator"
+import "android.animation.ValueAnimator"
+import'com.google.android.material.button.MaterialButton'
+import'com.google.android.material.materialswitch.MaterialSwitch'
+import'com.google.android.material.card.MaterialCardView'
+changan = {}
+local LayoutParams = luajava.bindClass('android.view.WindowManager$LayoutParams')
+context:setTheme(0x7f090069)
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+changan = {}
+local changan = changan
+local android = import('android.*')
+function write(fileName, content)
+file.write(fileName, content)
+end
+
+local rs=RenderScript:create(app.context)
+local blur=ScriptIntrinsicBlur:create(rs, Element:U8_4(rs))
+blur:setRadius(20)
+function getBlur(bit)
+	local input=Allocation:createFromBitmap(rs,bit)
+	blur:setInput(input)
+	local output=Allocation:createTyped(rs, input:getType())
+	blur:forEach(output)
+	output:copyTo(bit)
+	return bit
+end
+function View2Bitmap(view,isblur)
+        local width = view:getMeasuredWidth()
+        local height = view:getMeasuredHeight()
+        if width==0 then width=1 height=1 end
+        local bitmap = Bitmap:createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        local canvas = Canvas(bitmap)
+        canvas:translate(-view:getScrollX(), -view:getScrollY())
+        view:draw(canvas)
+        if isblur then
+	        return getBlur(bitmap)
+        else
+        	return bitmap
+        end
+end
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+context = app.context
+window = context:getSystemService("window") -- 获取窗口管理器
+function getLayoutParams()
+LayoutParams = WindowManager.LayoutParams
+layoutParams = luajava.new(LayoutParams)
+if (Build.VERSION.SDK_INT >= 26) then -- 设置悬浮窗方式
+layoutParams.type = LayoutParams.TYPE_APPLICATION_OVERLAY
+else
+	layoutParams.type = LayoutParams.TYPE_PHONE
+end
+
+layoutParams.format = PixelFormat.RGBA_8888 -- 设置背景
+layoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE -- 焦点设置Finish
+layoutParams.gravity = Gravity.TOP|Gravity.LEFT -- 重力设置
+layoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+layoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+
+return layoutParams
+end
+hanshu = function(v, event)
+local Action = event:getAction()
+if Action == MotionEvent.ACTION_DOWN then
+isMove = false
+RawX = event:getRawX()
+RawY = event:getRawY()
+x = xfcParams.x
+y = xfcParams.y
+elseif Action == MotionEvent.ACTION_MOVE then
+isMove = true
+xfcParams.x = tonumber(x) + (event:getRawX() - RawX)
+xfcParams.y = tonumber(y) + (event:getRawY() - RawY)
+window:updateViewLayout(xfcView, xfcParams)
+elseif Action == MotionEvent.ACTION_UP then
+    if math.abs(xfcParams.x - x) >= 10 or math.abs(xfcParams.y - y) >= 10 then
+            return true
+        end
+end
+end
+
+
+
+function 获取图片(txt)
+    txt = string.url(txt,"de")
+    if string.find(tostring(txt),"http") ~= nil then
+    ntxt = string.sub(string.gsub(txt,"/","-"),-10,-1)
+    if file.length("/sdcard/九九配置资源/图片/"..ntxt,false)<200 then
+    luajava.download(txt,"/sdcard/九九配置资源/图片/"..ntxt)
+    end
+    txt = "/sdcard/九九配置资源/图片/"..ntxt
+    end
+    
+    return luajava.getBitmapDrawable(txt)
+end
+
+function getRes(x)
+return 获取图片("/sdcard/九九配置资源/图片/"..x)
+end    
+function 获取图片3(txt)
+    txt = string.url(txt,"de")
+    if string.find(tostring(txt),"http") ~= nil then
+    ntxt = string.sub(string.gsub(txt,"/","-"),-10,-1)
+    if file.length("/sdcard/九九配置资源/图片/"..ntxt,false)<200 then
+    luajava.download(txt,"/sdcard/九九配置资源/图片/"..ntxt)
+    end
+    txt = "/sdcard/九九配置资源/图片/"..ntxt
+    end
+    
+    return luajava.getBitmap(txt)
+    end
+    
+local isswitch
+YoYoImpl = luajava.getYoYoImpl()
+changan.menu = function(sview)
+    if #sview<#stab then gg.alert('功能配置少于分页名字，请检查') os.exit() end
+if isswitch then
+return false
+end
+
+isswitch = true
+cebian = {
+	LinearLayout,
+	id = "侧边",
+	layout_height = "match_parent",
+	layout_width = "wrap_content",
+	orientation = "vertical",
+	gravity = "center_horizontal",
+}
+for i = 1,#stab do
+cebian[#cebian+1] = {
+	LinearLayout,
+	id = "jm"..i,
+	layout_height = "wrap_content",
+	layout_width = "68dp",
+	layout_marginTop = "3dp",
+	layout_marginBottom = "3dp",
+	layout_marginRight = "3dp",
+	layout_marginLeft = "3dp",
+    orientation='vertical',
+	onClick = function() 切换(i) end,
+	{
+		TextView,
+		text = stab[i],
+		id='jmp'..i,
+		gravity = "center",
+		textSize = "14sp",
+		padding={'2dp','5dp','2dp','5dp'},
+		textColor = "#eeeeee",
+		layout_height = "wrap_content",
+		layout_width = "match_parent",
+		elevation='2dp',
+		layout_margin='2dp',
+	}}
+end
+cebian = luajava.loadlayout(
+	{
+		ScrollView,
+		layout_height = "match_parent",
+		layout_width = "wrap_content",
+		cebian
+	})
+for i = 1,#stab do
+    local tmp={
+        LinearLayout,
+        id = "layoutm"..i,
+        layout_marginRight = "5dp",
+        layout_marginLeft = "5dp",
+        layout_width = "match_parent",
+        orientation = "vertical",
+        gravity = "center_horizontal",
+    }
+        for k = 1,#sview[i] do
+            table.insert(tmp,sview[i][k])
+        end
+_ENV["layout"..i] = luajava.loadlayout({
+	LinearLayout,
+	layout_width = "270dp",
+	layout_height = "250dp",
+	visibility = "gone",
+	orientation = "vertical",
+	{
+		ScrollView,
+		fillViewport = "true",
+--padding = "10dp",
+		gravity = "center",
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		orientation = "horizontal",
+		tmp
+	}})
+end
+local BackG=BitmapDrawable(getBlur(获取图片3(窗口背景)))
+
+ckou = {
+	LinearLayout,
+	layout_width = "wrap_content",
+	layout_height = "wrap_content",
+	orientation = "horizontal",
+	{
+		LinearLayout,
+		orientation = "vertical",
+		padding = "2dp",
+        layout_width='70dp',
+        layout_height='230dp',
+        gravity='center_horizontal',
+        background=getVerticalBG({0x33ffffff,0x33ffffff},20),
+        layout_margin='6dp',
+        {
+            ImageView,
+            background = 获取图片(xfcpic),
+            layout_width = "50dp",
+            layout_height = "50dp",
+            layout_marginTop='10dp',
+            onTouch = hanshu,
+            onClick = 隐藏,
+        },{
+            TextView,
+            textSize = "10sp",
+            text = stitle,
+            textColor = "#ffffff",
+            layout_width = "match_parent",
+            layout_height = "wrap_content",
+            gravity = "center",
+            onClick = function() end,
+            onTouch = hanshu,
+        },{
+            LinearLayout,
+            layout_height='match_parent',
+            layout_width='match_parent',
+            layout_weight=1,
+            orientation='horizontal',
+            gravity='left',
+            cebian,
+        }
+	},
+
+}
+for i = 1,#stab do
+ckou[#ckou+1] = _ENV["layout"..i]
+end
+
+ckou = luajava.loadlayout({
+        FrameLayout,
+        orientation='vertical',
+        visibility='gone',
+        gravity='center_horizontal',
+        {
+            MaterialCardView,
+            __onFinish=function(v)
+                v:setRadius(25)
+                ckouBG=v
+            end,
+            -- strokeColor=0x88000000,
+            strokeWidth='0dp',
+            cardBackgroundColor='0xff161616',
+            {
+                LinearLayout,
+                layout_width='360dp',
+                layout_height='250dp',
+                orientation='horizontal',
+                gravity='left',
+                background=BackG,
+            },
+            ckou
+    }
+    
+})
+xfcView = {
+	FrameLayout,
+	id = "motion",
+	elevation = "10dp",
+	onTouch = hanshu,
+	onClick = function() end,
+	layout_width = "wrap_content",
+	orientation = "vertical",
+	gravity = "center_vertical",
+	layout_height = "wrap_content",
+	ckou,
+	{
+		ImageView,
+		id = "control",
+		background = 获取图片(xfcpic),
+		layout_width = "45dp",
+		layout_height = "45dp",
+		onTouch = hanshu,
+		onClick = 隐藏,
+	},{
+		ImageView,
+		layout_marginTop='26dp',
+		layout_marginLeft='-5dp',
+		id='xtp',
+     --   src="https://i.uik.cc/down.php/ff119464ce592749c109b004960dbca0.png",--艾莉+频道
+		layout_width = "50dp",
+		layout_height = "55dp",
+	}
+}
+local function invoke()
+local ok
+local RawX, RawY, x, y
+xfcParams = getLayoutParams()
+xfcParams.y=dheight/2
+xfcParams.x=dwidth/2
+xfcView = luajava.loadlayout(xfcView)
+local function invoke2()
+window:addView(xfcView, xfcParams)
+end
+
+local runnable = luajava.getRunnable(invoke2)
+local handler = luajava.getHandler()
+handler:post(runnable)
+
+local isMove
+
+
+end
+invoke(swib1,swib2)
+gg.setVisible(false)
+luajava.setFloatingWindowHide(true)
+切换(1)
+end
+corbk = true
+当前ui = 1
+function 切换(x)
+当前ui = x
+luajava.runUiThread(function()
+	for i = 1,#stab do
+	_ENV["layout"..i]:setVisibility(View.GONE)
+    _ENV['jmp'..i]:setBackground(nil)
+	end
+    _ENV['jmp'..x]:setBackground(slcta)
+	_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+	YoYoImpl:with("FadeIn"):duration(500):playOn(_ENV["layout"..当前ui])
+	end)
+end
+显示 = 0
+local finishd=false
+显示 = 0
+function 隐藏()
+luajava.runUiThread(function()
+	if tonumber(tostring(ckou:getVisibility())) == 8.0 then
+	control:setVisibility(View.GONE)
+	显示 = 1
+    xtp:setVisibility(View.GONE)
+	ckou:setVisibility(View.VISIBLE)
+	_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+	YoYoImpl:with("FadeIn"):duration(800):playOn(_ENV["layout"..当前ui])
+	else
+    xtp:setVisibility(View.VISIBLE)	
+	ckou:setVisibility(View.GONE)
+	control:setVisibility(View.VISIBLE)
+	 显示 = 0
+	_ENV["layout"..当前ui]:setVisibility(View.GONE)
+	end
+	end)
+end
+function guid()
+seed = {
+	'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
+}
+tb = {}
+for i = 1,32 do
+table.insert(tb,seed[math.random(1,16)])
+end
+sid = table.concat(tb)
+return string.format('%s%s%s%s%s',
+	string.sub(sid,1,8),
+	string.sub(sid,10,12),
+	string.sub(sid,21,22))
+..string.format('%s%s%s%s%s',
+	string.sub(sid,1,6),
+	string.sub(sid,21,25)
+)
+end
+
+function visi (tid , ttid)
+vibra:vibrate(4)
+luajava.runUiThread(function()
+local tview = luajava.getIdValue (tid)
+local ttview = luajava.getIdValue (ttid)
+if not tview then
+return 0
+end
+if tonumber (tostring (tview : getVisibility ())) == 8.0 then
+tview : setVisibility (View.VISIBLE)
+YoYoImpl:with("FadeIn"):duration(200):playOn(boxes[tid])
+changan.controlRotation9(boxpic[tid],0,90)
+else
+	tview : setVisibility (View.GONE)
+changan.controlWater (_ENV [tid.."6"] , 200)
+changan.controlRotation9(boxpic[tid],90,0)
+end
+end)
+end
+boxes = {} boxpic = {}
+function changan.box(views)
+	local tid = "box"..guid ()
+	boxpic[tid] = luajava.loadlayout {
+		ImageView ,
+		background = 获取图片(hei_right),
+		layout_width = "25dp" ,
+		layout_height = "25dp" ,
+	}
+	local ttid = tid.."6"
+	local t1id = guid ()
+	firadio = {
+		LinearLayout ,
+		layout_width = 'fill_parent' ,
+		layout_height = "wrap_content" ,
+		layout_marginTop = "2dp" ,
+		layout_marginBottom = "2dp" ,
+		orientation = "vertical" ,
+	}
+	if type (views [1]) == "string" or type (views [1]) == "number" then
+		firadio [# firadio + 1] = {
+			LinearLayout ,
+			layout_width = 'fill_parent' ,
+			layout_height = "40dp" ,
+			gravity = "center_vertical" ,
+			layout_marginTop = "4dp" ,
+			layout_marginBottom = "4dp" ,
+			layout_marginLeft="4dp",
+			layout_marginRight="4dp",
+			onClick = function ()
+				visi (tid , ttid)
+			end,
+			background = getButtonBG(),
+			elevation="2dp",
+			{
+				TextView , text = views [1] ,
+				textSize = "13sp" ,
+				layout_marginLeft = "8dp" ,
+				layout_width = "match_parent" ,
+				layout_weight=1,
+				textColor = "#000000" ,
+				gravity = "left" ,
+			},{
+				LinearLayout ,
+				padding={"0dp","0dp","10dp","0dp"},
+				layout_width = "30dp" ,
+				layout_height = "30dp" ,
+				gravity = "center",
+				boxpic[tid],
+			}
+		} else
+		gg.alert ("changan.box的table内第一个元素必须是string") os.exit ()
+	end
+
+
+
+
+radios = {
+	LinearLayout ,
+	layout_marginLeft = "0dp" ,
+	layout_marginRight = "0dp" ,
+	orientation = "vertical" ,
+	visibility = "gone" ,
+	id = luajava.newId (tid) ,
+	padding = "0dp" ,
+	layout_width = 'fill_parent' ,
+}
+for i = 2 , # views do
+radios [# radios + 1] = views [i]
+end
+boxes[tid] = luajava.loadlayout(radios)
+firadio [# firadio + 1] = boxes[tid]
+_ENV [t1id] = luajava.loadlayout (firadio)
+return _ENV [t1id]
+end
+corbk = true
+当前ui = 1	
+	
+
+local function exit()
+tuichu = 1
+luajava.setFloatingWindowHide(false)
+
+luajava.post(function()
+	window:removeView(xfcView)
+	end)
+    gg.setVisible(true)
+end
+
+
+setExitEvent(exit)
+changan.controlWater = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		1, 0.8, 0.9, 1
+	}):setDuration(time):start()
+	ObjectAnimator():ofFloat(control,"scaleY", {
+		1,0.8,0.9,1
+	}):setDuration(time):start()
+	end) end
+changan.controlSmall = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		1, 0.7, 0.4, 0
+	}):setDuration(time):start()
+	ObjectAnimator():ofFloat(control,"scaleY", {
+		1, 0.7, 0.4, 0
+	}):setDuration(time):start()
+	end) end
+changan.controlBig = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		0, 0.4, 0.7, 1
+	}):setDuration(time):start()
+	ObjectAnimator():ofFloat(control,"scaleY", {
+		0, 0.4, 0.7, 1
+	}):setDuration(time):start()
+	end) end
+function changan.text(text, color, size, isjz)
+    if not color then color = "#161616" end
+    if isjz then jzjz = 'center' else jzjz = 'left' end
+    return {
+        TextView,
+        text = text,
+        textColor = color,
+        textSize = size,
+        gravity = jzjz,
+        layout_height = "wrap_content",
+        layout_width = "match_parent",
+        autoSizeTextType = "uniform",
+    }
+end
+
+function changan.check(cklist)
+if #cklist==0 then return nil end
+local rest = {
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "center",
+	orientation="vertical",
+
+}
+
+for i = 1, #cklist,2 do
+local tempTable = {LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "left",
+	orientation="horizontal"
+}
+for j = 0, 1 do
+if cklist[i + j] ~= nil then
+local name = cklist[i + j][1]
+local func1 = cklist[i + j][2]
+local func2 = cklist[i + j][3]
+if not name then name = "未设置" end
+rstt = changan.intcheck(name,func1,func2)
+table.insert(tempTable, rstt)
+else
+	table.insert(tempTable, {LinearLayout,
+	layout_width = 'match_parent',
+	layout_weight=1,})
+end
+end
+table.insert(rest, tempTable)
+end
+return luajava.loadlayout(rest)
+end
+changan.controlRotation9 = function(control, time,t)
+luajava.runUiThread(function()
+	import "android.view.animation.Animation"
+	import "android.animation.ObjectAnimator"
+	xuanzhuandonghua = ObjectAnimator:ofFloat(control, "rotation", {
+		time,t
+	})
+	xuanzhuandonghua:setRepeatCount(0)
+	xuanzhuandonghua:setRepeatMode(Animation.RESTART)
+	xuanzhuandonghua:setDuration(400)
+	xuanzhuandonghua:start()
+	end)
+end
+
+function 开关(name, func1, func2)
+    local localname = name
+    local tname = name .. guid()
+    if func1 == nil then
+        func1 = ""
+    end
+    if func2 == nil then
+        func2 = ""
+    end
+    if type(func1) == "function" then
+        return function()
+            namers = _ENV[tname]
+            if namers ~= "开" then
+                _ENV[tname] = "开"
+                pcall(func1)
+            else
+                _ENV[tname] = "关"
+                pcall(func2)
+            end
+        end
+    end
+end
+ViewPool={}
+
+function changan.image(img,height,width,pad,func)
+if not func then func=function() end end
+if not pad then pad="0dp" end
+if not height then height="80dp" end
+if not width then width="80dp" end
+return luajava.loadlayout({
+	LinearLayout,
+	layout_height="wrap_content",
+	layout_width="fill_parent",
+	gravity="center",
+	{
+	ImageView,
+	layout_height=height,
+	layout_width=width,
+	padding=pad,
+	src=获取图片(img),
+	onClick=function() luajava.newThread(func):start() end,
+}})
+
+end
+nowbg=1
+
+function changan.intcheck(name, func1, func2)
+    local nid = name .. guid()
+    if not name then name = "未设置" end
+    return {
+        LinearLayout,
+        layout_width = 'match_parent',
+        layout_weight = 1,
+        layout_height = "42dp",
+        layout_marginTop = "1dp",
+        layout_marginBottom = "1dp",
+        padding = "1dp",
+        {
+            LinearLayout,
+            padding = "3dp",
+            layout_width = 'match_parent',
+            layout_height = "wrap_content",
+            gravity = "center_vertical",
+            {
+                CheckBox,
+                id = luajava.newId(nid .. "t"),
+                layout_width = '32dp',
+                layout_height = '32dp',
+                padding = "0dp",
+                __onFinish=function(v)
+			v:setButtonTintList(RadTint)
+                    luajava.setInterface(v, 'setOnCheckedChangeListener',
+                        {
+                            onCheckedChanged = function(view, isc)
+                                if isc then
+                                    local func = func1 or function() end
+                                    if func ~= nil then
+                                        luajava.startThread(func)
+                                    end
+                                else
+                                    local func = func2 or function() end
+                                    if func ~= nil then
+                                        luajava.startThread(func)
+                                    end
+                                end
+                            end
+                        })
+                end,
+            },
+            {
+                TextView,
+                gravity = "left",
+                text = name,
+                textColor = 0xffffffff,
+                textSize = "14sp",
+                layout_width = 'match_parent',
+                layout_weight = 1,
+                onClick = function()
+                    local v = luajava.getIdView(nid .. 't')
+                    if v:isChecked() then
+                        v:setChecked(false)
+                    else
+                        v:setChecked(true)
+                    end
+                    -- luajava.newThread(function() func() end):start()
+                end,
+            },
+        }
+    }
+end
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+    if not gtvb4 then gtvb4 = 0 gtvb5 = 0xffffffff end
+    local jianbians = luajava.loadlayout({GradientDrawable})
+    jianbians:setCornerRadius(gtvb3)
+    jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+    jianbians:setColors(gtvb1)
+    jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+    return jianbians
+    end
+slcta=getVerticalBG({0x00EADEF6,0x00EADEF6},150,4,0xffffffff)
+function getButtonBG()
+    local selector = luajava.getStateListDrawable()
+    selector:addState({
+        android.R.attr.state_pressed
+    }, getVerticalBG({0x11d7d7d7,0x11d7d7d7},20))
+    selector:addState({
+        -android.R.attr.state_pressed
+    }, getVerticalBG({0x44ffffff,0x44ffffff},20))
+    return selector
+    end
+swfuncs = {}
+function changan.button(txt, func, txtc)
+    if not txt then txt = "未设置" end
+    if not txtc then txtc = "#ffffff" end
+    local tid = "Cbutton" .. guid()
+    return {
+        LinearLayout,
+        layout_width = "match_parent",
+        gravity = "center_vertical",
+        layout_margin = "4dp",
+        background = getButtonBG(),
+        elevation = '2dp',
+        padding = "10dp",
+        onClick = function(v)
+            changan.controlWater(v, 300)
+            luajava.newThread(func):start()
+        end,
+        {
+            TextView,
+            textColor = txtc,
+            text = txt,
+            textSize = "13sp",
+            layout_height = "wrap_content",
+            layout_width = "match_parent",
+            gravity='center',
+        }
+    }
+end
+RadTint=ColorStateList({
+    {android.R.attr.state_checked},
+    {-android.R.attr.state_checked},
+            {},
+        }, {
+            
+            0xffffffff,
+            '0x55ffffff',
+            0xffffffff
+        })
+function changan.radio(cklist)
+    local rest = {
+        LinearLayout ,
+        layout_width = 'match_parent' ,
+        layout_height = "wrap_content" ,
+        layout_marginTop = "10dp" ,
+        gravity = "top" ,
+        orientation = "vertical" ,
+    
+    }
+    if type (cklist [1]) == "string" then
+        rds=2
+    rest [# rest + 1] = {
+        TextView ,
+        gravity = "left" ,
+        padding="5dp",
+        text = cklist [1] ,
+        textSize = "13sp" ,
+        textColor = '#ffffff' ,
+        layout_width = 'match_parent' ,
+        layout_height = 'wrap_content' ,
+        layout_marginLeft = "10dp" ,
+        layout_marginRight = "5dp" ,
+        layout_marginTop = "0dp" ,
+        layout_marginBottom = "0dp" ,
+    }
+    else
+        rds=1
+    end
+    local restt={
+        RadioGroup ,
+        layout_width = 'match_parent' ,
+        layout_height = "wrap_content" ,
+        layout_margin = "4dp" ,
+        gravity = "top" ,
+        orientation = "vertical" ,
+        elevation='2dp',
+        background=luajava.loadlayout {
+                GradientDrawable ,
+                color = 0x44ffffff ,
+                cornerRadius = 20
+            },
+    }
+    for i = rds , # cklist do
+    local name = cklist [i] [1]
+    local func = cklist [i] [2]
+    local isChecked=cklist[i][3]
+    if not name then
+    name = "未设置"
+    end
+    local nid = name..guid ()
+    restt [# restt + 1] = {
+            RadioButton ,
+            gravity = "top" ,
+            text = name ,
+            textSize="13sp",
+            gravity='center_vertical',
+            textColor = '#ffffff' ,
+            layout_width = 'match_parent' ,
+            layout_height = 'wrap_content' ,
+            layout_marginLeft = "2dp" ,
+            layout_marginRight = "2dp" ,
+            onClick=function()
+                luajava.startThread(func)
+            end,
+            __onFinish=function(v)
+                v:setButtonTintList(RadTint)
+                if isChecked then
+                    v:getParent():check(v:getId())
+                end
+            end,
+        }
+    end
+    rest [# rest + 1] = restt
+    return rest
+    end
+
+local swcDraw=ColorStateList({
+        {android.R.attr.state_checked},
+        {-android.R.attr.state_checked},
+    }, {
+        0xffd7d7d7,
+        0x55ffffff,
+    })
+    local swctrack=ColorStateList({
+        {android.R.attr.state_checked},
+        {-android.R.attr.state_checked},
+    },
+{
+        '0x00ffffff',
+        0x55ffffff,
+    })
+local swcThumb=ColorStateList({
+        {android.R.attr.state_checked},
+        {android.R.attr.state_pressed},
+        {-android.R.attr.state_pressed},
+    }, {
+        0xffffffff,
+        0xffd7d7d7,
+        0xffffffff
+    })
+function changan.switch(name, func1, func2)
+    local nid = name .. guid()
+    swfuncs[nid] = { func1, func2 }
+    if not name then name = "未设置" end
+    local rest = {
+        LinearLayout,
+        layout_width = 'match_parent',
+        layout_height = "48dp",
+        gravity = "center_vertical",
+        {
+            LinearLayout,
+            layout_width = 'match_parent',
+            layout_height = "40dp",
+            layout_margin = "4dp",
+            gravity = "center_vertical",
+            elevation = "2dp",
+            padding = {
+                "0dp", "0dp", "6dp", "0dp"
+            },
+            {
+                TextView,
+                gravity = "top",
+                text = name,
+                textColor = '#ffffff',
+                textSize = "13sp",
+                layout_weight = 1,
+                layout_width = '80dp',
+                layout_marginLeft = "10dp",
+                layout_marginRight = "10dp",
+            },
+            {
+                MaterialSwitch,
+                id = luajava.newId(nid),
+                __onFinish = function(v)
+                    v:setTrackTintList(swcDraw)
+                    v:setThumbTintList(swcThumb)
+                    v:setTrackDecorationTintList(swctrack)
+                    luajava.setInterface(v, 'setOnCheckedChangeListener',
+                        {
+                            onCheckedChanged = function(view, isc)
+                                if isc then
+                                    local func = swfuncs[nid][1] or function() end
+                                    if func ~= nil then
+                                        luajava.startThread(func)
+                                    end
+                                else
+                                    local func = swfuncs[nid][2] or function() end
+                                    if func ~= nil then
+                                        luajava.startThread(func)
+                                    end
+                                end
+                            end
+                        })
+                end,
+                layout_width = 'wrap_content',
+                layout_height = 'wrap_content',
+            }
+        }
+    }
+    return rest
+end
+
+
+
+
+
+stitle = "全防"
+
+
+
+
+stab = {
+--菜单名字，添加即可加页数，需要与结尾配置表对应
+	"公告",
+	"防封",
+	"功能",
+	"设置",
+}
+xfcpic = "https://pan.jl8.top/view.php/06673eaa28ec80cd9ae01a60b7111832.png"--头像框
+窗口背景 = "https://pan.jl8.top/view.php/8780acccd5deaac5962b63f000fd1dae.jpg"--改这个背景
+hei_right = "https://i.uik.cc/down.php/d10ba21b444c343ad9de97cdd9e237c8.png"--不用管
+--悬浮窗链接或路径
+
+changan.menu(
+	{
+		{--1   
+
+
+changan.switch("每日语录",
+function()
+Y=gg.makeRequest("https://v1.hitokoto.cn/").content
+--获取云端数据
+Q=string.match(Y,'hitokoto(.+)type')
+--模式匹配他们中的一切字符
+F=string.gsub(Q,'":"',"")
+K=string.gsub(F,'","',"")
+--删除多余垃圾
+string.toMusic("\n\n"..""..K.."")
+QD = gg.alert("今日语录:\n\n"..""..K.."")
+if QD == 1 then
+end
+if QD == 3 then 
+end
+end),
+
+changan.switch("公告",
+function()
+string.toMusic("注意上分要演戏 功能少开 尽量少开危险功能 防封可单开或者尝试搭配 自行拿小白号测试 每台机型不一样 所以稳定性也不一样 高风险和安全期与防封无关框架可能漏值 要多开几次防 最后祝你稳定奔放官方频道@ALMHNB")
+gg.alert("注意上分要演戏 功能少开 尽量少开危险功能 防封可单开或者尝试搭配 自行拿小白号测试 每台机型不一样 所以稳定性也不一样 高风险和安全期与防封无关框架可能漏值 请多开几次防 最后祝你稳定奔放官方频道@ALMHNB")
+end),
+
+   
+		}, {--2
+changan.text("\n","#ffffff","5sp"),
+changan.button("选择游戏进程",
+function()
+gg.setProcessX()
+gg.playMusic("https://pan.jl8.top/view.php/b61f87c69137cac3d56221cc2fae2b2c.mp3")
+end),
+
+changan.button("游戏大厅初始化",
+                function()
+                 
+local t = {"libanogs.so:bss", "Cb"}
+local tt = {0x1DA0, 0x8}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 4, value = 131328, freeze = true}})
+
+gg.playMusic("https://pan.jl8.top/view.php/b61f87c69137cac3d56221cc2fae2b2c.mp3")               
+                end,
+                function()
+                end),
+
+            changan.switch("防闪",
+                function()
+                 
+local t = {"libanogs.so:bss", "Cb"}
+local tt = {0x718}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 32, value = 16384, freeze = true}})
+
+local t = {"libanogs.so:bss", "Cb"}
+local tt = {0x19D8}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 32, value = 16384, freeze = true}})
+
+local t = {"libanogs.so:bss", "Cb"}
+local tt = {0x1A10}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 32, value = 16384, freeze = true}})
+
+gg.playMusic("https://pan.jl8.top/view.php/b61f87c69137cac3d56221cc2fae2b2c.mp3")                    
+                end,
+                function()
+                end),
+            		
+			changan.box({"防封区",
+			changan.text("    大厅初始化需要重新选进程后再开启！","#ffffff","8sp"),
+				changan.check({
+					{
+						"LOGO防封",
+						function()
+
+if gg.getRangesList("libanogs.so")[1] then
+	local t = {}
+	t[1] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671088; -- 数值地址:0x6C60E7C088
+	t[2] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671090; -- 数值地址:0x6C60E7C090
+	t[3] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710A0; -- 数值地址:0x6C60E7C0A0
+	t[4] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710A8; -- 数值地址:0x6C60E7C0A8
+	t[5] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710B0; -- 数值地址:0x6C60E7C0B0
+	t[6] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710C8; -- 数值地址:0x6C60E7C0C8
+	t[7] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710E8; -- 数值地址:0x6C60E7C0E8
+	t[8] = gg.getRangesList("libanogs.so")[1]["start"] + 0x6710F0; -- 数值地址:0x6C60E7C0F0
+	t[9] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671108; -- 数值地址:0x6C60E7C108
+	t[10] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671130; -- 数值地址:0x6C60E7C130
+	t[11] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671138; -- 数值地址:0x6C60E7C138
+	t[12] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671140; -- 数值地址:0x6C60E7C140
+	t[13] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671150; -- 数值地址:0x6C60E7C150
+	t[14] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671160; -- 数值地址:0x6C60E7C160
+	t[15] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671168; -- 数值地址:0x6C60E7C168
+	t[16] = gg.getRangesList("libanogs.so")[1]["start"] + 0x671170; -- 数值地址:0x6C60E7C170
+	gg.addListItems({
+		[1] = { 
+			address = t[1],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[2] = { 
+			address = t[2],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[3] = { 
+			address = t[3],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[4] = { 
+			address = t[4],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[5] = { 
+			address = t[5],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[6] = { 
+			address = t[6],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[7] = { 
+			address = t[7],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[8] = { 
+			address = t[8],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[9] = { 
+			address = t[9],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[10] = { 
+			address = t[10],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[11] = { 
+			address = t[11],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[12] = { 
+			address = t[12],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[13] = { 
+			address = t[13],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[14] = { 
+			address = t[14],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[15] = { 
+			address = t[15],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[16] = { 
+			address = t[16],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+	})
+end
+if gg.getRangesList("libanogs.so:bss")[1] then
+	local t = {}
+	t[1] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x6A8; -- 数值地址:0x6C60ED16A8
+	t[2] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x136F4; -- 数值地址:0x6C60EE46F4
+	t[3] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13848; -- 数值地址:0x6C60EE4848
+	t[4] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x139AC; -- 数值地址:0x6C60EE49AC
+	t[5] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13C6C; -- 数值地址:0x6C60EE4C6C
+	t[6] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13C80; -- 数值地址:0x6C60EE4C80
+	t[7] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13D00; -- 数值地址:0x6C60EE4D00
+	t[8] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13DAC; -- 数值地址:0x6C60EE4DAC
+	t[9] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13F94; -- 数值地址:0x6C60EE4F94
+	t[10] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x13FD0; -- 数值地址:0x6C60EE4FD0
+	t[11] = gg.getRangesList("libanogs.so:bss")[1]["start"] + 0x146EC; -- 数值地址:0x6C60EE56EC
+	gg.addListItems({
+		[1] = { 
+			address = t[1],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[2] = { 
+			address = t[2],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[3] = { 
+			address = t[3],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[4] = { 
+			address = t[4],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[5] = { 
+			address = t[5],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[6] = { 
+			address = t[6],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[7] = { 
+			address = t[7],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[8] = { 
+			address = t[8],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[9] = { 
+			address = t[9],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[10] = { 
+			address = t[10],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+		[11] = { 
+			address = t[11],
+			flags = 4,
+			value = -700514304,
+			freeze = true,
+		},
+	})
+end
+
+gg.playMusic("https://i.uik.cc/view.php/ed248003934582a63b91fad2fade143f.mp3")
+gg.toast("开启成功")		
+						end
+					}, {"大厅防封",
+						function()
+
+
+gg.playMusic("https://i.uik.cc/view.php/ed248003934582a63b91fad2fade143f.mp3")
+gg.toast("开启成功")	
+						end
+					},	
+							
+				}),
+}),
+		}, {--3
+
+            changan.switch(
+            "静态广角",
+            function()
+
+if gg.getRangesList("libUE4.so")[1] then
+	local t = {}
+	t[1] = gg.getRangesList("libUE4.so")[1]["start"] + 0x2FFECE8; -- 数值地址:0x784E605CE8
+	gg.addListItems({
+		[1] = { 
+			address = t[1],
+			flags = 16,
+			value = 1.7000000476837158,
+			freeze = true,
+		},
+	})
+end
+
+            string.toMusic("开启成功")
+            end),
+            
+            changan.switch(
+            "动态广角",
+            function()
+            
+local t = {"libUE4.so:bss", "Cb"}
+local tt = {0x5ADC70,0x30,0x440,0x1BB8,0x33C}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 16, value = 120, freeze = true}})
+
+            string.toMusic("开启成功")
+            end),
+
+            changan.switch(
+            "锁帧",
+            function()
+            
+local t = {"libUE4.so:bss", "Cb"}
+local tt = {0x5D37D8, 0x0}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 16, value = 244, freeze = true}})
+
+local t = {"libUE4.so:bss", "Cb"}
+local tt = {0x5D37D8, 0x4}
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 16, value = 244, freeze = true}})
+
+            string.toMusic("开启成功")
+            end),
+
+            changan.switch(
+            "除雾",
+            function()
+
+local t = {"libUE4.so:bss", "Cb"}
+
+local tt = {0x5A5FF0,0x58,0x78,0x248,0x18E8,0x64}
+local ttt = S_Pointer(t, tt, true)
+
+gg.addListItems({{address = ttt, flags = 16, value = 99999, freeze = true}})	
+	
+            string.toMusic("开启成功")
+            end),
+
+            changan.switch(
+            "伤害显示",
+            function()
+            
+local t = {"libUE4.so:bss", "Cb"}
+local tt = {0x5A5FF0,0x30,0x994}--伤害
+local ttt = S_Pointer(t, tt, true)
+gg.addListItems({{address = ttt, flags = 4, value = 2, freeze = true}})
+
+            string.toMusic("开启成功")
+            end),
+
+            changan.switch(
+            "手持据点",
+            function()	
+            
+if gg.getRangesList("libUE4.so")[1] then
+	local t = {}
+	t[1] = gg.getRangesList("libUE4.so")[1]["start"] + 0x612A300; -- 数值地址:0x71C96DB300
+	gg.addListItems({
+		[1] = { 
+			address = t[1],
+			flags = 4,
+			value = -1119871744,
+			freeze = true,
+		},
+	})
+end
+
+            string.toMusic('开启成功')
+            end),
+
+            changan.switch(
+            "秒切枪",
+			function()
+			
+if gg.getRangesList("libUE4.so")[1] then
+	local t = {}
+	t[1] = gg.getRangesList("libUE4.so")[1]["start"] + 0x54A5B90; -- 数值地址:0x71C8A56B90
+	gg.addListItems({
+		[1] = { 
+			address = t[1],
+			flags = 4,
+			value = -1118707712,
+			freeze = true,
+		},
+	})
+end
+ 
+            string.toMusic("开启成功")	
+            end),
+            
+		}, {--第四页
+			changan.text("\n\n\n\n\n\n\n\n\n\n\n"),
+			changan.button("退出",function()
+            bloc("end")
+            end),
+		
+			
+		},
+
+
+	})
+--配置表添加表即可加页数，需要与上边菜单标题数对应
+
+bloc = luajava.getBlock()
+bloc('join')

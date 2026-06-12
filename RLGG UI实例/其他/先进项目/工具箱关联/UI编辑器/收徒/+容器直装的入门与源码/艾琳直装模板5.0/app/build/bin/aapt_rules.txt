@@ -1,0 +1,6 @@
+# view AndroidManifest.xml #generated:53
+-keep class com.eileen.hacker.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:74
+-keep class com.eileen.hacker.WindowService { <init>(...); }
+

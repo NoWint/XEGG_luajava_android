@@ -1,0 +1,236 @@
+-- =============================================
+-- RLGG深度文件保护检测器 v2.3
+-- 特征库更新日期：2024-01-20
+-- =============================================
+
+local DeepGuard = {
+    _VERSION = "2.3",
+    _SENSITIVE_PATHS = {  -- 敏感路径特征库
+        "/sdcard/DCIM/",
+        "/sdcard/WhatsApp/",
+        "/sdcard/Android/data/",
+        "/data/data/"
+    },
+    
+    _RISKY_FUNCTIONS = {  -- 高危函数特征库
+        file = {"write", "copy", "move", "delete"},
+        http = {"download", "upload", "post"},
+        os = {"execute", "rename"},
+        luajava = {"bindClass", "createProxy"}
+    },
+    
+    _MALICIOUS_PATTERNS = {  -- 恶意代码模式
+        "curl.*%-O",
+        "wget.*%-P",
+        "ftp.*put",
+        "base64%-d",
+        "chmod%+x",
+        "rm%-rf",
+        "su%-c"
+    }
+}
+
+-- =============================================
+-- RLGG深度文件保护检测器 v2.4
+-- 支持路径输入与深度扫描增强版
+-- =============================================
+
+
+
+-- 增强版路径输入处理
+function DeepGuard:getTargetPath()
+    while true do
+        local input = gg.prompt(
+            {"请输入待检测脚本路径："},
+            {"/sdcard/Download/"},
+            {"file"}
+        )
+        
+        if not input then
+            gg.alert("检测已取消")
+            os.exit()
+        end
+        
+        local path = input[1]
+        
+        -- 路径有效性验证
+        if not file.checkFile(path) then
+            gg.alert("路径无效或文件不存在！")
+        elseif not path:match("%.lua$") then
+            gg.alert("仅支持检测Lua脚本！")
+        else
+            return path
+        end
+    end
+end
+
+-- 增强型深度扫描流程
+function DeepGuard:enhancedDeepCheck()
+    -- 阶段0：环境安全检查
+    if gg.isVPN() then
+        gg.alert("请关闭VPN后执行检测！")
+        os.exit()
+    end
+    
+    -- 阶段1：获取检测目标
+    local scriptPath = self:getTargetPath()
+    
+    -- 阶段2：预扫描分析
+    gg.toast("开始预扫描分析...")
+    local preScanResult = self:preScanAnalysis(scriptPath)
+    if preScanResult.risk > 50 then
+        if gg.choice({"继续深度扫描","终止检测"}) == 2 then
+            return
+        end
+    end
+    
+    -- 阶段3：动态行为监控
+    gg.toast("启动实时监控...")
+    self:startLiveMonitor()
+    
+    -- 阶段4：执行沙盒运行
+    gg.toast("沙盒环境中运行脚本...")
+    local success, err = pcall(function()
+        load(file.read(scriptPath))()
+    end)
+    
+    -- 阶段5：生成最终报告
+    gg.toast("生成检测报告...")
+    local report = self:generateReport()
+    
+    -- 清理监控环境
+    self:restoreHooks()
+    
+    -- 可视化报告
+    self:showVisualReport(report)
+    
+    -- 高风险处理
+    if self.riskScore > 80 then
+        self:handleHighRisk(scriptPath)
+    end
+end
+
+-- 新增预扫描分析
+function DeepGuard:preScanAnalysis(path)
+    local result = {
+        hash = string.sha256(file.read(path)),
+        size = file.length(path),
+        risk = 0,
+        warnings = {}
+    }
+    
+    -- 文件特征分析
+    if result.size > 1024*1024 then
+        result.risk = result.risk + 20
+        table.insert(result.warnings, "文件体积过大("..result.size.."字节)")
+    end
+    
+    -- 签名验证
+    local validSign = checkSign({result.hash})
+    if not validSign then
+        result.risk = result.risk + 30
+        table.insert(result.warnings, "未通过签名验证")
+    end
+    
+    return result
+end
+
+-- 可视化报告输出
+function DeepGuard:showVisualReport(report)
+    local html = [[
+    <html>
+    <body style="background:#303030;color:#FFFFFF;padding:20px;">
+        <h2>🔍 深度检测报告</h2>
+        <pre>%s</pre>
+        <div style="color:%s;font-weight:bold;">%s</div>
+    </body>
+    </html>
+    ]]
+    
+    local statusColor = "#00FF00"
+    local statusText = "✅ 安全"
+    if self.riskScore > 70 then
+        statusColor = "#FF0000"
+        statusText = "⚠️ 发现高风险行为！"
+    elseif self.riskScore > 40 then
+        statusColor = "#FFFF00"
+        statusText = "⚠️ 存在中等风险"
+    end
+    
+    gg.htmlAlert(string.format(html, 
+        report:gsub("\n", "<br>"), 
+        statusColor,
+        statusText
+    ))
+end
+
+-- 新增正确的构造函数定义
+function DeepGuard:new()
+    local obj = {
+        originalEnv = {},
+        hookedFunctions = {},
+        behaviorLog = {},
+        riskScore = 0,
+        isMonitoring = false
+    }
+    -- 设置正确的元表继承
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
+end
+
+-- 高风险处理流程
+function DeepGuard:handleHighRisk(path)
+    gg.alert("发现高危文件！建议立即处理")
+    
+    local action = gg.choice({
+        "🗑️ 立即删除文件",
+        "🔒 移动到隔离区",
+        "📤 上传样本到安全中心",
+        "✖️ 取消"
+    }, nil, "请选择处理方式")
+    
+    if action == 1 then
+        file.delete(path)
+        gg.toast("文件已安全删除")
+    elseif action == 2 then
+        local newPath = "/sdcard/Quarantine/"..os.time()..".lua"
+        file.move(path, newPath)
+        gg.toast("已隔离到："..newPath)
+    elseif action == 3 then
+        self:uploadSample(path)
+    end
+end
+
+-- 样本上传功能
+function DeepGuard:uploadSample(path)
+    local loading = getLoadingBox("上传样本中...")
+    loading['显示']()
+    
+    local content = file.read(path)
+    local ok, err = http.post(
+        "https://safe.rlyun.top/api/upload",
+        {
+            ["Content-Type"] = "application/octet-stream",
+            ["X-File-Hash"] = string.sha256(content)
+        },
+        content
+    )
+    
+    loading['关闭']()
+    
+    if ok then
+        gg.alert("样本上传成功，分析ID："..ok)
+    else
+        gg.alert("上传失败："..err)
+    end
+end
+
+-- 主入口
+function main()
+    gg.setVisible(false)
+    local guard = DeepGuard:new()  -- 现在可以正确调用new方法
+    guard:enhancedDeepCheck()
+end
+
+main()

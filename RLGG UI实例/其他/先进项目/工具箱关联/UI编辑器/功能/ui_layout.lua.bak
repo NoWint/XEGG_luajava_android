@@ -1,0 +1,44 @@
+local luajava = require('luajava')
+local floatingWindowManager = require('floatingWindowManager')
+
+floatingWindowManager:init()
+floatingWindowManager:run()
+floatingWindowManager:newWindow('底部导航\n页面布局', {
+	onCreate = function(floatingWindow)
+		floatingWindow:addView(YUNZHU)
+	end
+})
+--return function(context)
+
+    YUNZHU= luajava.loadlayout({
+        LinearLayout,
+        weightSum = "1",
+        orientation = "vertical",
+        gravity = "left|top",
+        {
+            Button,
+            onClick = function() gg.toast('点击事件') end,
+            textColor = "#FFFFFFFF",
+            text = "云烛",
+            background = "#FF2196F3",
+        },
+        {
+            SeekBar,
+            progress = "50",
+            thumb = "#FFFFFFFF",
+        },
+        {
+            Switch,
+            checked = "false",
+            textOff = "关",
+            textOn = "开",
+        },
+        {
+            EditText,
+            hint = "输入提示",
+            textSize = "14",
+            inputType = "text",
+        },
+    }, nil, context)
+--end,
+

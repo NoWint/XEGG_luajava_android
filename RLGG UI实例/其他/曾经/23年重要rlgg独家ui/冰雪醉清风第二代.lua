@@ -1,0 +1,2170 @@
+local info = {
+	    example_version = '1.0.3',
+		name = '云烛全防特别版',
+		appid = '43521',
+		appkey = 'YVWuCPW4zOLLOGPu',
+		rc4key = '7vOO3o393gHs3g3W',
+		version = '1.0',
+		mi_type = '3'
+	}
+rlyunyz = getrlyunyz(info)
+colorvs={}
+流光=true
+function shij()
+local webView = luajava.webView(function(webView)
+		webView:loadData([[
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>显示当前时间和日期</title>
+    <style>
+       #current-time-and-date {
+            color: white;
+            font-size: 13.5px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="current-time-and-date"></div>
+
+    <script>
+        // 获取当前时间和日期，并格式化为 HTML 格式
+        function displayCurrentTimeAndDate() {
+            var date = new Date();
+
+            var timeString = date.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            // 将年份、月份和日期的文字替换为短横线，并去掉下午标签
+             timeString = timeString.replace(/年|月/g, '/').replace(/日/g, '');
+            document.getElementById('current-time-and-date').innerHTML = timeString;
+        }
+
+        // 每秒钟更新一次时间和日期
+        setInterval(displayCurrentTimeAndDate, 1000);
+    </script>
+</body>
+</html>
+]], 'text/html', 'UTF-8')
+		webView:setBackgroundColor(0x0)
+		webView:setVerticalScrollBarEnabled(false)
+		webView:setHorizontalScrollBarEnabled(false)
+		webView:setScrollContainer(false)
+	end)
+	return webView
+end
+shij=shij()
+function particle(text1,text2,text3,color)
+	local webView = luajava.webView(function(webView)
+		webView:loadData([[
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>]]..text1..[[</title>
+ 
+    <style>
+      html,
+      *{
+    /* 初始化 */
+    margin: 0;
+    padding: 0;
+}
+body{
+    height: 15vw;
+    /* 弹性布局 水平+垂直居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #00000000;
+}
+h1{
+    /* 文本透明 */
+    color: transparent;
+    font-size: 18px;
+    letter-spacing: 5px;
+    /* 渐变背景 */
+    background: linear-gradient(to right,]]..color[1]..[[,]]..color[2]..[[,]]..color[3]..[[);
+    /* 裁剪掉文字以外的区域 */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 80%;
+    background-repeat: repeat;
+    background-position: center;
+    /* 执行动画：动画名 时长 线性 无线播放 */
+    animation: move 4s linear infinite;
+    position:absolute;
+    top:10px
+}
+p{
+  color: white;
+  font-size: 5px;
+  align-items: center;
+  }
+/* 定义动画 */
+@keyframes move {
+    0%{
+        background-position: -400%;
+    }
+    100%{
+        background-position: 400%;
+    }
+}
+    </style>
+  </head>
+  <body>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+    <title>纯CSS实现文本背景扫光效果</title>
+    <link rel="stylesheet" href="113.css">
+</head>
+
+<body>
+    <h1>]]..text2..[[<br>  <p>]]..text3..[[</p></h1>
+    
+
+</body>
+
+    </script>
+  </body>
+ 
+</html>
+]], 'text/html', 'UTF-8')
+		webView:setBackgroundColor(0x0)
+		webView:setVerticalScrollBarEnabled(false)
+		webView:setHorizontalScrollBarEnabled(false)
+		webView:setScrollContainer(false)
+	end)
+	return webView
+end
+suofang = function(v, event)
+if isLocked then hanshu(v,event) return 0 end
+local Action = event:getAction()
+
+if Action == MotionEvent.ACTION_DOWN then
+isMove = false
+RawX = event:getRawX()
+RawY = event:getRawY()
+hx = mainLayoutParams.height
+hy = mainLayoutParams.width
+if hx == 0 or hx==-2 then hx = 810 hy = 1150 end
+elseif Action == MotionEvent.ACTION_MOVE then
+isMove = true
+mubx = tonumber(hx) + (event:getRawY() - RawY)
+if mubx >= 300 and mubx <= 11100 then
+mainLayoutParams.height = mubx
+end
+muby = tonumber(hy) + (event:getRawX() - RawX)
+if muby >= 300 and muby <= 24500 then
+mainLayoutParams.width = muby
+end
+if muby<=300 and mubx<=300 then muby=300 mubx=300
+--隐藏()
+return 0 end
+window:updateViewLayout(floatWindow, mainLayoutParams)
+end
+end
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+changan = {}
+local changan = changan
+local android = import('android.*')
+
+
+function write(fileName, content)
+file.write(fileName, content)
+end
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+----------------------文件下载----------------------
+if panduan("/sdcard/云烛/图片/Shimmer2.dex") ~= true then
+gg.toast("正在下载资源Shimmer2.dex\n请耐心等待")
+download("https://wp.td88.cyou/down.php/54cd3e9b81af35b11281325108d68c4a.dex","/sdcard/云烛/图片/Shimmer2.dex")
+end
+if panduan("/sdcard/云烛/图片/support.dex") ~= true then
+gg.toast("正在下载资源support.dex\n请耐心等待")
+download("https://wp.td88.cyou/down.php/890b38ca97b5dd1db9ef21703fc32b08.dex","/sdcard/云烛/图片/support.dex")
+end
+if panduan("/sdcard/云烛/配置文件/1") ~= true then
+download("1","/sdcard/云烛/配置文件/1")
+end
+----------------------文件下载----------------------
+dex.loadfile('/sdcard/云烛/图片/support.dex')
+if 流光 then
+shimmer=dex.loadfile('/sdcard/云烛/图片/Shimmer2.dex')
+import "com.romainpiel.shimmer.Shimmer"
+import "com.romainpiel.shimmer.ShimmerTextView"
+end
+if panduan("/sdcard/云烛/配置文件/km.lua") ~= false then
+dofile("/sdcard/云烛/配置文件/km.lua") end
+if not kam then kam='没有登录' end
+
+context = app.context
+window = context:getSystemService("window") -- 获取窗口管理器
+function getLayoutParams()
+LayoutParams = WindowManager.LayoutParams
+layoutParams = luajava.new(LayoutParams)
+if (Build.VERSION.SDK_INT >= 26) then -- 设置悬浮窗方式
+layoutParams.type = LayoutParams.TYPE_APPLICATION_OVERLAY
+else
+	layoutParams.type = LayoutParams.TYPE_PHONE
+end
+
+layoutParams.format = PixelFormat.RGBA_8888 -- 设置背景
+layoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE -- 焦点设置Finish
+layoutParams.gravity = Gravity.TOP|Gravity.LEFT -- 重力设置
+layoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+layoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+
+return layoutParams
+end
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+return jianbians
+end
+function getHorizontalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+return jianbians
+end
+function getj7()
+jianbian6 = luajava.new(GradientDrawable)
+jianbian6:setCornerRadius(20)
+jianbian6:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbian6:setColors({
+	0x002F3032,0x002F3032
+})
+jianbian6:setStroke(3,"0xff0091FE")--边框宽度和颜色
+return jianbian6
+end
+slctb = getHorizontalBG({0x7b000000,0x7b737373},25,1,0x7b545454)
+slcta = getHorizontalBG({0x34000400,0x34000400},25,1,0x7b545454)
+slctc = luajava.loadlayout {
+	GradientDrawable,
+	color = "#11ffffff",
+	cornerRadius = 8
+}
+slctd = luajava.loadlayout {
+	GradientDrawable,
+	color = "#55ffffff",
+	cornerRadius = 8
+}
+slcte = luajava.loadlayout {
+	GradientDrawable,
+	color = "#11ffffff",
+	cornerRadius = 12
+}
+slctf = luajava.loadlayout {
+	GradientDrawable,
+	color = "#aa1E1C27",
+	cornerRadius = 12
+}
+function getSelector3()
+selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, luajava.loadlayout {
+	GradientDrawable,
+	color = "#b9b9b9",
+	cornerRadius = 30
+}) -- 点击时候的背景
+selector:addState({
+	-android.R.attr.state_pressed
+}, luajava.loadlayout {
+	GradientDrawable,
+	color = "#EFEFEF",
+	cornerRadius = 30
+}) -- 没点击的背景
+return selector
+end
+function getSelector()
+selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, slcta) -- 点击时候的背景
+selector:addState({
+	-android.R.attr.state_pressed
+}, slctb) -- 没点击的背景
+return selector
+end
+hanshu = function(v, event)
+local Action = event:getAction()
+if Action == MotionEvent.ACTION_DOWN then
+isMove = false
+RawX = event:getRawX()
+RawY = event:getRawY()
+x = mainLayoutParams.x
+y = mainLayoutParams.y
+elseif Action == MotionEvent.ACTION_MOVE then
+isMove = true
+mainLayoutParams.x = tonumber(x) + (event:getRawX() - RawX)
+mainLayoutParams.y = tonumber(y) + (event:getRawY() - RawY)
+window:updateViewLayout(floatWindow, mainLayoutParams)
+end
+end
+function getSelector2()
+selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, slctd) -- 点击时候的背景
+selector:addState({
+	-android.R.attr.state_pressed
+}, slctc) -- 没点击的背景
+return selector
+end
+
+jianbian = luajava.new(GradientDrawable)
+jianbian:setCornerRadius(30)
+jianbian:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbian2 = luajava.new(GradientDrawable)
+jianbian2:setCornerRadius(30)
+jianbian2:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+function 获取图片(txt)
+--gg.toast("正在加载资源...")
+txt = file.checkUrl(txt)
+return luajava.getBitmapDrawable(txt)
+end
+local isswitch
+YoYoImpl = luajava.getYoYoImpl()
+changan.menu = function(sview)
+if isswitch then
+return false
+end
+
+isswitch = true
+cebian = {
+	LinearLayout,
+	id = "侧边",
+	layout_height = "match_parent",
+	layout_width = "match_parent",
+	orientation = "vertical",
+	gravity = "center_horizontal",
+}
+for i = 1,#stab do
+if 流光 then
+		_ENV["jm"..i..'t']=luajava.loadlayout{
+		ShimmerTextView,
+		text = stab[i],
+		gravity = "center",
+		textSize = "16sp",
+		shimmerEnable='true',
+		reflectionColor="#000000";
+		textColor = "#ffffff",
+		layout_height = "40dp",
+		layout_width = "match_parent",
+	}
+else
+	_ENV["jm"..i..'t']=luajava.loadlayout{TextView,
+			text = stab[i],
+		gravity = "center",
+		textSize = "16sp",
+		textColor = "#ffffff",
+		layout_height = "40dp",
+		layout_width = "match_parent",
+			}
+end
+cebian[#cebian+1] = {
+	LinearLayout,
+	id = "jm"..i,
+	layout_height = "40dp",
+	layout_width = "match_parent",
+	layout_marginTop = "3dp",
+	layout_marginBottom = "3dp",
+	layout_marginRight = "6dp",
+	layout_marginLeft = "6dp",
+	background = getSelector(),
+	onClick = function() 切换(i) end,
+	_ENV["jm"..i..'t']
+	}
+end
+
+cebian = luajava.loadlayout(
+	{
+		ScrollView,
+		visibility = "gone",
+		layout_height = "match_parent",
+		layout_width = "match_parent",
+		layout_marginBottom = "32dp",
+		cebian
+	})
+	if 流光 then
+	stit=luajava.loadlayout{ShimmerTextView,
+				textSize="18sp",
+				gravity='center_horizontal',
+				layout_width='match_parent',
+				shimmerEnable='true',
+				reflectionColor="#000000";
+				textColor="#F3F3F3",
+				text=侧边栏标题,
+	}
+	else
+		stit=luajava.loadlayout{TextView,
+				textSize="18sp",
+				gravity='center_horizontal',
+				layout_width='match_parent',
+				textColor="#151515",
+				text=侧边栏标题,
+	}
+	end
+function getCorner(gtvb1,gtvb3,gtvb4,gtvb5,g1,g2,g3,g4)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)   
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+jianbians:setCornerRadii({g1,g1,g2,g2,g3,g3,g4,g4})
+return jianbians
+end
+cbian = luajava.loadlayout({
+FrameLayout,
+background=getHorizontalBG({0x7b737373,0x7b000000},35,2,0x7b545454),
+id="cbian",
+orientation = "vertical",
+layout_height = "match_parent",
+layout_width = "160dp",
+visibility = "gone",
+{LinearLayout,
+				layout_width='match_parent',
+				layout_height='25dp',
+				gravity='center',
+				elevation='2dp',
+		layout_marginTop='3dp',
+				layout_marginBottom='3dp',
+				layout_marginLeft='3dp',
+				layout_marginRight='3dp',
+				stit
+			},
+{
+    LinearLayout;
+    layout_marginTop="31dp";
+    layout_height="30dp";
+    gravity="center";
+    orientation="horizontal";
+    layout_width="match_parent";
+    {
+      TextView;
+      layout_marginLeft="10dp";
+      gravity="center";
+      text="导航";
+      id="daohang";
+      textColor = "#ffffff";
+      textSize = "14sp";
+      layout_width="70dp";
+      layout_height="match_parent";
+      background = getCorner({0x7b000000,0x7b737373},30,0,0x7b545454,20,20,0,0);
+      onClick = function() 
+ luajava.runUiThread(function() 
+ daohang:setBackground(getCorner({0x7b000000,0x7b737373},30,0,0x7b545454,20,20,0,0)) 
+ zhanghao:setBackground(getCorner({0xff121212,0xff121212},30,0,0x7b545454,20,20,0,0)) 
+ cebian:setVisibility(View.VISIBLE)
+ denglu:setVisibility(View.GONE)
+ if 当前ui == 1 then
+zhuye:setVisibility(View.VISIBLE)
+else
+_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+end
+ end) 
+ end
+    };
+    {
+      TextView;
+      layout_marginRight="10dp";
+      layout_marginLeft="1";
+      gravity="center";
+      id="zhanghao";
+      layout_width="70dp";
+      text="账号";
+      textColor = "#ffffff";
+      textSize = "14sp";
+      layout_height="match_parent";
+      background = getCorner({0xff121212,0xff121212},30,0,0x7b545454,20,20,0,0);
+      onClick = function() 
+ luajava.runUiThread(function() 
+ zhanghao:setBackground(getCorner({0x7b000000,0x7b737373},30,0,0x7b545454,20,20,0,0)) 
+ daohang:setBackground(getCorner({0xff121212,0xff121212},30,0,0x7b545454,20,20,0,0)) 
+ cebian:setVisibility(View.GONE)
+ denglu:setVisibility(View.VISIBLE)
+ _ENV["layout"..当前ui]:setVisibility(View.GONE)
+zhuye:setVisibility(View.GONE)
+ end) 
+ end
+    };
+  };
+{LinearLayout,
+background=getCorner({0xff121212,0xff121212},30,0,0x7b545454,0,0,20,20);
+layout_width='match_parent',
+layout_height='match_parent',
+layout_marginTop='61dp',
+layout_marginLeft="10dp";
+layout_marginRight="10dp";
+layout_marginBottom='30dp',	
+gravity='center',		
+cebian,
+},
+{LinearLayout,
+layout_width = "match_parent",
+id="shijian",
+visibility = "visible",
+layout_height = "25dp",
+layout_marginTop = "5dp",
+	layout_marginBottom = "7dp",
+	layout_marginLeft='7.5dp',
+	layout_gravity="bottom|center",
+},
+})
+for i = 1,#stab do
+if 流光 then
+		_ENV["jm"..i..'ts']=luajava.loadlayout{
+		ShimmerTextView,
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		text = "当前页面\n-"..stab[i].."-",
+		textColor = "#ffffff",
+		reflectionColor="#000000";
+		gravity = "center",
+		textSize = "14sp",
+	}
+else
+	_ENV["jm"..i..'ts']=luajava.loadlayout{TextView,
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		text = "当前页面\n-"..stab[i].."-",
+		textColor = "#ffffff",
+		gravity = "center",
+		textSize = "14sp",
+			}
+end
+if 流光 then
+		_ENV["jm"..i..'GG']=luajava.loadlayout{
+		ShimmerTextView,
+		reflectionColor="#000000";
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		text = 公告内容,
+		textColor = "#ffffff",
+		gravity = "center",
+		textSize = "14sp",
+	}
+else
+    	_ENV["jm"..i..'GG']=luajava.loadlayout{TextView,
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		text = 公告内容,
+		textColor = "#ffffff",
+		gravity = "center",
+		textSize = "14sp",
+			}
+end
+_ENV["layout"..i] = luajava.loadlayout({
+	LinearLayout,
+	layout_width = "match_parent",
+	layout_height = "match_parent",
+	id="jiem",
+	visibility = "gone",
+	orientation = "vertical",
+	{FrameLayout,
+	layout_width = "match_parent",
+	layout_height = "35dp",
+	layout_marginTop="6dp",
+	layout_marginBottom="6dp",
+	layout_marginRight = "8dp",
+	layout_marginLeft = "8dp",
+	  {LinearLayout,
+	layout_width = "118dp",
+	layout_height = "35dp",
+	background=getHorizontalBG({0x7b000000,0x7b737373},35,1,0x7b545454),
+	_ENV["jm"..i..'ts']
+	},
+	{LinearLayout,
+	layout_width = "match_parent",
+	layout_height = "35dp",
+	layout_marginRight = "43dp",
+	layout_marginLeft = "126dp",
+	background=getHorizontalBG({0x7b000000,0x7b737373},35,1,0x7b545454),
+	_ENV["jm"..i..'GG']
+	},
+	{LinearLayout,
+	layout_width = "35dp",
+	layout_height = "35dp",
+	layout_marginLeft = "match_parent",
+	layout_gravity="right|center",
+	background=getHorizontalBG({0x7b000000,0x7b737373},35,1,0x7b545454),
+	onClick = function()
+		local function func()
+			changan.controlSmall(floatWindow,500)
+				gg.sleep(600)
+				隐藏()
+				changan.controlBig(floatWindow,500)
+		end
+		luajava.startThread(func)
+	end,
+	onTouch=hanshu,
+	{LinearLayout,
+	background="https://wp.td88.cyou/view.php/cf0131c5c936949e37ff80930993d679.png",
+	layout_width = "25dp",
+	layout_height = "25dp",
+	layout_marginTop="5.5dp",
+	layout_marginLeft = "5.5dp",
+	gravity="center",
+	}
+	}
+	},
+	{LinearLayout,
+	layout_width = "match_parent",
+	layout_height = "match_parent",
+	layout_marginBottom="2dp",
+	{
+		ScrollView,
+		fillViewport = "true",
+--padding = "10dp",
+layout_marginTop="2dp",
+layout_marginBottom="2dp",
+layout_marginRight = "8dp",
+layout_marginLeft = "8dp",
+		gravity = "center",
+		
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		orientation = "horizontal",
+		background=getHorizontalBG({0x7b000000,0x7b737373},35,2,0x7b545454),
+		{
+			LinearLayout,
+			id = "layoutm"..i,
+			layout_marginRight = "5dp",
+			layout_marginLeft = "5dp",
+			layout_width = "match_parent",
+		    layout_height = "match_parent",
+			orientation = "vertical",
+			gravity = "center_horizontal",
+		}
+	}}})
+end
+if 流光 then
+		gongao=luajava.loadlayout{
+		ShimmerTextView,
+		reflectionColor="#ffffff";
+		layout_width = "match_parent",
+		layout_height = "50dp",
+		text = "INFO V4",
+		textColor = "#000000",
+		gravity = "center",
+		textSize = "20sp",
+	}
+else
+    	gongao=luajava.loadlayout{TextView,
+		layout_width = "match_parent",
+		layout_height = "50dp",
+		text = "INFO V4",
+		textColor = "#ffffff",
+		gravity = "center",
+		textSize = "20sp",
+			}
+end
+
+function getedit(name)
+--gg.alert(edit)
+edit = tostring(luajava.getIdValue(name):getText())
+return edit
+end
+function 便捷()
+if panduan("/sdcard/云烛/配置文件/km.lua") ~= false then
+dofile("/sdcard/云烛/配置文件/km.lua") end
+if panduan("/sdcard/云烛/配置文件/用户头像.lua") ~= false then
+dofile("/sdcard/云烛/配置文件/用户头像.lua") end
+if panduan("/sdcard/云烛/配置文件/用户昵称.lua") ~= false then
+dofile("/sdcard/云烛/配置文件/用户昵称.lua") end
+if panduan("/sdcard/云烛/配置文件/用户ID.lua") ~= false then
+dofile("//sdcard/云烛/配置文件/用户ID.lua") end
+end
+便捷()
+if 流光 then
+		yhnc=luajava.loadlayout{ShimmerTextView,
+				textSize="18sp",
+				id="nic",
+				layout_width='match_parent',
+				shimmerEnable='true',
+				reflectionColor="#000000";
+				textColor="#F3F3F3",
+				text=""..name,
+	}
+	    ndkm=luajava.loadlayout{ShimmerTextView,
+	    textSize="23sp",
+	    layout_marginTop="1dp";
+        layout_marginLeft="10dp";
+        layout_marginRight="10dp";
+        shimmerEnable='true',
+		reflectionColor="#000000";
+	    layout_width='match_parent',
+		textColor="#ffffff",
+		text="* * * * * *"..string.sub(kam,-4,-1);
+	}
+else
+    	yhnc=luajava.loadlayout{TextView,
+				textSize="18sp",
+				id="nic",
+				layout_width='match_parent',
+				textColor="#F3F3F3",
+				text=""..name,
+	}
+	   ndkm=luajava.loadlayout{
+        TextView,
+	    textSize="23sp",
+	    layout_marginTop="1dp";
+        layout_marginLeft="10dp";
+        layout_marginRight="10dp";
+	    layout_width='match_parent',
+		textColor="#ffffff",
+		text="******"..string.sub(kam,-4,-1);
+	  }
+end
+ckou = {
+		LinearLayout,
+		orientation = "horizontal",
+		layout_width = "match_parent",
+		 layout_height = "match_parent",
+		padding = "0dp",
+		cbian,
+{
+  LinearLayout;
+  layout_height="fill";
+  layout_width="fill";
+  id="yanz";
+  orientation="horizontal";
+  gravity="center";
+  {
+    LinearLayout;
+    elevation="10dp";
+    layout_gravity="center";
+    layout_height="wrap_content";
+    layout_width="wrap_content";
+    orientation="vertical";
+    {
+    LinearLayout;
+    background=getHorizontalBG({0xffffffff,0xffffffff},20);
+    layout_width="160dp";
+    layout_height="50dp";
+    elevation="10dp";
+    layout_gravity="center";
+    orientation="vertical";
+    gravity="center";
+    onClick = function()
+	--changan.controlFlip(logkapian,2000)
+	luajava.newThread(function() 
+	if kam == '没有登录' then 
+	gg.alert("你还没有登录过")
+	else
+logkap = true login(kam) end end):start() end;
+    {
+      TextView;
+      text="******"..string.sub(kam,-4,-1);
+      textColor="#000000";
+      textSize="18sp";
+      gravity="center";
+    };
+    {
+      TextView;
+      text="快捷登录";
+      textColor="#4E98FF";
+      textSize="11sp";
+      gravity="center";
+    };
+  };
+  {
+    EditText;
+    layout_gravity="center";
+    textColor="#000000";
+    id = luajava.newId('卡密');
+    hintTextColor="#d7d7d7";
+    layout_height="50dp";
+    hint="请输入卡密";
+    layout_marginTop="10dp";
+    background=getHorizontalBG({0xffffffff,0xffffffff},20);
+    elevation="10dp";
+    layout_width="160dp";
+    gravity="center";
+  };
+  {
+    TextView;
+    layout_gravity="center";
+    textColor="#ffffff";
+    layout_height="30dp";
+    layout_marginTop="10dp";
+    background=getHorizontalBG({0xff0077FF,0xff0077FF},20);
+    textSize="16sp";
+    elevation="10dp";
+    text="LOGIN";
+    layout_width="160dp";
+    gravity="center";
+    onClick = function() luajava.newThread(function() local dl=getedit("卡密")
+					if dl~="" and dl~=" " then
+					login(dl)
+					else
+					gg.alert("卡密不能留空")
+					end end):start() end;
+  };
+  {
+    TextView;
+    layout_gravity="center";
+    textColor="#ffffff";
+    layout_height="30dp";
+    layout_marginTop="5dp";
+    background=getHorizontalBG({0xff37383D,0xff37383D},20);
+    textSize="16sp";
+    elevation="10dp";
+    text="购卡";
+    layout_width="160dp";
+    gravity="center";
+    onClick = function() luajava.newThread(function()
+					gg.intent(卡网) 隐藏() rmdadView(vv) vv=nil
+				end):start() end;
+  };
+  {
+    TextView;
+    layout_gravity="center";
+    textColor="#ffffff";
+    layout_height="30dp";
+    layout_marginTop="5dp";
+    background=getHorizontalBG({0xff37383D,0xff37383D},20);
+    textSize="16sp";
+    elevation="10dp";
+    text="解绑";
+    layout_width="160dp";
+    gravity="center";
+    onClick = function() luajava.newThread(function()
+					local t=getedit("卡密")
+					if t~="" and t~=" " then
+					rlyunyz.unbind(t)
+					else
+					gg.alert("请输入需要解绑的卡密")
+					end
+				end):start() end;
+  };
+  {
+    TextView;
+    layout_gravity="center";
+    textColor="#ffffff";
+    layout_height="30dp";
+    layout_marginTop="5dp";
+    background=getHorizontalBG({0xff37383D,0xff37383D},20);
+    textSize="16sp";
+    elevation="10dp";
+    text="退出";
+    layout_width="160dp";
+    gravity="center";
+    onClick = function() tuichu=1 end,
+  };
+  };
+  {
+    LinearLayout;
+    layout_height="255dp";
+    layout_width="160dp";
+    layout_marginLeft="10dp";
+    orientation="vertical";
+    gravity="center";
+    background=getHorizontalBG({0xffffffff,0xffffffff},32);
+    {
+      LinearLayout;
+      layout_height="90dp";
+      layout_width="90dp";
+      background="https://cdn-community.codemao.cn/47/community/d2ViXzEwMDFfMTAwMTQwOTNfMTAwMTQwOTNfMTcwNzU3NjQ5MTM5Ml83MDgyNDI5Nw.png";
+    };
+    gongao;
+    {TextView,
+		layout_width = "match_parent",
+		layout_height = "50dp",
+		text = 公告内容,
+		textColor = "#545454",
+		gravity = "center",
+		textSize = "20sp",
+	}
+    
+  };
+};
+
+		{LinearLayout,
+		orientation = "horizontal",
+		id="zhuye",
+		visibility = "gone",
+		layout_width = "match_parent",
+		 layout_height = "match_parent",
+		 
+		 {FrameLayout,
+		 layout_marginTop="2dp",
+layout_marginBottom="2dp",
+layout_marginRight = "8dp",
+layout_marginLeft = "8dp",
+layout_width = "match_parent",
+		 layout_height = "match_parent",
+		 {LinearLayout,
+	layout_width = "match_parent",
+	layout_marginRight = "320dp";
+	layout_height = "match_parent",
+	layout_marginTop="20dp",
+layout_marginBottom="20dp",
+	background=getHorizontalBG({0x7b737373,0x7b000000},35,5,0x7b545454);
+	{
+  LinearLayout;
+  layout_height="fill";
+  layout_width="fill";
+  orientation="vertical";
+  {
+    LinearLayout;
+    layout_width="match_parent";
+    layout_height="match_parent";
+    orientation="vertical";
+    layout_gravity="center";
+    {
+      LinearLayout;
+      layout_width="70dp";
+      background="https://cdn-community.codemao.cn/47/community/d2ViXzEwMDFfMTAwMTQwOTNfMTAwMTQwOTNfMTcwNzU3NjQ5MTM5Ml83MDgyNDI5Nw.png";
+      layout_height="70dp";
+      layout_gravity="center";
+      layout_marginTop="50dp";
+      gravity="center";
+    };
+    {
+      TextView;
+      layout_width="match_parent";
+      textSize="16sp";
+      textColor="#ffffff";
+      text="布局测试";
+      layout_marginTop="15dp";
+      gravity="center";
+    };
+    {
+      TextView;
+      gravity="center";
+      layout_width="match_parent";
+      layout_marginTop="4dp";
+      textColor="#d7d7d7";
+      textSize="12sp";
+      text="简洁简介";
+    };
+    {
+      LinearLayout;
+      layout_width="match_parent";
+      layout_marginRight = "17dp";
+      layout_marginLeft = "17dp";
+      layout_height="46dp";
+      background=getHorizontalBG({0x7b737373,0x7b000000},25,3,0x7b545454);
+      layout_marginTop="15dp";
+      layout_gravity="center";
+      {
+        TextView;
+        layout_width="match_parent";
+        textSize="19sp";
+        layout_height="match_parent";
+        gravity="center";
+        text="启动";
+      };
+    };
+  };
+};
+
+	},
+		{FrameLayout, 
+		layout_height = "match_parent",
+		layout_gravity = "right|center",
+		layout_marginLeft = "match_parent",
+		layout_marginRight = "180dp";
+		background= luajava.loadlayout({
+	GradientDrawable,
+	color = 0xff121212
+}),
+		{FrameLayout, 
+		layout_height = "match_parent",
+		layout_gravity = "center",
+		background="https://wp.td88.cyou/view.php/0fd16704f50d795f88ee66ccde3686a9.png",
+		{LinearLayout, 
+		layout_gravity = "center",
+		background="https://wp.td88.cyou/view.php/58dbdef06a5268385c10dedc14600239.png",
+		}
+		}},
+		{
+      ScrollView;
+      layout_width="165dp";
+      layout_marginRight = "1dp";
+      layout_gravity = "right|center",
+      layout_marginLeft = "match_parent";
+      layout_height="match_parent";
+      orientation="vertical";
+      layout_marginTop="20dp",
+      layout_marginBottom="20dp",
+      {
+      LinearLayout;
+      orientation="vertical";
+      changan.switch("功能", function()
+			end),
+	  changan.switch("功能", function()
+			end),
+	  changan.switch("功能", function()
+			end),
+	  changan.switch("功能", function()
+			end),
+	  changan.switch("功能", function()
+			end),
+	  changan.switch("功能", function()
+			end),	
+      }}
+		 
+	
+
+		 }};
+{
+  LinearLayout;
+  orientation="horizontal";
+  id="denglu",
+  layout_height="match_parent";
+  layout_width="match_parent";
+  visibility = "gone",
+  {
+  LinearLayout;
+  orientation="vertical";
+  layout_height="match_parent";
+  layout_width="match_parent";
+  {
+    LinearLayout;
+    layout_height="60dp";
+    layout_marginTop="10dp";
+    layout_width="250dp";
+    layout_marginLeft="10dp";
+    background=getHorizontalBG({0x7b737373,0x7b000000},35,3,0x7b545454),
+    {
+      ImageView;
+      id="tx";
+      layout_height="40dp";
+      layout_width="40dp";
+      layout_gravity="center";
+      layout_marginLeft="5dp";
+      ackground=toux;
+    };
+    {
+      LinearLayout;
+      orientation="vertical";
+      layout_gravity="center";
+      layout_height="40dp";
+      layout_marginLeft="15dp";
+      layout_width="match_parent";
+      yhnc;
+      {
+        TextView,
+	    textSize="12sp",
+	    layout_width='match_parent',
+		textColor="#545454",
+		text="用户ID"..id,
+	  };
+    };
+  };
+  {
+    LinearLayout;
+    layout_height="match_parent";
+    layout_marginTop="10dp";
+    layout_width="250dp";
+    orientation="vertical";
+    layout_marginLeft="10dp";
+    background=getHorizontalBG({0x7b737373,0x7b000000},35,3,0x7b545454);
+    {
+      EditText;
+      layout_height="37dp";
+      gravity="center";
+      id = luajava.newId('头像');
+      layout_marginTop="5dp";
+      layout_marginRight="10dp";
+      layout_marginLeft="10dp";
+      hint="请QQ号或外链获取头像";
+      textSize="15sp";
+      layout_width="match_parent";
+      background=getHorizontalBG({0x7b000000,0x7b737373},35,3,0x7b545454);
+      hintTextColor="#ffffff";
+    };
+    {
+      EditText;
+      layout_height="37dp";
+      gravity="center";
+      id = luajava.newId('昵称');
+      layout_marginTop="10dp";
+      layout_marginLeft="10dp";
+      layout_marginRight="10dp";
+      hint="修改用户昵称";
+      textSize="15sp";
+      layout_width="match_parent";
+      background=getHorizontalBG({0x7b000000,0x7b737373},35,3,0x7b545454);
+      hintTextColor="#ffffff";
+    };
+    {
+      TextView;
+      layout_height="37dp";
+      gravity="center";
+      layout_marginTop="10dp";
+      layout_marginLeft="10dp";
+      layout_marginRight="10dp";
+      layout_width="match_parent";
+      text="获取头像外链";
+      textColor="#ffffff";
+      background=getHorizontalBG({0x7b000000,0x7b737373},35,3,0x7b545454);
+      onClick = function() luajava.newThread(function() gg.alert("外链链接:"..toux) end):start() end;
+    };
+    {
+      TextView;
+      layout_height="37dp";
+      gravity="center";
+      layout_marginTop="10dp";
+      layout_marginLeft="10dp";
+      layout_marginRight="10dp";
+      layout_width="match_parent";
+      text="更新信息";
+      textColor="#ffffff";
+      background=getHorizontalBG({0x7b000000,0x7b737373},35,3,0x7b545454);
+      onClick = function() 
+      luajava.newThread(function()
+      if getedit('昵称')~="" and getedit('昵称')~=" " or getedit('头像')~="" and getedit('头像')~=" " then
+      nic:setText(getedit('昵称'))
+      修改头像(getedit("头像"))
+      修改名字(getedit("昵称"))
+      else
+      gg.alert("请不要留空")
+      end
+      end):start() 
+      end;
+    };
+    {
+      LinearLayout;
+      orientation="vertical";
+      layout_gravity="center";
+      layout_height="72dp";
+      layout_marginTop="10dp";
+      layout_marginLeft="10dp";
+      layout_marginRight="10dp";
+      background=getHorizontalBG({0x7b000000,0x7b737373},35,3,0x7b545454);
+      layout_width="match_parent";
+      onClick = function() luajava.newThread(function() gg.alert("你的卡密:"..kam) end):start() end; 
+      {
+        TextView,
+	    textSize="12sp",
+	    layout_marginTop="3dp";
+        layout_marginLeft="10dp";
+        layout_marginRight="10dp";
+	    layout_width='match_parent',
+		textColor="#ffffff",
+		text="你的卡密:";
+	  };
+	  {
+        LinearLayout;
+        layout_marginLeft="10dp";
+        ndkm;
+      };
+      {
+        TextView,
+	    textSize="12sp",
+	    layout_marginTop="3dp";
+        layout_marginLeft="10dp";
+        layout_marginRight="10dp";
+	    layout_width='match_parent',
+		textColor="#ffffff",
+		text="点击弹出完整卡密";
+	  };
+    };
+  }  
+};
+}
+	
+}
+
+function login(kam)
+local loadBox = getLoadingBox('正在校验卡密')
+
+if tostring(kam)=="" or tostring(kam)==" " then return 0 end
+local info = kamiinfo
+loadBox['显示']()
+ret = rlyunyz.login(kam)
+loadBox['关闭']()
+ini = rlyunyz.checkUpdate()
+if type(ret) ~= "table" then
+--gg.alert(tostring(ret))
+else
+ktmp = "kam='"..ret.kami.."'"
+time=ret.vip
+local D = time // (60 * 60 * 24)
+local H = time // (60 * 60) % 24
+local M = time // 60 % 60
+local S = time % 60
+luajava.newThread(function()
+	write("/sdcard/云烛/配置文件/km.lua",ktmp)
+end):start()
+gg.sleep(200)
+gg.alert("欢迎使用本产品\n你的昵称:"..name.."\n你的id:"..id.."\n你的卡密:"..kam.."\n到期时间:"..D.."天"..H.."时"..M.."分"..S.."秒")
+luajava.runUiThread(function()
+	gg.sleep(400)
+	yanz:setVisibility(View.GONE)
+	验证=1
+	gg.sleep(100)
+	YoYoImpl:with("FadeIn"):duration(600):playOn(zhuye)
+	YoYoImpl:with("FadeIn"):duration(600):playOn(_ENV["layout"..当前ui])
+	end)
+--luajava.runUiThread(function()
+--	luajava.getIdValue("viptime"):setText(getTimeStamp(ret.vip))
+--end)
+end
+--if logkap then gg.sleep(100) end
+end
+
+for i = 1,#stab do
+ckou[#ckou+1] = _ENV["layout"..i]
+end
+ckou = luajava.loadlayout({
+	LinearLayout,
+	id = "chuangk",
+	visibility = "visible",
+	layout_width = "match_parent",
+	layout_height = "match_parent",
+	orientation = "vertical",
+	ckou})
+floatWindow = {
+	FrameLayout,
+	id = "motion",
+	elevation = "10dp",
+	onTouch = hanshu,
+	onClick = function() end,
+	layout_width = "match_parent",
+	orientation = "vertical",
+	gravity = "center_vertical",
+	layout_height = "match_parent",
+	ckou,
+	{
+		ImageView,
+		id = "control",
+		background = 获取图片(xfcpic),
+		layout_width = "40dp",
+		layout_height = "40dp",
+		onTouch = hanshu,
+		onClick = 隐藏,
+	},{FrameLayout,
+	id='reme',
+	layout_height='match_parent',
+	layout_width='match_parent',
+	elevation='3dp',
+	{
+			ImageView,
+			id="sf",
+			visibility = "gone",
+			padding = "2dp",
+			src = "https://wp.td88.cyou/view.php/4eb45a04d1643a1a01fdb113231a3d58.png",
+			layout_width = "30dp",
+			layout_height = "30dp",
+			layout_marginRight = "0dp",
+			layout_marginBottom = "0dp",
+			layout_gravity = "right|bottom",
+			onClick = function() end,
+			onTouch = suofang,
+		}}
+}
+local function invoke()
+local ok
+local RawX, RawY, x, y
+mainLayoutParams = getLayoutParams()
+floatWindow = luajava.loadlayout(floatWindow)
+local function invoke2()
+for k = 1,#stab do
+for i = 1,#sview[k] do
+_ENV["layoutm"..k]:addView(sview[k][i])
+end
+end
+shijian:addView(shij)
+window:addView(floatWindow, mainLayoutParams)
+block('end')
+end
+
+local runnable = luajava.getRunnable(invoke2)
+local handler = luajava.getHandler()
+handler:post(runnable)
+block('join')
+
+local isMove
+
+
+end
+
+invoke(swib1,swib2)
+gg.setVisible(false)
+luajava.setFloatingWindowHide(true)
+if 流光 then
+shimmer = Shimmer();
+luajava.runUiThread(function()
+  shimmer:setDuration(2000)
+  shimmer:setStartDelay(50)
+  shimmer:start(stit)
+  shimmer:start(gongao)
+  shimmer:start(yhnc)
+  shimmer:start(ndkm)
+  for i=1,#stab do
+  	shimmer:start(_ENV["jm"..i..'t'])
+  	shimmer:start(_ENV["jm"..i..'ts'])
+  	shimmer:start(_ENV["jm"..i..'GG'])
+  end
+end)
+end
+end
+function getseekgra()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(10)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({
+	0x6600c6ff,0x660072ff
+})
+jianbians:setStroke(2,"0x44ffffff")--边框宽度和颜色
+
+return jianbians
+end
+corbk = true
+当前ui = 1
+function 切换(x)
+当前ui = x
+luajava.runUiThread(function()
+	for i = 1,#stab do
+	_ENV["layout"..i]:setVisibility(View.GONE)
+	end
+	_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+	zhuye:setVisibility(View.GONE)
+	YoYoImpl:with("FadeIn"):duration(200):playOn(_ENV["layout"..当前ui])
+	end)
+	if 当前ui == 1 then luajava.runUiThread(function() _ENV["layout"..当前ui]:setVisibility(View.GONE) zhuye:setVisibility(View.VISIBLE) end) end
+end
+显示 = 0
+beij = luajava.loadlayout({
+	GradientDrawable,
+	color = 0xff121212,
+	cornerRadius = 35
+})
+function getcolor(cl)
+cl[1] = tonumber(math.ceil(cl[1]*2.6,0,5))
+
+if cl[1] > 255 then cl[1] = "0xff" else
+	cl[1] = "0x"..string.format("%x",cl[1]) end
+for i = 1,3 do
+cl[i+1] = string.format("%x",cl[i+1])
+if string.len(cl[i+1]) == 1 then cl[i+1] = "0"..cl[i+1] end
+end
+cl = cl[1]..cl[2]..cl[3]..cl[4]
+return cl
+end
+function getrgb(cl)
+if string.sub(cl,1,1) == "#" then cl = "0x"..string.sub(cl,2,-1) end
+cl = {
+	tonumber(string.sub(cl,0,4)),tonumber("0x"..string.sub(cl,5,6)),tonumber("0x"..string.sub(cl,7,8))}
+return cl
+end
+显示 = 0
+function 隐藏()
+luajava.runUiThread(function()
+	if tonumber(tostring(cebian:getVisibility())) == 8.0 then
+	control:setVisibility(View.GONE)
+	sf:setVisibility(View.VISIBLE)
+	mainLayoutParams.height = mubx
+	mainLayoutParams.width = muby
+	mainLayoutParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
+	window : updateViewLayout (floatWindow , mainLayoutParams)
+	显示 = 1
+	if 验证 == nil then
+	yanz:setVisibility(View.VISIBLE)
+	end
+	if 当前ui == 1 then
+	zhuye:setVisibility(View.VISIBLE)
+	end
+	cebian:setVisibility(View.VISIBLE)
+	cbian:setVisibility(View.VISIBLE)
+	YoYoImpl:with("SlideInDown"):duration(200):playOn(cebian)
+	_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+	YoYoImpl:with("FadeIn"):duration(800):playOn(_ENV["layout"..当前ui])
+	floatWindow:setBackground(beij)
+	changan.controlBig(floatWindow,800)
+	else
+	mainLayoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+	mainLayoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+	mainLayoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE
+	window : updateViewLayout (floatWindow , mainLayoutParams)
+	floatWindow:setBackground(beij)
+	control:setVisibility(View.VISIBLE) 显示 = 0
+	cebian:setVisibility(View.GONE)
+	sf:setVisibility(View.GONE)
+	yanz:setVisibility(View.GONE)
+	zhuye:setVisibility(View.GONE)
+	cbian:setVisibility(View.GONE)
+	_ENV["layout"..当前ui]:setVisibility(View.GONE)
+	end
+	end)
+end
+function guid()
+seed = {
+	'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
+}
+tb = {}
+for i = 1,32 do
+table.insert(tb,seed[math.random(1,16)])
+end
+sid = table.concat(tb)
+return string.format('%s%s%s%s%s',
+	string.sub(sid,1,8),
+	string.sub(sid,10,12),
+	string.sub(sid,21,22))
+..string.format('%s%s%s%s%s',
+	string.sub(sid,1,6),
+	string.sub(sid,21,25)
+)
+end
+
+
+local function exit()
+tuichu = 1
+luajava.setFloatingWindowHide(false)
+
+luajava.post(function()
+	window:removeView(floatWindow)
+	end)
+end
+
+
+setExitEvent(exit)
+changan.controlWater = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		1, 0.8, 0.9, 1
+	}):setDuration(time):start()
+	ObjectAnimator():ofFloat(control,"scaleY", {
+		1,0.8,0.9,1
+	}):setDuration(time):start()
+end) end
+import("android.media.AudioManager")
+audi = context:getSystemService("audio")
+audiotype = {
+	AudioManager.STREAM_ALARM, --手机闹铃的声音
+	AudioManager.STREAM_MUSIC, --手机音乐的声音
+	AudioManager.STREAM_NOTIFICATION, --系统提示的通知
+	AudioManager.STREAM_RING, --电话铃声的声音
+	AudioManager.STREAM_SYSTEM, --手机系统的声音
+	AudioManager.STREAM_VOICE_CALL, --语音电话的声音
+	AudioManager.STREAM_DTMF, --DTMF音调的声音
+}
+yinl = {}
+for i = 1,#audiotype do
+yinl[i] = {}
+yinl[i].type = audiotype[i]
+yinl[i].min = audi:getStreamMinVolume(audiotype[i])
+yinl[i].max = audi:getStreamMaxVolume(audiotype[i])
+yinl[i].now = audi:getStreamVolume(audiotype[i])
+end
+function jianting3()--1
+yinln = {}
+for i = 1,#audiotype do--2
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+if yinln[i].now > yinl[i].now then--3
+if 显示 == 1 then
+yinl[i].now = yinln[i].now--音量加
+yck=mainLayoutParams.width
+mainLayoutParams.width=yck+50
+luajava.runUiThread(function()
+window : updateViewLayout (floatWindow , mainLayoutParams)
+end)
+end
+elseif yinln[i].now < yinl[i].now then--5
+if 显示 == 1 then
+if mainLayoutParams.width > 300 then
+yinl[i].now = yinln[i].now--音量减
+yck=mainLayoutParams.width
+mainLayoutParams.width=yck-50
+luajava.runUiThread(function()
+window : updateViewLayout (floatWindow , mainLayoutParams)
+end)
+end
+end
+end--5
+end--2
+end--1
+
+import("android.media.AudioManager")
+audi = context:getSystemService("audio")
+audiotype = {
+	AudioManager.STREAM_ALARM, --手机闹铃的声音
+	AudioManager.STREAM_MUSIC, --手机音乐的声音
+	AudioManager.STREAM_NOTIFICATION, --系统提示的通知
+	AudioManager.STREAM_RING, --电话铃声的声音
+	AudioManager.STREAM_SYSTEM, --手机系统的声音
+	AudioManager.STREAM_VOICE_CALL, --语音电话的声音
+	AudioManager.STREAM_DTMF, --DTMF音调的声音
+}
+yinl = {}
+for i = 1,#audiotype do
+yinl[i] = {}
+yinl[i].type = audiotype[i]
+yinl[i].min = audi:getStreamMinVolume(audiotype[i])
+yinl[i].max = audi:getStreamMaxVolume(audiotype[i])
+yinl[i].now = audi:getStreamVolume(audiotype[i])
+end
+yltype = 0
+function jianting(func)
+yinln = {}
+for i = 1,#audiotype do
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+if yinln[i].now > yinl[i].now then
+yinl[i].now = yinln[i].now
+if yltype == 1 then
+yltype = 0
+func()
+end
+elseif yinln[i].now < yinl[i].now then
+yinl[i].now = yinln[i].now
+if yltype == 0 then
+yltype = 1
+func()
+end
+end
+end
+end
+qhkai = 0
+qiehuan = function()
+if qhkai == 0 then
+qhkai = 1
+draw.remove()
+gg.toast("已隐藏")
+luajava.runUiThread(function()
+	changan.controlSmall(floatWindow,400)
+	end)
+gg.sleep(400)
+luajava.runUiThread(function()
+	floatWindow:setVisibility(View.GONE)
+	end)
+else
+	qhkai = 0
+huiz()
+--draw.text('.', -9200,-9200)
+luajava.runUiThread(function() floatWindow:setVisibility(View.VISIBLE) end)
+luajava.runUiThread(function()
+	changan.controlBig(floatWindow,400)
+	end)
+
+end
+end
+changan.controlSmall = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		1, 0.7, 0.4, 0
+	}):setDuration(time):start()
+	end) end
+changan.controlBig = function(control,time)
+luajava.runUiThread(function()
+	import "android.animation.ObjectAnimator"
+	ObjectAnimator():ofFloat(control,"scaleX", {
+		0, 0.4, 0.7, 1
+	}):setDuration(time):start()
+	end) end
+
+
+switches = {}
+function 开关3(name,func1,func2,nid)
+local sname = nid
+local localname=name
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+local outfunc=function()
+namers = _ENV[name]
+if namers ~= "开" then
+vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid.."k"):setVisibility(View.GONE)
+	YoYoImpl:with("ZoomInLeft"):duration(600):playOn(switches["2s"..sname])
+	luajava.getIdValue(nid.."g"):setVisibility(View.VISIBLE)
+luajava.getIdValue(nid):setBackground(checkbg)
+	end)
+_ENV[name] = "开"
+colorvs[nid]={true,"switch"}
+pcall(func1)
+else
+	vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid.."g"):setVisibility(View.GONE)
+	YoYoImpl:with("ZoomInRight"):duration(600):playOn(switches["1s"..sname])
+	luajava.getIdValue(nid.."k"):setVisibility(View.VISIBLE)
+luajava.getIdValue(nid):setBackground(checkbga)
+end)
+colorvs[nid]={false,"switch"}
+_ENV[name] = "关"
+pcall(func2)
+end
+end
+return outfunc
+end
+end
+function getShape3()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(20)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({
+	0x55FF9DBC,0x55FF9DBC
+})
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(8,0xaa80C3F9)--边框宽度和颜色
+return jianbians
+end
+function getShape(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(tmp1)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(8,tmp3)--边框宽度和颜色
+return jianbians
+end
+function getShape2(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(tmp1)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(15,tmp3)--边框宽度和颜色
+return jianbians
+end
+function getShape0(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(tmp1)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(4,tmp3)--边框宽度和颜色
+return jianbians
+end
+
+switches={}
+function changan.switch(name,func1,func2,miaoshu)
+if not checkbg then
+	checkbg = getShape2(
+	45,
+	{
+		控件颜色,控件颜色
+	},
+	4,控件颜色)
+checkbga = getShape2(
+	45,
+	{
+		0xffaaaaaa,0xffaaaaaa
+	},
+	4,0xffaaaaaa)
+switchbg1 = getShape(
+	45,
+	{
+		0xffffffff,0xffffffff
+	},
+	4,0xffffffff)
+switchbg2 = luajava.loadlayout {
+			GradientDrawable ,
+			color = "#ffffff" ,
+			cornerRadius = 360
+		}
+end
+local nid = name..guid()
+local func = 开关3(name,func1,func2,nid)
+if not name then name = "未设置" end
+switches["1s"..nid] = luajava.loadlayout {
+	FrameLayout,
+	layout_width = '40dp',
+	layout_height = '20dp',
+	gravity = "center_vertical",
+	padding = {
+		"1dp","0dp","1dp","0dp"
+	},
+	{
+		LinearLayout,
+		layout_gravity = "left|center_vertical",
+		id = luajava.newId(nid.."k"),
+		background = switchbg1,
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = '17dp',
+		layout_height = '17dp',
+		
+	},
+}
+switches["2s"..nid] = luajava.loadlayout {
+	FrameLayout,
+	onClick = function() luajava.newThread(function() func() end):start() end,
+	layout_width = '40dp',
+	layout_height = '20dp',
+	gravity = "center_vertical",
+	padding = {
+		"1dp","0dp","1dp","0dp"
+	}
+	, {
+		LinearLayout,
+		visibility = "gone",
+		layout_gravity = "right|center_vertical",
+		id = luajava.newId(nid.."g"),
+		background = switchbg2,
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = '17dp',
+		layout_height = '17dp',
+
+		
+	}
+}
+local rest = luajava.loadlayout({
+	LinearLayout,
+	elevation = "5dp",
+	layout_width = 'fill_parent',
+	layout_height = "48dp",
+	gravity = "center_vertical",
+	{
+		LinearLayout,
+		layout_width = 'fill_parent',
+		layout_height = "40dp",
+		gravity = "center_vertical",
+		background = getHorizontalBG({0x7b000000,0x7b737373},35,0,0x7b545454),
+		padding = {
+		"0dp","0dp","6dp","0dp"
+	},
+		{
+			TextView,
+			gravity = "top",
+			text = name,
+			textColor = "#d7d7d7",
+			textSize = "13sp",
+			layout_weight = 1,
+			layout_width = '80dp',
+			layout_marginLeft = "10dp",
+			layout_marginRight = "20dp",
+		},
+		{
+			TextView,
+			gravity = "center",
+			layout_height = "match_parent",
+			text = miaoshu,
+			textSize = "11sp",
+			layout_width = "wrap_content",
+			layout_marginLeft = "-50dp",
+			layout_weight = 1,
+			textColor = "#A5A5A5",
+		},
+		{
+			FrameLayout,
+			id=luajava.newId(nid),
+			background = checkbga,
+			elevation = "1dp",
+			onClick = function() luajava.newThread(function() func() end):start() end,
+			layout_width = 'wrap_content',
+			layout_height = 'wrap_content',
+			gravity = "left",
+			padding="1dp",
+			switches["1s"..nid],switches["2s"..nid]
+		}}
+})
+return rest
+end
+switchs={}
+function 开关3(name,func1,func2,nid)
+local sname = nid
+local localname=name
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+vibra:vibrate(14)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid.."k"):setVisibility(View.GONE)
+	luajava.getIdValue(nid.."g"):setVisibility(View.VISIBLE)
+--luajava.getIdValue(nid):setBackground(checkbga)
+	end)
+_ENV[name] = "开"
+
+pcall(func1)
+else
+	vibra:vibrate(14)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid.."g"):setVisibility(View.GONE)
+	luajava.getIdValue(nid.."k"):setVisibility(View.VISIBLE)
+--luajava.getIdValue(nid):setBackground(checkbg)
+	end)
+_ENV[name] = "关"
+pcall(func2)
+end
+end
+end
+end
+function changan.text(txt,color,size)
+if not txt then txt = "未设置文字" end
+if not color then color = "#545454" end
+if not size then size = "18sp" end
+return luajava.loadlayout(
+	{
+		TextView,
+		text = txt,
+		textSize = size,
+		textColor = color,
+		layout_width = "wrap_content",
+	})
+end
+function changan.edit (name , hint)
+_ENV [name] = name..guid ()
+if not hint then
+hint = name
+end
+rest = luajava.loadlayout ( {
+	LinearLayout ,
+	layout_width = 'fill_parent' ,
+	layout_height = "47.5dp",
+	{
+		LinearLayout ,
+		layout_width = 'fill_parent' ,
+		layout_height = "40dp" ,
+		layout_marginLeft = "0dp" ,
+		layout_marginRight = "0dp" ,
+		layout_gravity = "center" ,
+		{
+			EditText ,
+			background = 0xff201E1E,
+			gravity = "center" ,
+			hint = hint ,
+			textColor="#201E1E",
+			textSize = "13sp",
+			layout_height = "40dp" ,
+			layout_marginBottom = "-2dp",
+			id=luajava.newId(_ENV [name]),
+			layout_width = 'fill' ,
+			
+		}
+	}
+})
+luajava.getIdValue(_ENV [name]):setHintTextColor(0xff201E1E)
+return rest
+end
+function changan.getedit (name)
+edit = tostring (luajava.getIdValue (_ENV [name]) : getText ())
+return edit
+end
+function changan.setedit (name , txt)
+txt = tostring (txt)
+luajava.runUiThread (function ()
+	luajava.getIdValue (_ENV [name]) : setText (txt)
+	end
+
+)
+end
+function 开关(name,func1,func2)
+if func1 == nil then func1 = function() end end
+if func2 == nil then func2 = function() end end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+_ENV[name] = "开"
+pcall(func1)
+else
+	_ENV[name] = "关"
+pcall(func2)
+end
+
+end
+end
+end
+
+
+function 开关2(name,func1,func2,nid)
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(luajava.getBitmapDrawable("/sdcard/云烛/图片/check2"))
+	end)
+_ENV[name] = "开"
+func1()
+else
+	luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(luajava.getBitmapDrawable("/sdcard/云烛/图片/check1"))
+	end)
+_ENV[name] = "关"
+func2()
+end
+
+end
+end
+end
+function visi(tid,ttid)
+local tview = luajava.getIdValue(tid)
+local ttview = luajava.getIdValue(ttid)
+if not tview then return 0 end
+if tonumber(tostring(tview:getVisibility())) == 8.0 then
+tview:setVisibility(View.VISIBLE)
+ttview:setBackground(luajava.getBitmapDrawable("/sdcard/云烛/图片/hsj"))
+else
+	tview:setVisibility(View.GONE)
+ttview:setBackground(luajava.getBitmapDrawable("/sdcard/云烛/图片/sj"))
+end
+end
+function changan.box(views)
+local tid = "box"..guid()
+local ttid = tid.."6"
+local firadio = {
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	layout_marginTop = "2dp",
+	gravity = "center",
+	layout_marginBottom = "2dp",
+	orientation = "vertical",
+	background = luajava.loadlayout {
+		GradientDrawable,
+		color = "#0018191C",
+		cornerRadius = 8
+	},
+}
+if type(views[1]) == "string" or type(views[1]) == "number" then
+firadio[#firadio+1] = {
+	FrameLayout,
+	layout_width = '220dp',
+	layout_height = "30dp",
+	gravity = "center_vertical",
+	layout_marginTop = "2dp",
+	layout_marginBottom = "4dp",
+	onClick = function() visi(tid,ttid) end,
+	background = getShape3(),
+	
+	{
+		ImageView,
+		layout_gravity = "left|center",
+		layout_marginLeft = "10dp",
+		id = luajava.newId(ttid),
+		background = "/sdcard/云烛/图片/sj",
+		layout_width = "13dp",
+		layout_height = "13dp",
+		layout_marginTop = "0dp",
+	},
+	{
+		TextView,text = views[1],
+		textSize = "13sp",
+		layout_width = "220dp",
+		textColor = "#545454",
+		layout_gravity = "center",
+		gravity = "center"
+	}} else
+	gg.alert("changan.box第一个参数必须是string") os.exit()
+end
+radios = {
+	LinearLayout,
+	layout_marginLeft = "0dp",
+	layout_marginRight = "0dp",
+	orientation = "vertical",
+	visibility = "gone",
+	id = luajava.newId(tid),
+	padding = "0dp",
+	gravity = "center_horizontal",
+	layout_width = 'fill_parent',
+}
+for i = 2,#views do
+radios[#radios+1] = views[i]
+end
+firadio[#firadio+1] = radios
+return luajava.loadlayout(firadio)
+end
+function changan.button(txt,func)
+if not txt then txt = "未设置" end
+return luajava.loadlayout(
+	{
+		LinearLayout,
+		layout_width = 'fill_parent',
+		layout_hight = "30dp", {
+			LinearLayout,
+			layout_width = "fill_parent",
+			gravity = "center_horizontal",
+			layout_marginTop = "5dp",
+			layout_marginBottom = "5dp",
+			background = getSelector3(),
+			onClick = function() luajava.newThread(function() pcall(func) end):start() end,
+			{
+				TextView,
+--id = luajava.newId(tid),
+				textColor = "#545454",
+				text = txt,
+				textSize = "16sp",
+				layout_width = "wrap_content",
+			},
+		}})
+end
+do
+local path = "/sdcard/云烛/配置文件/用户头像.lua" --用户昵称
+local r = io.open(path, "r")
+if r then
+qltname = r:read("*a")
+else
+    qltname = "toux='http://cdn.u1.huluxia.com/g4/M02/20/0D/rBAAdmWimtSAYZCcAAJzHyuHgVs739.png'"
+io.open(path, "w"):write(qltname)
+end
+
+local path = "/sdcard/云烛/配置文件/用户昵称.lua" --用户昵称
+local r = io.open(path, "r")
+if r then
+qltname = r:read("*a")
+else
+    qltname = "name='游客".. math.random(1111111, 9999999).."'"
+io.open(path, "w"):write(qltname)
+end
+
+local path = "/sdcard/云烛/配置文件/用户ID.lua" --用户昵称
+local r = io.open(path, "r")
+if r then
+qltname = r:read("*a")
+else
+    qltname = "id='".. math.random(100000, 9999999).."'"
+io.open(path, "w"):write(qltname)
+end
+end
+function 修改名字(lttext)
+if string.len(lttext) <= 0 then return 0 end
+if string.len(lttext) >= 400 then
+gg.toast("用户名长度上限20字节") return 0
+end
+local path = "/sdcard/云烛/配置文件/用户昵称.lua" --用户昵称
+qltname = "name='"..lttext.."'"
+io.open(path, "w"):write(qltname)
+gg.alert("修改成功\n"..lttext)
+end
+function 修改头像(txt)
+local path2 = "/sdcard/云烛/配置文件/用户头像.lua"
+if tonumber(txt) ~= nil then txt = "http://q1.qlogo.cn/g?b=qq&nk="..txt.."&s=100" end
+if string.find(txt,"http%%") ~= nil or string.find(txt,"https%%") ~= nil then
+gg.alert("格式有误，请重新输入") return 0
+end
+qlticon = "toux='"..txt.."'"
+io.open(path2, "w"):write(qlticon)
+tx:setBackground(获取图片(txt))
+end
+
+function qianz()
+隐藏()
+切换(1)
+end
+
+function huiz()
+end
+
+
+stab = {
+--菜单名字，添加即可加页数，需要与结尾配置表对应
+	"主页",
+	"功能",
+	"音乐",
+	"设置",
+	
+	
+}
+控件颜色=0xffFFB94D
+mubx=600--默认布局搞
+muby=1000--默认布局宽
+
+侧边栏标题="YYUI"
+
+公告内容="简洁公告"
+卡网="https://gitee.com/rlyun/rlgg/blob/master/RLGG%E5%87%BD%E6%95%B0%E5%BA%93%E6%96%87%E6%A1%A3.md#assets"
+
+xfcpic = "http://cdn.u1.huluxia.com/g4/M02/20/0D/rBAAdmWimtSAYZCcAAJzHyuHgVs739.png"
+--悬浮窗链接或路径
+
+changan.menu(
+	{
+		{--1
+--第一页已被遮挡请勿在此添加控件
+		}, {	
+					changan.edit(".用户名"),--括号填的“输入演示”就是当前输入框的ID
+					
+		changan.button("修改昵称",function() 
+		修改名字(changan.getedit(".用户名")) end),	
+        }, {
+--3
+		}, {
+--第四页
+			--changan.switch("6"),
+			changan.text("\n\n\n"),
+			changan.button("退出",function()
+				window:removeView(floatWindow)
+				luajava.setFloatingWindowHide(false)
+				luajava.newThread(function() os.exit() end):start()
+				tuichu=1
+				end),
+				changan.button("退出2",function()
+				changan.controlSmall(floatWindow,500)
+				gg.sleep(600)
+				隐藏()
+				changan.controlBig(floatWindow,500)
+				end),
+				changan.switch(
+			'音量键隐藏UI',
+			function()
+				音量键=true
+			end,
+			function()
+				音量键=false
+			end),
+		}, {
+--第五页，没有写菜单标题所以不显示
+		},{
+			
+		},{
+			
+		},{
+			
+		},{
+			
+		},{
+			
+		},{
+			
+		},{
+			
+		}
+
+
+	})
+--配置表添加表即可加页数，需要与上边菜单标题数对应
+
+
+huiz()
+--draw.text('.', -9200,-9200)
+qianz()
+显示 = 1
+while true do
+if tuichu == 1 then break end
+if 音量键 then
+jianting(qiehuan)
+else
+jianting3()
+end
+end
+luajava.setFloatingWindowHide(false)
+
+local function invoke()
+return window:removeView(floatWindow)
+end
+luajava.post(invoke)
+luajava.setFloatingWindowHide(false)

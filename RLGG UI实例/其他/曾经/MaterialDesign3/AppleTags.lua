@@ -1,0 +1,649 @@
+function particle3()
+local webView = luajava.webView(function(webView)
+	webView:loadData([[
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+ 
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color:;
+    }
+ 
+    .box {
+      position: relative;
+      width: 300px;
+      height: 600px;
+      background: #666;
+      border-radius: 50px;
+    }
+ 
+    .box::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: #000;
+      border-radius: 48px;
+    }
+ 
+    .inner {
+      position: absolute;
+      inset: 3px;
+      background: url('https://cdn.ytechb.com/wp-content/uploads/2022/09/iPhone-14-Pro-Wallpaper-purple.webp');
+      background-size: cover;
+      background-position: center;
+      border-radius: 48px;
+      border: 10px solid #000;
+      display: flex;
+      justify-content: center;
+      opacity: 1;
+      transition: 0.5s;
+    }
+ 
+    .box:hover .inner {
+      opacity: 1;
+    }
+ 
+    .btn {
+      position: absolute;
+      top: 110px;
+      left: -2px;
+      width: 3px;
+      height: 26px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .btn.btn2 {
+      top: 160px;
+      height: 40px;
+    }
+ 
+    .btn.btn3 {
+      top: 220px;
+      height: 40px;
+    }
+ 
+    .rightSlideBtn {
+      position: absolute;
+      top: 170px;
+      right: -2px;
+      width: 3px;
+      height: 70px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .island-popup {
+      position: absolute;
+      width: 90px;
+      height: 25px;
+      top: 10px;
+      background: #000;
+      border-radius: 20px;
+      transition: 0.5s ease-in-out;
+    }
+ 
+    .island-popup:hover {
+      width: 200px;
+      height: 25px;
+    }
+ 
+    .island-popup.active {
+      width: 250px;
+      height: 60px;
+ 
+    }
+  </style>
+</head>
+ 
+<body>
+  <div class="box">
+    <div class="inner">
+      <div class="island-popup">
+        <div class="content">
+          <div class="details">
+            <div class="imgBx">
+              <img src="" alt="">
+            </div>
+            <p</p>
+          </div>
+          <div class="action">
+ 
+          </div>
+        </div>
+      </div>
+    </div>
+    <i class="btn btn1"></i>
+    <i class="btn btn2"></i>
+    <i class="btn btn3"></i>
+    <i class="rightSlideBtn"></i>
+  </div>
+ 
+  <script>
+    let popup = document.querySelector('.island-popup')
+ 
+    popup.onclick = function () {
+      popup.classList.toggle('active')
+    }
+  </script>
+</body>
+</html>
+]], 'text/html', 'UTF-8')
+	webView:setBackgroundColor(0x0)
+	webView:setVerticalScrollBarEnabled(false)
+		webView:setHorizontalScrollBarEnabled(false)
+		webView:setScrollContainer(false)
+end)
+return webView
+end
+
+
+
+stab={
+	"Notice",
+	"Bypass",
+	"Modify\nData",
+	"Multi\nplayer",
+	"Music",
+	"Chat",
+	"Settings",
+}
+local windowManager = require('windowManager')
+local LayoutParams = luajava.bindClass('android.view.WindowManager$LayoutParams')
+local viweManager
+
+function func(webView)
+	gg.alert('hello')
+end
+
+function func2(webView, arg1, arg2, ...)
+	print('func2')
+	print('arg1=', arg1)
+	print('arg2=', arg2)
+end
+
+_ENV['exit-webView'] = function(webView)
+	viweManager:exit()
+end
+
+_ENV['login-submit'] = function(webView, user, password)
+	-- 演示获取 html 的内容
+	gg.alert2('登录', string.format('user:%s\npassword:%s', user, password))
+
+	luajava.post(function()
+		-- 解除获取输入法后返回键失灵
+		viweManager:getLayoutParams().flags = LayoutParams.FLAG_NOT_FOCUSABLE
+		viweManager:updateView()
+
+		-- 返回上一页
+		webView:goBack()
+	end)
+end
+
+_ENV['login-test'] = function(webView)
+
+	-- 如果需要和 view 交互，必须在UI线程，luajava.post属于UI线程
+	luajava.post(function()
+		-- 允许View获取输入法
+		viweManager:getLayoutParams().flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
+		viweManager:updateView()
+
+		-- 加载新的页面，也可以用 loadUrl 加载在线网站url，或者本地文件，看个人需求，需要会一点java和 android.webkit.WebView 的知识
+		webView:loadData([[
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>User Login</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f4;
+			margin: 0;
+			padding: 20px;
+		}
+
+		.login-form {
+			max-width: 300px;
+			margin: 0 auto;
+			background-color: #fff;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.login-form h2 {
+			text-align: center;
+		}
+		
+
+		.login-form input[type="text"],
+		.login-form input[type="password"] {
+			width: 100%;
+			padding: 8px;
+			margin-bottom: 10px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			box-sizing: border-box;
+		}
+
+		.login-form button {
+			width: 100%;
+			background-color: #4CAF50;
+			color: #fff;
+			padding: 10px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.login-form button:hover {
+			background-color: #45a049;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="login-form">
+		<h2>User Login</h2>
+		<form>
+			<input type="text" id="username" placeholder="Username" required>
+			<input type="password" id="password" placeholder="Password" required>
+			<button onclick="login()">Login</button>
+		</form>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	var loginForm = document.getElementById('login-form');
+	var usernameInput = document.getElementById('username');
+	var passwordInput = document.getElementById('password');
+
+	function login() {
+		// 获取文本框和密码框的值
+		var username = usernameInput.value;
+		var password = passwordInput.value;
+
+		if (username == '' || password == '') {
+			return;
+		}
+		rlgg.calls("login-submit", [username, password]);
+	}
+
+</script>
+
+</html>
+		]], 'text/html', 'UTF-8')
+
+	end)
+
+end
+
+local webView = luajava.webView(function(webView)
+	webView:loadData([[
+
+
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+ 
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #;
+    }
+ 
+    .box {
+      position: relative;
+      width: 300px;
+      height: 600px;
+      background: #666;
+      border-radius: 50px;
+    }
+ 
+    .box::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: #000;
+      border-radius: 48px;
+    }
+ 
+    .inner {
+      position: absolute;
+      inset: 3px;
+      background: url('https://cdn.ytechb.com/wp-content/uploads/2022/09/iPhone-14-Pro-Wallpaper-purple.webp');
+      background-size: cover;
+      background-position: center;
+      border-radius: 48px;
+      border: 10px solid #000;
+      display: flex;
+      justify-content: center;
+      opacity: 1;
+      transition: 0.5s;
+    }
+ 
+    .box:hover .inner {
+      opacity: 1;
+    }
+ 
+    .btn {
+      position: absolute;
+      top: 110px;
+      left: -2px;
+      width: 3px;
+      height: 26px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .btn.btn2 {
+      top: 160px;
+      height: 40px;
+    }
+ 
+    .btn.btn3 {
+      top: 220px;
+      height: 40px;
+    }
+ 
+    .rightSlideBtn {
+      position: absolute;
+      top: 170px;
+      right: -2px;
+      width: 3px;
+      height: 70px;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      background: radial-gradient(#ccc, #666, #222);
+      z-index: 10;
+    }
+ 
+    .island-popup {
+      position: absolute;
+      width: 90px;
+      height: 25px;
+      top: 10px;
+      background: #000;
+      border-radius: 20px;
+      transition: 0.5s ease-in-out;
+    }
+ 
+    .island-popup:hover {
+      width: 200px;
+      height: 25px;
+    }
+ 
+    .island-popup.active {
+      width: 250px;
+      height: 60px;
+ 
+    }
+  </style>
+</head>
+ 
+<body>
+  <div class="box">
+    <div class="inner">
+      <div class="island-popup">
+        <div class="content">
+          <div class="details">
+            <div class="imgBx">
+              <img src="" alt="">
+            </div>
+            <p>this is</p>
+          </div>
+          <div class="action">
+ 
+          </div>
+        </div>
+      </div>
+    </div>
+    <i class="btn btn1"></i>
+    <i class="btn btn2"></i>
+    <i class="btn btn3"></i>
+    <i class="rightSlideBtn"></i>
+  </div>
+ 
+  <script>
+    let popup = document.querySelector('.island-popup')
+ 
+    popup.onclick = function () {
+      popup.classList.toggle('active')
+    }
+  </script>
+</body>
+</html>
+                  
+	]], 'text/html', 'UTF-8')
+
+end)
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)
+return jianbians
+end
+function newbg2(gtvb1,gtvb4,gtvb5,g1,g2,g3,g4)
+local jianbians = luajava.loadlayout({
+GradientDrawable,
+color = 0xff000000,
+gradientType = GradientDrawable.LINEAR_GRADIENT,
+orientation = GradientDrawable.Orientation.TR_BL ,
+})
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+jianbians:setCornerRadii({g1,g1,g2,g2,g3,g3,g4,g4})
+return jianbians
+end
+local path = '/storage/emulated/0/长安/配置文件/tagcloud'
+local dexloader = dex.loadfile(path)
+
+---@type com.moxun.tagcloudlib.view.TagCloudView
+local TagCloudView = dexloader:loadClass('com.moxun.tagcloudlib.view.TagCloudView')
+local MyTagsAdapter = dexloader:loadClass('cn.rlyun.a3dtagcloudandroid.MyTagsAdapter')
+function getLayoutParams()
+LayoutParams = WindowManager.LayoutParams
+layoutParams = luajava.new(LayoutParams)
+if (Build.VERSION.SDK_INT >= 26) then -- 设置悬浮窗方式
+layoutParams.type = LayoutParams.TYPE_APPLICATION_OVERLAY
+else
+	layoutParams.type = LayoutParams.TYPE_PHONE
+end
+
+layoutParams.format = PixelFormat.RGBA_8888 -- 设置背景
+layoutParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL -- 焦点设置Finish
+layoutParams.gravity = Gravity.TOP|Gravity.LEFT -- 重力设置
+layoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+layoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+
+return layoutParams
+end
+local function newTagsAdapter(impl)
+	local adapter = MyTagsAdapter()
+	luajava.setInterface(adapter, 'setProxy', impl)
+	return adapter
+end
+spics={
+}
+for i=1,55 do
+	spics[i]="opo"..i
+end
+local function simpleTagCloudView(data)
+
+	---@type ArrayList
+	local items = ArrayList()
+	for i, v in ipairs(data) do
+		local textView = luajava.loadlayout({
+			ImageView,
+			src="/sdcard/长安/图片/opo"..i,
+			layout_height="30dp",
+			layout_width="50dp",
+			padding="3dp",
+			background=newbg2({0xdd161616,0xdd161616,0x99232323},0,0x00ffffff,15,15,15,15),
+	})
+		luajava.setInterface(textView, 'setOnClickListener', function()
+			gg.toast('点击了'..v)
+		end)
+
+		items:add(textView)
+	end
+
+	local tagCloudView = TagCloudView(context)
+
+	local adapter = newTagsAdapter({
+		getCount = function()
+			return items:size()
+		end,
+		getView = function(context, position, parent)
+			return items:get(position)
+		end,
+		getItem = function(position)
+			return items:get(position):getText()
+		end,
+		getPopularity = function()
+			return 0
+		end,
+		onThemeColorChanged = function()
+			
+		end
+	})
+
+	tagCloudView:setAdapter(adapter)
+	tagCloudView:setScrollSpeed(3)
+	tagCloudView:setRadiusPercent(0.6)
+	tagCloudView:setAutoScrollMode(0)
+	
+	return tagCloudView
+end
+
+local tagCloudView = simpleTagCloudView({
+	'功能',
+	'功能',
+	'功能',
+	'功能',
+	'功能',
+	'功能',
+	'功能',
+	'功能',
+})
+
+local ViewGroupClass = luajava.bindClass("android.view.ViewGroup")
+local TextViewClass = luajava.bindClass("android.widget.TextView")
+local ImageViewClass = luajava.bindClass("android.widget.ImageView")
+
+hanshu = function(v, event)
+local Action = event:getAction()
+if Action == MotionEvent.ACTION_DOWN then
+isMove = false
+RawX = event:getRawX()
+RawY = event:getRawY()
+x = mainLayoutParams.x
+y = mainLayoutParams.y
+elseif Action == MotionEvent.ACTION_MOVE then
+isMove = true
+mainLayoutParams.x = tonumber(x) + (event:getRawX() - RawX)
+if mainLayoutParams.x<=0 then
+	mainLayoutParams.x=0
+end
+mainLayoutParams.y = tonumber(y) + (event:getRawY() - RawY)
+window:updateViewLayout(floatWindow, mainLayoutParams)
+elseif Action == MotionEvent.ACTION_UP then
+mainLayoutParams.x = tonumber(x) + (event:getRawX() - RawX)
+
+mainLayoutParams.y = tonumber(y) + (event:getRawY() - RawY)
+window:updateViewLayout(floatWindow, mainLayoutParams)
+end
+end
+window = context:getSystemService("window") -- 获取窗口管理器
+
+floatWindow = luajava.loadlayout({
+	FrameLayout,
+	padding="10dp",
+	onClick=function() end,
+	onTouch=hanshu,
+	background = particle3(),
+	layout_width = 'match_parent',
+	layout_height = 'match_parent',
+	{
+		FrameLayout,
+		layout_width = '250dp',
+		layout_height = '250dp',
+		{
+
+			tagCloudView,	
+			
+			 layout_width = 'match_parent',
+			 layout_height = 'match_parent',
+		}
+
+	}
+})
+
+viweManager = windowManager:bindView(webView)
+viweManager:show()
+viweManager:setMoveable(true)
+viweManager:wait()
+
+-- 通常 rlgg 在脚本结束的时候会自动回收 luajava.webView 创建的 webView
+luajava.post(function()
+	webView:destroy()
+end)
+
+
+
+
+
+setOnExitListener(function()
+	luajava.post(function()
+	return window:removeView(floatWindow)
+	end)
+	
+	luajava.setFloatingWindowHide(false)
+end)
+
+mainLayoutParams = getLayoutParams()
+luajava.post(function()
+window:addView(floatWindow,mainLayoutParams)
+end)
+while true do
+	
+end

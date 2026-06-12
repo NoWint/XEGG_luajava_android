@@ -1,0 +1,15 @@
+# Rust
+core/target/
+
+# Android
+app/build/
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.DS_Store

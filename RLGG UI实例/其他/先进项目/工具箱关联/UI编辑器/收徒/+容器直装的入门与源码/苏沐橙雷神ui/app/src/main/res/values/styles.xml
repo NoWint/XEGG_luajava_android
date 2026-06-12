@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
+	</style>
+	<style name="Animation_Dialog">
+        <item name="android:windowEnterAnimation">@anim/Animation_Dialog_in</item> 
+		<item name="android:windowExitAnimation">@anim/Animation_Dialog_out</item>
+		</style>
+	<style name="Animation_InputMethod">
+        <item name="android:windowEnterAnimation">@anim/Animation_InputMethod_in</item> 
+		<item name="android:windowExitAnimation">@anim/Animation_InputMethod_out</item>
+		</style>
+</resources>

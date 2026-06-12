@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+    <string-array name="xposed_scope">
+        <item>com.mojang.minecraftpe</item>
+		<item>com.netease.x19</item>
+		<item>com.mucheng.inject.ui</item>
+    </string-array>
+	
+</resources>

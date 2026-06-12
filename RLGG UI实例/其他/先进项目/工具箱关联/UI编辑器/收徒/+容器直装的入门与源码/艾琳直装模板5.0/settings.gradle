@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "艾琳直装模板5.0"

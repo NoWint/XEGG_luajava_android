@@ -1,0 +1,42 @@
+{
+    "_declaration": {
+        "_attributes": {
+            "version": "1.0",
+            "encoding": "utf-8"
+        }
+    },
+    "resources": {
+        "style": {
+            "_attributes": {
+                "name": "AppTheme",
+                "parent": "@android:style/Theme.Material.Light.DarkActionBar"
+            },
+            "item": [
+                {
+                    "_attributes": {
+                        "name": "android:colorPrimary"
+                    },
+                    "_text": "@color/colorPrimary"
+                },
+                {
+                    "_attributes": {
+                        "name": "android:colorPrimaryDark"
+                    },
+                    "_text": "@color/colorPrimaryDark"
+                },
+                {
+                    "_attributes": {
+                        "name": "android:colorAccent"
+                    },
+                    "_text": "@color/colorAccent"
+                },
+                {
+                    "_attributes": {
+                        "name": "android:navigationBarColor"
+                    },
+                    "_text": "?android:colorPrimary"
+                }
+            ]
+        }
+    }
+}

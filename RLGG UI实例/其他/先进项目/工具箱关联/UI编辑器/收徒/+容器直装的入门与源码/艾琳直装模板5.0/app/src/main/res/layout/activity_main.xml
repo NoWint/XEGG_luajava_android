@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:background="#FF000000">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="⚠︎当前为开发者模式⚠︎"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="#FFFF0000"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_gravity="center"
+		android:rotationX="30"
+		android:textSize="28sp"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="此模式在制作直装后会自动关闭︎"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="#FFA69D9D"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_gravity="center"
+		android:rotationX="30"
+		android:textSize="15sp"/>
+
+	<View
+		android:background="#FF5F5F5F"
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:layout_marginBottom="5dp"
+		android:layout_marginTop="10dp"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="艾琳直装模板说明 [必看]"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="#FF00FF00"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_gravity="center"
+		android:rotationX="30"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:autoLink="web"
+		android:text="➤ 艾琳直装模板♨\n➤ 版本：5.0 \n➤ 作者：艾琳©\n➤ 作者QQ：3353484607 (定制模板联系作者QQ)\n➤ 作者b站：https://b23.tv/t9DYCRt (有模板视频教程)\n➤ 艾琳模板更新地址：https://www.123pan.com/s/RMOtVv-0htjh.html\n➤ 手游逆向学习交流QQ群：101640882(有时候模板可能在此群更新 有问题也可反馈至此群)\n\n➤ 开源模板只提供于学习请勿买卖！\n➤ 开源模板禁止盗卖，发现者均属于侵权！\n➤ 请保留以上信息，发现删除以上信息均属于侵权！\n\n➤ 此模板为免费开源模板 如果你是买来的那么你被骗了！\n\n➤ 模板卡密系统文字教程在模板源码中e.java文件内\n➤ 模板开关功能说明在模板源码中GameMenu.java文件内\n➤ 只要配置好以上两个文件中的内容就能正常使用了\n\n➤ 模板开发直装教程在MainActivity.java文件内\n\n感谢大家的支持！"
+		android:textColor="#CF00FF05"
+		android:textSize="10sp"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:rotationX="0"/>
+
+	<View
+		android:background="#FF5F5F5F"
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:layout_marginTop="10dp"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="开发人员菜单[实验性]"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="#FFF100FF"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_gravity="center"
+		android:rotationX="30"
+		android:layout_marginTop="20dp"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="以下功能为开发者打造 仅供调试"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:textColor="#FFA69D9D"
+		android:textStyle="bold"
+		android:typeface="monospace"
+		android:layout_gravity="center"
+		android:rotationX="30"
+		android:textSize="13sp"/>
+
+	<GridLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		rowCount="1"
+		columnCount="1">
+
+		<Button
+			android:layout_width="wrap_content"
+			style="?android:attr/buttonStyleSmall"
+			android:layout_height="wrap_content"
+			android:text="关闭卡密验证系统"
+			android:typeface="normal"
+			android:id="@+id/offYZ"/>
+
+		<Button
+			android:layout_width="wrap_content"
+			style="?android:attr/buttonStyleSmall"
+			android:layout_height="wrap_content"
+			android:text="隐藏屏幕上绘制的所有信息"
+			android:typeface="normal"
+			android:id="@+id/ycDrawText"/>
+
+	</GridLayout>
+
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+
+		<CheckBox
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="绘制悬浮窗口区域"
+			android:id="@+id/showCK"
+			android:textColor="#FFFFFFFF"
+			android:buttonTint="#FFFFFFFF"/>
+
+		<CheckBox
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="启动MIUI性能模式 (如果你是MIUI)"
+			android:id="@+id/trueMiui"
+			android:textColor="#FFFFFFFF"
+			android:buttonTint="#FFFFFFFF"/>
+
+	</LinearLayout>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/ckK_Text"
+		android:textColor="#FFFFFFFF"
+		android:layout_marginLeft="20dp"
+		android:layout_marginTop="10dp"/>
+
+	<SeekBar
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/ckK"
+		android:layout_marginLeft="20dp"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/ckG_Text"
+		android:textColor="#FFFFFFFF"
+		android:layout_marginLeft="20dp"/>
+
+	<SeekBar
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/ckG"
+		android:layout_marginLeft="20dp"/>
+
+	<Button
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="临时恢复悬浮窗口默认宽高"
+		android:id="@+id/hfCK"
+		android:layout_gravity="center"
+		android:layout_marginTop="0dp"/>
+
+</LinearLayout>
+

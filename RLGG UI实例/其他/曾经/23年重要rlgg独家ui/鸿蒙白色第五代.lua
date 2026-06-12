@@ -1,0 +1,1694 @@
+
+suofang = function(v, event)
+      if 缩放 == nil then
+			local Action = event:getAction()
+			if Action == MotionEvent.ACTION_DOWN then
+				isMove = false
+				RawX = event:getRawX()
+				RawY = event:getRawY()
+				x = mainLayoutParams.height
+				y = mainLayoutParams.width
+				if x==0 or x==-2 then x=1700 y=1300 end
+				elseif Action == MotionEvent.ACTION_MOVE then
+				isMove = true
+				mubx=tonumber(x) + (event:getRawY() - RawY)
+				if mubx>=200 and mubx<=5000 then
+					mainLayoutParams.height = mubx
+				end
+				muby=tonumber(y) + (event:getRawX() - RawX)
+				if muby>=180 and muby<=5000 then
+					mainLayoutParams.width = muby
+				end
+
+				window:updateViewLayout(floatWindow, mainLayoutParams)
+			end
+	    end
+    end
+	  
+
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+changan = {}
+local changan = changan
+local android = import('android.*')
+write=file.write
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+read=file.read
+function checkimg(tmp)
+if panduan("/sdcard/YY/图片/"..tmp) ~= true then
+gg.toast("正在加载资源"..tmp)
+download("https://wp.td88.cyou/view.php/1d28d367be080e280413847821712975.png"..tmp,"/sdcard/YY/图片/"..tmp)
+download("https://cdn-community.codemao.cn/47/community/d2ViXzEwMDFfMTAwMTQwOTNfMTAwMTQwOTNfMTcwNzk3ODA0OTgyMF83NmVhOWQ1Ng.png"..tmp,"/sdcard/YY/图片/"..tmp)--叉叉图片
+download("https://cdn-community.codemao.cn/47/community/d2ViXzEwMDFfMTAwMTQwOTNfMTAwMTQwOTNfMTcwNzk3ODA2OTQzOF9iZDhkODMwOA.png"..tmp,"/sdcard/YY/图片/"..tmp)--不知道叫什么好
+download("https://wp.td88.cyou/down.php/1f8c38a24d8adda4f8f4f897ab2abfbd.png"..tmp,"/sdcard/YY/图片/"..tmp)
+download("http://jiami.guimei.work/a/"..tmp..".png","/sdcard/YY/图片/"..tmp)
+end
+end
+function 获取图片(txt)
+ntxt=string.sub(string.gsub(txt,"/","."),-10,-1)
+if string.find(tostring(txt),"http")~=nil then
+    if panduan("/sdcard/YY/图片/"..ntxt)==false then
+    download(txt,"/sdcard/YY/图片/"..ntxt)
+    end
+    txt="/sdcard/YY/图片/"..ntxt
+end
+return luajava.getBitmapDrawable(txt)
+end
+ckimg = {
+	"heir.png",
+	"IMG_20240203_204944.png",
+	"1695433514",
+	"1695461082",
+	"Image_1707976851362.png",
+	"Image_1707976852814.png",
+	
+}
+for i = 1,#ckimg do
+checkimg(ckimg[i])
+end
+context = app.context
+window = context:getSystemService("window") -- 获取窗口管理器
+function getLayoutParams()
+LayoutParams = WindowManager.LayoutParams
+layoutParams = luajava.new(LayoutParams)
+if (Build.VERSION.SDK_INT >= 26) then -- 设置悬浮窗方式
+layoutParams.type = LayoutParams.TYPE_APPLICATION_OVERLAY
+else
+	layoutParams.type = LayoutParams.TYPE_PHONE
+end
+layoutParams.format = PixelFormat.RGBA_8888 -- 设置背景
+layoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE -- 焦点设置Finish
+layoutParams.gravity = Gravity.TOP|Gravity.LEFT -- 重力设置
+layoutParams.width = LayoutParams.WRAP_CONTENT -- 布局宽度
+layoutParams.height = LayoutParams.WRAP_CONTENT -- 布局高度
+return layoutParams
+end
+function getj6()
+jianbian6 = luajava.new(GradientDrawable)
+jianbian6:setCornerRadius(20)
+jianbian6:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbian6:setColors({0x23070409,0x23070409})
+jianbian6:setStroke(0,"0xdd000000")--边框宽度和颜色
+return jianbian6
+end
+hanshu = function(v, event)
+local Action = event:getAction()
+if Action == MotionEvent.ACTION_DOWN then
+isMove = false
+RawX = event:getRawX()
+RawY = event:getRawY()
+x = mainLayoutParams.x
+y = mainLayoutParams.y
+elseif Action == MotionEvent.ACTION_MOVE then
+isMove = true
+mainLayoutParams.x = tonumber(x) + (event:getRawX() - RawX)
+mainLayoutParams.y = tonumber(y) + (event:getRawY() - RawY)
+window:updateViewLayout(floatWindow, mainLayoutParams)
+end
+end
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+return jianbians
+end
+function getCorner(gtvb1,gtvb3,gtvb4,gtvb5,g1,g2,g3,g4)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+jianbians:setCornerRadii({g1,g1,g2,g2,g3,g3,g4,g4})
+return jianbians
+end
+slctb1 = luajava.loadlayout({
+	GradientDrawable,
+	color = "0xFFFFFFFF",
+	cornerRadius = 38
+})
+slcta1 = luajava.loadlayout({
+	GradientDrawable,
+	color = "0xFFFFFFFF",
+	cornerRadius = 38
+})
+function getSelector3()
+selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, slcta1) -- 点击时候的背景
+selector:addState({
+	-android.R.attr.state_pressed
+}, slctb1) -- 没点击的背景
+return selector
+end
+slctc = luajava.loadlayout {
+	GradientDrawable,
+	color = "0x57070409",
+	cornerRadius = 16
+}
+slctd = luajava.loadlayout {
+	GradientDrawable,
+	color = "0x57070409",
+	cornerRadius = 16
+}
+slcte = luajava.loadlayout {
+	GradientDrawable,
+	color = "#11ffffff",
+	cornerRadius = 12
+}
+slctf = luajava.loadlayout {
+	GradientDrawable,
+	color = "#aa1E1C27",
+	cornerRadius = 12
+}
+changan.controlFlip = function(control,time)
+	luajava.runUiThread(function()
+  import "android.view.animation.Animation"
+  import "android.animation.ObjectAnimator"
+  xuanzhuandonghua = ObjectAnimator:ofFloat(control, "rotationY", {0, 360})
+  xuanzhuandonghua:setRepeatCount(0)
+  xuanzhuandonghua:setRepeatMode(Animation.REVERSE)
+  xuanzhuandonghua:setDuration(time)
+  xuanzhuandonghua:start()
+end) end
+getSelector=luajava.getStateListDrawable()
+getSelector:addState({
+	android.R.attr.state_pressed
+}, getVerticalBG({0xFFffffff,0xFFffffff},15,0,0xaa232323)) -- 点击时候的背景
+getSelector:addState({
+	-android.R.attr.state_pressed
+}, getVerticalBG({0xFFffffff,0xFFffffff},15,0,0xaa232323)) -- 没点击的背景
+function getSelector2()
+selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, slctd) -- 点击时候的背景
+selector:addState({
+	-android.R.attr.state_pressed
+}, slctc) -- 没点击的背景
+return selector
+end
+getcolor = luajava.getStateListDrawable()
+getcolor:addState({
+	android.R.attr.state_pressed
+}, getCorner({0xFFDFDFDF,0xFFDFDFDF},30,0,0xff0097FF,20,20,20,20)) -- 点击时候的背景
+getcolor:addState({
+	-android.R.attr.state_pressed
+}, getCorner({0x00000000,0x00000000},30,0,0xff0097FF,20,20,20,20)) -- 没点击的背景
+
+import("android.media.AudioManager")
+audi = context:getSystemService("audio")
+audiotype = {
+	AudioManager.STREAM_ALARM, --手机闹铃的声音
+	AudioManager.STREAM_MUSIC, --手机音乐的声音
+	AudioManager.STREAM_NOTIFICATION, --系统提示的通知
+	AudioManager.STREAM_RING, --电话铃声的声音
+	AudioManager.STREAM_SYSTEM, --手机系统的声音
+	AudioManager.STREAM_VOICE_CALL, --语音电话的声音
+	AudioManager.STREAM_DTMF, --DTMF音调的声音
+--AudioManager.STREAM_BLUETOOTH_SCO,
+}
+yinl = {}
+for i = 1,#audiotype do
+yinl[i] = {}
+yinl[i].type = audiotype[i]
+yinl[i].min = audi:getStreamMinVolume(audiotype[i])
+yinl[i].max = audi:getStreamMaxVolume(audiotype[i])
+yinl[i].now = audi:getStreamVolume(audiotype[i])
+end
+yltype = 0
+function jianting3(func)
+yinln = {}
+for i = 1,#audiotype do
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+if yinln[i].now > yinl[i].now then
+yinl[i].now = yinln[i].now
+if yltype == 1 then
+yltype = 0
+func()
+end
+elseif yinln[i].now < yinl[i].now then
+yinl[i].now = yinln[i].now
+if yltype == 0 then
+yltype = 1
+func()
+end
+end
+end
+end
+jianbian = luajava.new(GradientDrawable)
+jianbian:setCornerRadius(30)
+jianbian:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbian2 = luajava.new(GradientDrawable)
+jianbian2:setCornerRadius(30)
+jianbian2:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+
+local isswitch
+YoYoImpl = luajava.getYoYoImpl()
+changan.menu = function(sview)
+if isswitch then
+return false
+end
+for i=1,#stab do
+	_ENV["jmb"..i]=getSelector
+end
+isswitch = true
+cebian = {
+	LinearLayout,
+	id = "侧边",
+	layout_height = "fill_parent",
+	layout_width = "wrap_content",
+	layout_marginRight = "10dp",
+    layout_marginLeft = "10dp",
+	orientation = "horizontal",
+	gravity = "center",
+	background = {
+		GradientDrawable,
+		color = "#00ffffff",
+		cornerRadius = 10
+	},
+}
+for i = 1,#stab do
+cebian[#cebian+1] = {
+	LinearLayout,
+	id = "jm"..i,
+	gravity="center",
+	layout_height = "35dp",
+	layout_width = "50dp",
+	layout_marginTop = "3dp",
+	layout_marginBottom = "3dp",
+	layout_marginRight = "3dp",
+	layout_marginLeft = "10dp",
+	background = getVerticalBG({0xFFffffff,0xFFffffff},15,0,0xaa232323),
+	onClick = function() 切换(i) end,
+	{
+		TextView,
+		text = stab[i],
+		id="jmt"..i,
+		gravity = "center",
+		textColor = "#201E1E",
+		layout_height = "23dp",
+		layout_width = "68dp",
+	}}
+end
+cebian = luajava.loadlayout(
+	{
+		HorizontalScrollView,
+		visibility = "gone",
+		gravity="center",
+		layout_height = "wrap_content",
+		layout_width = "match_parent",
+		layout_marginRight = "10dp",
+	    layout_marginLeft = "10dp",
+		cebian
+	})
+for i = 1,#stab do
+_ENV["layout"..i] = luajava.loadlayout(
+	{
+		ScrollView,
+		--background = getj6(),
+		fillViewport = "true",
+		padding = "3dp",
+		id = "layout"..i,
+		visibility = "gone",
+		padding="10dp",
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		orientation = "vertical",
+			{
+			LinearLayout,
+			--background = getj6(),
+			id = "layoutm"..i,
+			gravity = "bottom",
+			layout_width = "match_parent",
+			orientation = "vertical",
+			gravity = "center_horizontal",
+		},
+	
+	})
+end
+dingbian = luajava.loadlayout({
+FrameLayout,
+	id = "dingbian",
+	visibility = "visible",
+	layout_gravity="top",
+	layout_width = "match_parent",
+	layout_height = "35dp",
+	orientation = "vertical",
+	background = getCorner({0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},30,0,0xff0097FF,30,30,0,0),
+	    {LinearLayout,
+		visibility = "visible",
+		background="https://wp.td88.cyou/view.php/72526a00498e7a6089715dc2c45f610e.png",
+		padding="10dp",
+		layout_gravity="center",
+		layout_width="60dp",
+		layout_height = "20dp",
+		layout_marginLeft="5dp",
+		layout_marginRight="5dp",
+		onTouch=hanshu,
+		},
+		{LinearLayout,
+		visibility = "visible",
+		background = getCorner({0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},30,0,0xff0097FF,20,20,0,0),
+		layout_height="35dp",
+		layout_width="60dp",
+		layout_marginLeft="1dp",
+		layout_marginRight="match_parent",
+		layout_gravity="left|center",
+		{LinearLayout,
+		visibility = "visible",
+		background="https://wp.td88.cyou/view.php/0754d639ce764f633067cfc2bab49c8f.png",
+		padding="10dp",
+		layout_marginLeft="5dp",
+		layout_gravity="left|center",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 
+		gfz=mainLayoutParams.width
+		kfz=mainLayoutParams.height
+		mainLayoutParams.height=gfz
+    	mainLayoutParams.width=kfz
+    	window:updateViewLayout(floatWindow, mainLayoutParams)
+    	end, 
+		onTouch=hanshu,
+		},
+		{LinearLayout,
+		visibility = "visible",
+		id="fangda",
+		background="https://wp.td88.cyou/view.php/81aab41bccfc0bd84fa6c684b7fb2ca3.png",
+		padding="10dp",
+		layout_marginLeft="14dp",
+		layout_gravity="left|center",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 
+		fdk=mainLayoutParams.width
+		fdg=mainLayoutParams.height
+		gg.sleep(100)
+		mainLayoutParams.width=device.getWidth()
+		mainLayoutParams.height=device.getHeight()-140
+		fangda:setVisibility(View.GONE)
+		suoxiao:setVisibility(View.VISIBLE)
+    	window:updateViewLayout(floatWindow, mainLayoutParams)
+    	end, 
+		onTouch=hanshu,
+		},
+		{LinearLayout,
+		visibility = "gone",
+		id="suoxiao",
+		background="https://wp.td88.cyou/view.php/8155907852eedb81289f58936823a43f.png",
+		padding="10dp",
+		layout_marginLeft="14dp",
+		layout_gravity="left|center",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 
+		mainLayoutParams.width=fdk
+		mainLayoutParams.height=fdg
+		suoxiao:setVisibility(View.GONE)
+		fangda:setVisibility(View.VISIBLE)
+    	window:updateViewLayout(floatWindow, mainLayoutParams)
+    	end, 
+		onTouch=hanshu,
+		}
+		},
+		{LinearLayout,
+		visibility = "visible",
+		background = getCorner({0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},30,0,0xff0097FF,20,20,0,0),
+		layout_height="35dp",
+		layout_width="60dp",
+		layout_marginLeft="match_parent",
+		layout_marginRight="1dp",
+		layout_gravity="right|center",
+		{LinearLayout,
+		visibility = "visible",
+		id="suofk",
+		background="https://wp.td88.cyou/view.php/7fb71338e306eea74ab65a129de1a803.png",
+		padding="10dp",
+		layout_marginLeft="match_parent",
+		layout_gravity="right|center",
+		layout_marginRight="14dp",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 
+		缩放=1 
+		suofk:setVisibility(View.GONE)
+		suofg:setVisibility(View.VISIBLE)
+		end, 
+		onTouch=hanshu,
+		},
+		{LinearLayout,
+		visibility = "gone",
+		id="suofg",
+		background="https://wp.td88.cyou/view.php/e131c24e666b1b4a3e91e5877361e8ae.png",
+		padding="10dp",
+		layout_marginLeft="match_parent",
+		layout_gravity="right|center",
+		layout_marginRight="14dp",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 
+		缩放=nil 
+		suofg:setVisibility(View.GONE)
+		suofk:setVisibility(View.VISIBLE)
+		end, 
+		onTouch=hanshu,
+		},	
+	{LinearLayout,
+		visibility = "visible",
+		background="https://wp.td88.cyou/view.php/636f6753bb73b262495946dfea32f6b2.png",
+		padding="10dp",
+		layout_marginLeft="match_parent",
+		layout_gravity="right|center",
+		layout_marginRight="5dp",
+		layout_height="20dp",
+		layout_width="20dp",
+		onClick= function() 隐藏() end, 
+		onTouch=hanshu,
+		}
+		}
+})
+ckou = {
+	LinearLayout,
+	id = "chuangk",
+	visibility = "gone",
+	layout_width = "match_parent",
+	layout_height = "match_parent",--妈逼，布局高度在这
+	orientation = "vertical",
+	dingbian,
+	
+}
+motion=luajava.loadlayout({FrameLayout,
+			id = "motion",
+			layout_width = "match_parent",
+			layout_height="match_parent",
+			gravity="center",
+			{LinearLayout,
+			    layout_width = "match_parent",
+             	layout_height = "43dp",
+				id="dibian",
+				visibility="gone",
+				layout_gravity="bottom",
+		        cebian
+		     	},
+			{LinearLayout,
+			    layout_width = "25dp",
+             	layout_height = "25dp",
+				id="jiaobiao",
+				visibility="gone",
+				layout_gravity="right|bottom",
+				onClick=function() 颜色=2 end,
+				onTouch = suofang 
+			}
+
+		})
+for i = 1,#stab do
+ckou[#ckou+1] = _ENV["layout"..i]
+end
+--luajava.newThread(function() develo(ckou) end):start()
+ckou = luajava.loadlayout(ckou)
+floatWindow = {
+	LinearLayout,
+	id = "motion",
+	orientation="vertical",
+	{FrameLayout,
+	layout_height = "match_parent",
+	layout_width = "match_parent",
+	--background="#ffffff",
+	ckou,
+	motion,
+	{
+			LinearLayout,
+			
+			gravity = "center", {
+				ImageView,
+				id = "control",
+				background = 获取图片(xfcpic),
+				layout_width = "50dp",
+				layout_height = "50dp",
+			}},
+			
+	{
+		ImageView,
+		id = "exit",
+		layout_gravity="right",
+		visibility="gone",
+		layout_width = "20dp",
+		layout_height = "20dp",
+		layout_marginTop = "10dp",
+		layout_marginRight = "20dp",
+	},
+	{LinearLayout,
+	layout_width = "wrap_content",
+	orientation = "vertical",
+	gravity = "center_vertical",
+	layout_height = "match_parent",
+	layout_height = "match_parent",
+	{
+		LinearLayout,
+		layout_width = "wrap_content",
+		layout_height = "wrap_content",
+		orientation = "horizontal",
+		gravity = "center",
+		
+	},
+	
+	
+}},
+	
+	
+}
+local function invoke()
+local ok
+local RawX, RawY, x, y
+mainLayoutParams = getLayoutParams()
+floatWindow = luajava.loadlayout(floatWindow)
+local function invoke2()
+block('start')
+for k = 1,#sview do
+for i = 1,#sview[k] do
+_ENV["layoutm"..k]:addView(sview[k][i])
+end
+end
+window:addView(floatWindow, mainLayoutParams)
+block('end')
+end
+
+local runnable = luajava.getRunnable(invoke2)
+local handler = luajava.getHandler()
+handler:post(runnable)
+block('join')
+control.onClick = 隐藏
+local isMove
+
+motion.onTouch = hanshu
+control.onTouch = hanshu
+exit.onTouch = hanshu
+end
+
+invoke(swib1,swib2)
+gg.setVisible(false)
+隐藏()
+setOnExitListener(function()
+	luajava.post(function()
+	window:removeView(floatWindow)
+	window:removeView(backg)
+	end)
+	tuichu=1
+	luajava.setFloatingWindowHide(false)
+end)
+luajava.setFloatingWindowHide(true)
+qhkai = 0
+qiehuan = function()
+if qhkai == 0 then
+qhkai = 1
+draw.remove()
+luajava.runUiThread(function()
+	YoYoImpl:with("FadeOut"):duration(300):playOn(floatWindow)
+end)
+gg.sleep(300)
+luajava.runUiThread(function()
+    floatWindow:setVisibility(View.GONE)
+	end)
+else
+	qhkai = 0
+huiz()
+--draw.text('.', -9200,-9200)
+luajava.runUiThread(function() 
+floatWindow:setVisibility(View.VISIBLE)
+YoYoImpl:with("FadeIn"):duration(500):playOn(floatWindow)
+end)
+
+end
+end
+huiz()
+while true do
+if tuichu == 1 then break end
+jianting3(qiehuan)
+gg.sleep(300)
+end
+
+luajava.setFloatingWindowHide(false)
+end
+function changan.line()
+rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "1dp",
+	{LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "1dp",
+	layout_marginLeft="9dp",
+    layout_marginRight="9dp",
+	background = "#C2CAD7",
+	}
+})
+return rest
+end
+function changan.line2()
+rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "15dp",
+	{LinearLayout,
+	        gravity = "center",
+	        layout_width = 'fill_parent',
+	        layout_height = "2dp",
+	        layout_marginTop="6.5dp",
+	        layout_marginBottom="6.5dp",
+	        layout_marginLeft="6dp",
+	        layout_marginRight="6dp",
+        	background = luajava.loadlayout({
+							GradientDrawable,
+							color = "#EF8A5C",
+							cornerRadius = 50
+						}),
+	      }
+})
+return rest
+end
+function getShape3()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(20)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({0xff00F4FF,0xff0670ff})
+jianbians:setStroke(4,"0x77000000")--边框宽度和颜色
+return jianbians
+end
+function getShape5()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(10)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({0xff00F4FF,0xff0670ff})
+jianbians:setOrientation(GradientDrawable.Orientation.TL_BR)
+jianbians:setStroke(2,"0x77000000")--边框宽度和颜色
+return jianbians
+end
+function getShape()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(90)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({0xff00F4FF,0xff0670ff})
+jianbians:setStroke(0,"0xffffffff")--边框宽度和颜色
+
+return jianbians
+end
+function getShape2()
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(20)
+jianbians:setShape(GradientDrawable.RECTANGLE)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({0xff00F4FF,0xff0670ff})
+jianbians:setStroke(8,"0xff000000")--边框宽度和颜色
+return jianbians
+end
+corbk = true
+当前ui = 1
+显示 = 0
+beij = luajava.new(GradientDrawable)
+beij:setCornerRadius(30)----背景的圆角
+beij:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+beij:setColors({0xffF2F3F5,0xffF2F3F5})
+beij:setStroke(8,"0xffF2F3F5")--边框宽度和颜色
+--beijw
+beij2 = luajava.loadlayout({
+	GradientDrawable,
+	color = "#00001C27",
+	cornerRadius = 10
+})
+changan.controlRotation9 = function(control, time,t)
+luajava.runUiThread(function()
+	import "android.view.animation.Animation"
+	import "android.animation.ObjectAnimator"
+	xuanzhuandonghua = ObjectAnimator:ofFloat(control, "rotation", {
+		time,t
+	})
+	xuanzhuandonghua:setRepeatCount(0)
+	xuanzhuandonghua:setRepeatMode(Animation.RESTART)
+	xuanzhuandonghua:setDuration(400)
+	xuanzhuandonghua:start()
+	end)
+end
+function visi (tid , ttid)
+vibra:vibrate(4)
+local tview = luajava.getIdValue (tid)
+local ttview = luajava.getIdValue (ttid)
+if not tview then
+return 0
+end
+if tonumber (tostring (tview : getVisibility ())) == 8.0 then
+tview : setVisibility (View.VISIBLE)
+YoYoImpl:with("FadeIn"):duration(200):playOn(boxes[tid])
+changan.controlRotation9(boxpic[tid],0,90)
+boxpic[tid]:setColorFilter(0xFF201E1E)
+else
+	tview : setVisibility (View.GONE)
+changan.controlWater (_ENV [tid.."6"] , 200)
+changan.controlRotation9(boxpic[tid],90,0)
+boxpic[tid]:setColorFilter(nil)
+end
+end
+boxes = {} boxpic = {}
+function changan.box (views)
+local tid = "box"..guid ()
+boxpic[tid] = luajava.loadlayout {
+	ImageView ,
+	src = "https://wp.td88.cyou/view.php/dfcc155180c66711a66a1c6540db5e03.png",
+	layout_width = "26dp" ,
+	layout_height = "26dp" ,
+}
+local ttid = tid.."6"
+local t1id = guid ()
+firadio = {
+	LinearLayout ,
+	layout_width = 'fill_parent' ,
+	layout_height = "wrap_content" ,
+	layout_marginTop = "5dp" ,
+	layout_marginBottom = "5dp" ,
+	orientation = "vertical" ,
+}
+if type (views [1]) == "string" or type (views [1]) == "number" then
+firadio [# firadio + 1] = {
+	LinearLayout ,
+	layout_width = 'fill_parent' ,
+	layout_height = "40dp" ,
+	gravity = "center_vertical" ,
+	layout_marginTop = "5dp" ,
+	layout_marginBottom = "5dp" ,
+	onClick = function ()
+	visi (tid , ttid)
+	end
+	,
+	background = getButtonBG(),
+	{
+		TextView , text = views [1] ,
+		textSize = "13sp" ,
+		layout_marginLeft = "15dp" ,
+		layout_width = "match_parent" ,
+		layout_weight=1,
+		textColor = "#201E1E" ,
+		gravity = "left" ,
+	},{
+		LinearLayout ,
+		padding={"0dp","0dp","10dp","0dp"},
+		layout_width = "30dp" ,
+		layout_height = "30dp" ,
+		gravity = "center",
+		boxpic[tid],
+	}
+} else
+	gg.alert ("changan.box的table内第一个元素必须是string") os.exit ()
+end
+radios = {
+	LinearLayout ,
+	layout_marginLeft = "0dp" ,
+	layout_marginRight = "0dp" ,
+	orientation = "vertical" ,
+	visibility = "gone" ,
+	id = luajava.newId (tid) ,
+	padding = "0dp" ,
+	layout_width = 'fill_parent' ,
+}
+for i = 2 , # views do
+radios [# radios + 1] = views [i]
+end
+boxes[tid] = luajava.loadlayout(radios)
+firadio [# firadio + 1] = boxes[tid]
+_ENV [t1id] = luajava.loadlayout (firadio)
+return _ENV [t1id]
+end
+当前ui = 1
+function 切换(x)
+当前ui = x
+luajava.runUiThread(function()
+	for i = 1,#stab do
+	_ENV["jmt"..i]:setTextColor(0xff201E1E)--未选中的字体颜色
+	_ENV["layout"..i]:setVisibility(View.GONE)
+	_ENV["jm"..i]:setBackground(_ENV["jmb"..i])--未选中的颜色
+	end
+	_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+	_ENV["jmt"..当前ui]:setTextColor(0xffffffff)--选中的字体颜色
+	_ENV["jm"..当前ui]:setBackground(getVerticalBG({0xff004EFF,0xff004EFF},15,0,0xaa242937))--选中后颜色
+	YoYoImpl:with("FadeIn"):duration(300):playOn(_ENV["layout"..当前ui])
+	end)
+end
+function 隐藏()
+luajava.runUiThread(function()
+	if tonumber(tostring(exit:getVisibility())) == 8.0 then
+		control:setVisibility(View.GONE)
+		if not yck then ycg=850 yck=650 end
+    	mainLayoutParams.height=ycg
+    	mainLayoutParams.width=yck
+    	window:updateViewLayout(floatWindow, mainLayoutParams)
+		chuangk:setVisibility(View.VISIBLE)
+		exit:setVisibility(View.VISIBLE)
+		dingbian:setVisibility(View.VISIBLE)
+		dibian:setVisibility(View.VISIBLE)
+		jiaobiao:setVisibility(View.VISIBLE)
+		cebian:setVisibility(View.VISIBLE)
+		window:updateViewLayout(floatWindow, mainLayoutParams)
+		--YoYoImpl:with("FadeIn"):duration(300):playOn(title)
+		_ENV["layout"..当前ui]:setVisibility(View.VISIBLE)
+		YoYoImpl:with("FadeIn"):duration(300):playOn(floatWindow)
+		floatWindow:setBackground(beij)
+	else
+	    ycg=mainLayoutParams.height
+		yck=mainLayoutParams.width
+		mainLayoutParams.height=180
+		mainLayoutParams.width=180
+		window:updateViewLayout(floatWindow, mainLayoutParams)
+		dingbian:setVisibility(View.GONE)
+		dibian:setVisibility(View.GONE)
+		jiaobiao:setVisibility(View.GONE)
+		cebian:setVisibility(View.GONE)
+		floatWindow:setBackground(beij2)
+		chuangk:setVisibility(View.GONE)
+		control:setVisibility(View.VISIBLE) 显示 = 0
+		exit:setVisibility(View.GONE)
+		YoYoImpl:with("FadeIn"):duration(300):playOn(floatWindow)
+		
+		_ENV["layout"..当前ui]:setVisibility(View.GONE)
+	end
+end)
+end
+function 退出UI()
+tuichu = 1
+luajava.setFloatingWindowHide(false)
+	window:removeView(floatWindow)
+	os.exit()
+	bloc("end")
+end
+function guid()
+seed = {
+	'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
+}
+tb = {}
+for i = 1,32 do
+table.insert(tb,seed[math.random(1,16)])
+end
+sid = table.concat(tb)
+return string.format('%s%s%s%s%s',
+	string.sub(sid,1,8),
+	string.sub(sid,10,12),
+	string.sub(sid,21,22))
+..string.format('%s%s%s%s%s',
+	string.sub(sid,1,6),
+	string.sub(sid,21,25)
+)
+end
+
+changan.controlWater = function(control,time)
+	luajava.runUiThread(function()
+		import "android.animation.ObjectAnimator"
+		ObjectAnimator():ofFloat(control,"scaleX", {
+			1, 0.8, 0.9, 1
+		}):setDuration(time):start()
+		ObjectAnimator():ofFloat(control,"scaleY", {
+			1,0.8,0.9,1
+		}):setDuration(time):start()
+	end) end
+chazhi={} chajv={}
+function changan.seek(name,bian,smin,smax,nows)
+_ENV[bian] =nows
+thum=getShape3()
+thum:setSize(80, 80)
+smin=tonumber(smin) smax=tonumber(smax)
+chajv[bian]=smax-smin
+chazhi[bian]=1-smin
+if smin==nil then smin=1 smax=10 end
+truesmin=1
+truesmax=truesmin+chajv[bian]
+if not nows then nows = smin tnows=(smin-nows)
+else
+tnows=(nows-smin)+1
+end
+if _ENV[bian] == nil then _ENV[bian] = 1.0 end
+if not name then name = "未设置" end
+local names = name..guid()
+rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "36dp",
+	{
+		LinearLayout,
+		layout_width = 'fill_parent',
+		layout_hight = "fill_parent",
+		layout_marginTop = "5dp",
+		layout_marginBottom = "5dp",
+		gravity = "center_vertical",
+		--background = getShape(),
+		{
+			TextView,
+			gravity = "top",
+			textColor="#EF8A5C",
+			textSize="16sp",
+			text = name..":"..nows,
+			id = luajava.newId(names),
+			layout_width = '90dp',
+			layout_marginLeft = "10dp",
+			layout_marginRight = "0dp",
+		},
+		{
+			SeekBar,
+			layout_width = 'match_parent',
+			id=luajava.newId(name.."seekbar"),
+			min = truesmin,
+			max = truesmax,
+			progress=tnows,
+			--paddingStart="0dp",
+			--paddingEnd="0dp",
+			progressDrawable={getShape5()},
+			thumb=thum,
+			progressHeight="2dp",
+			onSeekBarChange = {
+				onProgressChanged = function(SeekBar, var2, var3)
+				if not var3 then
+				return
+				end
+		  local resultvar=tonumber(string.sub(var2,0,-3))-chazhi[bian]
+				luajava.runUiThread(function()
+				luajava.getIdValue(names):setText(name..":".. resultvar)
+				end)
+				_ENV[bian] = resultvar
+				end
+			}}
+	}})
+return rest
+end
+
+function getShape(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(tmp1)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(4,tmp3)--边框宽度和颜色
+return jianbians
+end
+function getShape2(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(tmp1)
+jianbians:setOrientation(GradientDrawable.Orientation.LEFT_RIGHT)
+jianbians:setStroke(8,tmp3)--边框宽度和颜色
+return jianbians
+end
+checkbg=getShape(
+	45,
+	{0xffB8B8B8,0xffB8B8B8},
+	4,0xffB8B8B8)
+checkbga=getShape(
+	45,
+	{0xff0062FF,0xff0062FF},
+	4,0xff0062FF)
+checkbg1=getShape2(
+	45,
+	{0xffffffff,0xffffffff},
+	4,0xffffffff)
+checkbg2=getShape2(
+	45,
+	{0xffffffff,0xffffffff},
+	4,0xffffffff)
+
+function 开关3(name,func1,func2,nid)
+name=name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+luajava.runUiThread(function()
+    luajava.getIdValue(nid.."k"):setVisibility(View.GONE)
+    luajava.getIdValue(nid.."g"):setVisibility(View.VISIBLE)
+    luajava.getIdValue(nid):setBackground(checkbga)
+    end)
+_ENV[name] = "开"
+vibra:vibrate(10)
+pcall(func1)
+else
+	luajava.runUiThread(function()
+	luajava.getIdValue(nid.."g"):setVisibility(View.GONE)
+    luajava.getIdValue(nid.."k"):setVisibility(View.VISIBLE)
+    luajava.getIdValue(nid):setBackground(checkbg)
+    end)
+_ENV[name] = "关"
+vibra:vibrate(10)
+
+pcall(func2)
+end
+end
+end
+end
+
+function changan.switch(name,func1,func2,miaoshu)
+nid = name..guid()
+local func = 开关3(name,func1,func2,nid)
+if not name then name = "未设置" end
+local rest = luajava.loadlayout({
+		    LinearLayout,
+			layout_width = 'fill_parent',
+			layout_height = "40dp",
+			background = luajava.loadlayout({
+							GradientDrawable,
+							color = "#FFFFFF",
+							cornerRadius = 15
+							}),
+			layout_marginTop = "5dp",
+			layout_marginBottom = "5dp",
+			padding = "1dp",
+		{
+			LinearLayout,
+			layout_width = 'fill_parent',
+			layout_height = "35dp",
+	    	gravity = "center_vertical",
+		{
+			ImageView ,
+			layout_marginLeft = "15dp" ,
+			layout_height = "20dp" ,
+			layout_width = "20dp" ,
+		},
+		{
+			TextView,
+			gravity = "top",
+			text = name,
+			textColor="#201E1E",
+			textSize = "16sp",
+			layout_marginLeft="-25dp",
+		},
+		{
+			TextView,
+			gravity = "center",
+			layout_height = "match_parent",
+			text = miaoshu,
+			textSize = "10sp",
+			layout_width = "130dp",
+			layout_marginLeft = "-25dp",
+			layout_weight = 1,
+			textColor = "#A5A5A5",
+		},
+        {
+            FrameLayout,
+            id = luajava.newId(nid),
+            background = checkbg,
+            onClick = function() luajava.newThread(function() func() end):start() end,
+            layout_width = '43dp',
+            layout_height = 'wrap_content',
+            layout_marginRight="10dp",
+            padding="1dp",
+            {
+            LinearLayout,
+            layout_gravity="left|bottom",
+            id = luajava.newId(nid.."k"),
+            background = checkbg1,
+            onClick = function() luajava.newThread(function() func() end):start() end,
+            layout_width = '21dp',
+            layout_height = '21dp',
+            layout_marginRight="10dp",
+        	},{
+            LinearLayout,
+            visibility="gone",
+            layout_gravity="right|bottom",
+            id = luajava.newId(nid.."g"),
+            background = checkbg2,
+            onClick = function() luajava.newThread(function() func() end):start() end,
+            layout_width = '21dp',
+            layout_height = '21dp',
+            layout_marginRight="10dp",
+        	}
+        }}
+})
+return rest
+end
+
+function changan.edit(name)
+_ENV[name] = name..guid()
+if not name then name = "点击输入文字" end
+rest = luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "40dp",
+	{
+		FrameLayout,
+		layout_width = 'fill_parent',
+		layout_hight = "fill_parent",
+		gravity = "center",
+		--orientation="vertical",
+		{
+			EditText,
+			gravity = "top",
+			background = getShape(),
+			hint = name,
+			textColor="#383C3F",
+			gravity="center",
+			textSize="15sp",
+			--layout_marginBottom="-20dp",
+			id = luajava.newId(_ENV[name]),
+			layout_width = 'fill_parent',
+		},
+	{
+	LinearLayout,
+	layout_width = '220dp',
+	layout_height = "2dp",
+	layout_gravity="center",
+	background = "#0087FF",
+	layout_marginTop="10dp",
+}
+	}
+})
+luajava.getIdValue(_ENV[name]):setHintTextColor(0xff787878)
+return rest
+end
+radiog={}
+function changan.radio (cklist)
+if not radoff then
+radon=getVerticalBG({0x00ffffff,0x00ffffff},360,12,0xff0062FF)
+radoff=getVerticalBG({0x00ffffff,0x00ffffff},360,8,0xffaaaaaa)
+
+end
+local rid=guid()
+radiog[rid]={}
+rest = {
+	LinearLayout ,
+	layout_width = 'match_parent' ,
+	layout_height = "wrap_content" ,
+	layout_marginTop = "10dp" ,
+	gravity = "top" ,
+	orientation = "vertical" ,
+
+}
+if type (cklist [1]) == "string" then
+	rds=2
+rest [# rest + 1] = {
+	TextView ,
+	gravity = "left" ,
+	padding="5dp",
+	text = cklist [1] ,
+	textSize = "14sp" ,
+	textColor = "#201E1E" ,
+	layout_width = 'fill_parent' ,
+	layout_height = 'wrap_content' ,
+	layout_marginLeft = "10dp" ,
+	layout_marginRight = "5dp" ,
+	layout_marginTop = "0dp" ,
+	layout_marginBottom = "0dp" ,
+}
+else
+	rds=1
+end
+local restt={
+	LinearLayout ,
+	layout_width = 'match_parent' ,
+	layout_height = "wrap_content" ,
+	layout_marginTop = "10dp" ,
+	gravity = "top" ,
+	orientation = "vertical" ,
+	background=getVerticalBG({0xffffffff,0xffffffff},25),
+	padding={"0dp","14dp","0dp","10dp"},
+}
+for i = rds , # cklist do
+local name = cklist [i] [1]
+local func = cklist [i] [2]
+if not name then
+name = "未设置"
+end
+nid = name..guid ()
+radiog[rid][nid]=false
+local func = radin(rid,nid,func)
+local tid = nid..guid ()
+_ENV [tid] = luajava.loadlayout ( {
+	LinearLayout ,
+	layout_width = '250dp' ,
+	layout_height = "30dp" ,
+	layout_marginTop = "5dp" ,
+	layout_marginBottom = "15dp" ,
+	layout_marginLeft = "4dp" ,
+	layout_marginRight = "10dp" ,
+	gravity = "center_vertical" ,
+	onClick = function ()
+	vibra:vibrate(9)
+	changan.controlWater (_ENV [tid] , 200)
+	func()
+	end
+
+	,
+	{
+		ImageView ,
+		id = luajava.newId (nid) ,
+		layout_width = '20dp' ,
+		layout_height = "20dp" ,
+		layout_marginLeft = "5dp" ,
+		layout_marginRight = "0dp" ,
+		background =radoff ,
+	} , {
+		TextView ,
+		gravity = "top" ,
+		text = name ,
+		textSize="14sp",
+		textColor = "#201E1E" ,
+		layout_width = 'match_parent' ,
+		layout_height = 'wrap_content' ,
+		layout_marginLeft = "10dp" ,
+		layout_marginRight = "5dp" ,
+	}
+})
+restt [# restt + 1] = _ENV [tid]
+end
+rest [# rest + 1] = restt
+return luajava.loadlayout (rest)
+end
+function radin(rid,nid,func)
+return function()
+for k,v in pairs(radiog[rid]) do
+	luajava.getIdValue(k):setBackground(radoff)
+	if k==nid and v~=true then
+		luajava.getIdValue(k):setBackground(radon)
+		v=true
+		luajava.newThread(func):start()
+	end
+end
+end
+end
+buts={}
+function changan.button(txt,func,txtc)
+if not txt then txt = "未设置" end
+if not txtc then txtc="#201E1E" end
+local tid="Cbutton"..guid()
+buts[tid]=luajava.loadlayout(
+	{
+		LinearLayout,
+		layout_width = 'match_parent',
+		layout_height = "wrap_content", {
+			LinearLayout,
+			layout_width = "fill_parent",
+			gravity = "center_vertical",
+			layout_marginTop = "5dp",
+			layout_marginBottom = "5dp",
+			background = getButtonBG(),
+			padding="10dp",
+			onClick = function() 
+				changan.controlWater(buts[tid],300)
+				vibra:vibrate(10)
+			luajava.newThread(func):start() end,
+			{
+				TextView,
+--id = luajava.newId(tid),
+				textColor = txtc,
+				text = txt,
+				textSize = "16sp",
+				layout_height = "wrap_content",
+				layout_width = "fill_parent",
+				layout_weight=1,
+			},{ImageView,
+				src="/storage/emulated/0/余词/图片/heir.png",
+				layout_height="14dp",
+				layout_width="14dp",
+				
+			}
+		}})
+return buts[tid]
+end
+function getButtonBG()
+local selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, getVerticalBG({0x34000400,0x34000400},15))
+selector:addState({
+	-android.R.attr.state_pressed
+}, getVerticalBG({0xFFFFFFFF,0xFFFFFFFF},15))
+return selector
+end
+dangxbg1 = 获取图片("https://wp.td88.cyou/view.php/2569312c453c8e469a8da02236e21119.png")
+
+dangxbg2 = 获取图片("https://wp.td88.cyou/view.php/7d969ed814699db3711dd7011e5398d5.png")
+
+switchs={}
+function changan.intcheck(name,func1,func2)
+nid = name..guid()
+local func = 开关c(name,func1,func2,nid)
+if not name then name = "未设置" end
+switchs[nid] = {
+	LinearLayout,
+	layout_width = 'match_parent',
+	layout_weight=1,
+	layout_height = "42dp",
+	layout_marginTop = "1dp",
+	layout_marginBottom = "1dp",
+	padding = "1dp",
+	{
+		LinearLayout,
+		padding="3dp",
+		onClick = function() luajava.newThread(function() func() end):start() end,
+		layout_width = 'fill_parent',
+		layout_height = "wrap_content",
+		gravity = "center_vertical",
+		--background=getVerticalBG({0xffFFFDF2,0xddffffff,0xffFFFDF2},15,8,0xffFFDA71),
+		{
+			FrameLayout,
+			id = luajava.newId(nid),
+			background = dangxbg1,
+			layout_width = '30dp',
+			layout_height = '30dp',
+			padding = "0dp",
+		},{
+			TextView,
+			id=luajava.newId(nid.."t"),
+			gravity = "left",
+			text = name,
+			textColor="#201E1E",
+			textSize = "16sp",
+layout_marginLeft="3dp",
+			layout_width = 'match_parent',
+	layout_weight=1,
+		},
+		}
+}
+return switchs[nid]
+end
+function 开关c(name,func1,func2,nid)
+local sname = nid
+local localname=name
+name = name..guid()
+_ENV[name] = "关"
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(dangxbg2)
+	luajava.getIdValue(nid.."t"):setTextColor(0xff201E1E)
+	--changan.controlWater(switchs[nid],300)
+	end)
+_ENV[name] = "开"
+pcall(func1)
+else
+	vibra:vibrate(9)
+luajava.runUiThread(function()
+	luajava.getIdValue(nid):setBackground(dangxbg1)
+	luajava.getIdValue(nid.."t"):setTextColor(0xff201E1E)
+	--changan.controlWater(switchs[nid],300)
+	end)
+_ENV[name] = "关"
+pcall(func2)
+end
+end
+end
+end
+function changan.check(cklist)
+if #cklist==0 then return nil end
+local rest = {
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "center",
+	orientation="vertical",
+	padding={"10dp","3dp","10dp","3dp"},
+
+}
+
+for i = 1, #cklist,2 do
+local tempTable = {LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = "wrap_content",
+	gravity = "left",
+	orientation="horizontal"
+}
+for j = 0, 1 do
+if cklist[i + j] ~= nil then
+local name = cklist[i + j][1]
+local func1 = cklist[i + j][2]
+local func2 = cklist[i + j][3]
+if not name then name = "未设置" end
+rstt = changan.intcheck(name,func1,func2)
+table.insert(tempTable, rstt)
+else
+	table.insert(tempTable, {LinearLayout,
+	layout_width = 'match_parent',
+	layout_weight=1,})
+end
+end
+table.insert(rest, tempTable)
+end
+return luajava.loadlayout(rest)
+end
+function changan.blank(gaodu)
+if not gaodu then gaodu = "43" end
+return luajava.loadlayout({
+	LinearLayout,
+	layout_width = 'fill_parent',
+	layout_height = gaodu,
+	})
+end
+function changan.text(txt,color,size)
+if not txt then txt = "未设置文字" end
+if not color then color = "#ffffff" end
+if not size then size = "18sp" end
+return luajava.loadlayout(
+	{
+		TextView,
+		text = txt,
+		textSize = size,
+		textColor = color,
+		layout_width = "match_parent",
+		layout_marginTop = "5dp" ,
+    	layout_marginBottom = "5dp" ,
+		gravity = "left",
+	})
+end
+corb = true
+function changan.setedit(name,txt)
+txt = tostring(txt)
+luajava.runUiThread(function()
+	luajava.getIdValue(_ENV[name]):setText(txt)
+	end)
+end
+
+function changan.getedit(name)
+edit = tostring(luajava.getIdValue(_ENV[name]):getText())
+return edit
+end
+function 开关(name,func1,func2)
+if func1 == nil then func1 = "" end
+if func2 == nil then func2 = "" end
+if type(func1) == "function" then
+return function()
+namers = _ENV[name]
+if namers ~= "开" then
+_ENV[name] = "开"
+pcall(func1)
+else
+	_ENV[name] = "关"
+pcall(func2)
+end
+
+end
+end
+end
+---↑↑↑你的脚本放在这里，下面菜单调用
+
+function huiz()
+end
+stab = {--←菜单导航栏
+	"公告",
+	"防封",
+	"功能",
+	"设置",
+}
+
+xfcpic = "https://cdn-community.codemao.cn/47/community/d2ViXzEwMDFfMTAwMTQwOTNfMTAwMTQwOTNfMTcwNjUyNTg1MTY4NV80ZmRmNjBjMw.png"
+--↑悬浮窗链接或路径↑
+
+
+--changan.button   按钮
+--changan.switch   开关
+--changan.box   套娃
+--changan.text   文字
+--changan.blank   间隔
+--changan.check   多选
+--changan.radio   多选
+--changan.seek  拖动条
+--changan.edit  输入框（changan.getedit和changan.setedit调用
+--以上是本UI模块包含的控件，在下面都有示例参考
+
+changan.menu(
+	{
+-----------------------------------------------------
+		{----1
+-----------------------------------------------------
+			changan.text("余词UI","#008EFF","20sp"),  
+			changan.switch("功能",
+			function()
+			退出UI()
+			end,
+			function()
+			end),
+			changan.box({"XXX区"}),
+			changan.button("按钮演示"),
+			changan.switch("功能",
+			function()
+			end,
+			function()
+			gg.alert("已关闭")
+			end),
+			changan.check({
+				{
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				}, {
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				}, {
+					"例子",
+					function()
+						
+					end,
+					function()
+						
+					end
+				},
+			}),
+			changan.radio({--单选
+    {"防闪退 [登录界面开]",
+     function()
+     
+     end
+     },{
+	"防环境 [登录界面开]" ,
+	 function ()
+						
+	 end
+	},{
+	"防行为 [大厅界面开]" ,
+	 function ()
+						
+	 end
+	},{
+	 "防人工 [大厅界面开]" ,
+	 function ()
+						
+	 end
+	}}),
+	changan.blank("40dp")	
+		
+			
+-----------------------------------------------------
+		}, {----2
+-----------------------------------------------------
+			changan.box({
+				"美化专区",
+			}),
+			
+-----------------------------------------------------
+		}, {----3
+-----------------------------------------------------
+			changan.box({
+				"美化专区",
+				changan.switch("开关1",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关2",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关3",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.line2(),
+				changan.switch("开关1",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关2",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关3",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				
+			}),
+			
+			
+-----------------------------------------------------
+		}, {----4
+-----------------------------------------------------
+       changan.box({
+				"美化专区",
+				changan.switch("开关1",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关2",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+				changan.switch("开关3",
+					function()
+						
+					end,
+					function()
+					gg.alert("已关闭")
+					end),
+			    changan.switch("开关4",--功能名字 不可重复
+                    function() --需要两个function 一个开一个关
+                    
+                    end,
+                    function()
+                    gg.toast("关闭")
+                    end),
+			}),
+			
+-----------------------------------------------------
+		}
+	})
+bloc = luajava.getBlock()
+bloc('join')
+-----------------------------------------------------
+

@@ -1,0 +1,12 @@
+
+首先需要说明luaj和luajava不是一个东西 luaj是java的一个库 而luajava是lua的库 luaj允许java运行lua代码 也可以调用lua的变量或全局库ENV等等 而luajava是允许lua调用java对象 其中包括但不限于构造方法 成员方法 静态方法等 但调用的这些方法必须是公有的 也就是public修饰的方法
+
+那么该怎么调用他呢？
+
+如果你使用的是gg的话 那比较简单 首先你要先找到支持luajava的gg 有rlgg elgg 还有独猫的luajava库的gg
+
+然后直接import导入就行了
+
+那么如果不是呢？
+
+其实也很简单 如果不是gg的话相信都是做软件的 那么应该都不需要说 如果有疑问可以自己搜一下

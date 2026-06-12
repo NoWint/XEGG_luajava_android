@@ -1,0 +1,285 @@
+local UIEditor = {
+    _VERSION = "2.0",
+    _CONTROLS = {
+        layouts = {
+            {
+                type = "LinearLayout",
+                name = "线性布局",
+                icon = "⬅➡",
+                properties = {
+                    orientation = {
+                        type = "choice",
+                        options = {"vertical", "horizontal"},
+                        default = "vertical"
+                    },
+                    gravity = {
+                        type = "multi",
+                        options = {"left", "center", "right", "top", "bottom"},
+                        default = "left|top"
+                    },
+                    weightSum = {type = "number", default = 1}
+                }
+            },
+            {
+                type = "FrameLayout",
+                name = "帧布局",
+                icon = "🖼",
+                properties = {
+                    foregroundGravity = {
+                        type = "choice",
+                        options = {"left", "center", "right"},
+                        default = "center"
+                    }
+                }
+            }
+        },
+        widgets = {
+            {
+                type = "Button",
+                name = "按钮",
+                icon = "🆗",
+                properties = {
+                    text = {type = "text", default = "按钮"},
+                    textSize = {type = "number", default = 14},
+                    textColor = {type = "color", default = "#FFFFFFFF"},
+                    onClick = {type = "function", default = "function() gg.toast('点击事件') end"}
+                }
+            },
+            {
+                type = "EditText",
+                name = "输入框",
+                icon = "📝",
+                properties = {
+                    hint = {type = "text", default = "请输入内容"},
+                    inputType = {
+                        type = "choice",
+                        options = {"text", "number", "password"},
+                        default = "text"
+                    },
+                    textSize = {type = "number", default = 14}
+                }
+            },
+            {
+                type = "Switch",
+                name = "开关",
+                icon = "🔘",
+                properties = {
+                    textOn = {type = "text", default = "开"},
+                    textOff = {type = "text", default = "关"},
+                    checked = {type = "boolean", default = false}
+                }
+            },
+            {
+                type = "ViewPager",
+                name = "滑动视图",
+                icon = "📑",
+                properties = {
+                    pageMargin = {type = "number", default = 0},
+                    offscreenPageLimit = {type = "number", default = 1}
+                }
+            }
+        }
+    }
+}
+
+function UIEditor:new(config)
+    local obj = {
+        currentLayout = nil,
+        components = {},
+        config = {
+            outputPath = "/sdcard/RLGG_UI/",
+            defaultFile = "ui_layout.lua",
+            theme = {
+                primaryColor = "#FF2196F3",
+                backgroundColor = "#FF303030",
+                textColor = "#FFFFFFFF"
+            }
+        }
+    }
+    setmetatable(obj, self)
+    self.__index = self
+    return obj
+end
+
+function UIEditor:start()
+    self:initWorkspace()
+    self:showMainMenu()
+end
+
+function UIEditor:initWorkspace()
+    if not file.checkDir(self.config.outputPath) then
+        gg.alert("无法创建输出目录："..self.config.outputPath)
+        os.exit()
+    end
+end
+
+function UIEditor:showMainMenu()
+    while true do
+        local choice = gg.choice({
+            "📐 创建新布局",
+            "✏️ 编辑当前布局",
+            "🧩 添加组件",
+            "👀 实时预览",
+            "💾 生成代码",
+            "⚙️ 编辑器设置",
+            "🚪 退出"
+        }, nil, "RLGG UI编辑器 v"..self._VERSION)
+
+        if choice == 1 then
+            self:createNewLayout()
+        elseif choice == 2 then
+            self:editCurrentLayout()
+        elseif choice == 3 then
+            self:addComponent()
+        elseif choice == 7 then
+            break
+        end
+    end
+end
+
+function UIEditor:createNewLayout()
+    local layoutTypes = {}
+    for _, layout in ipairs(self._CONTROLS.layouts) do
+        table.insert(layoutTypes, layout.icon.." "..layout.name)
+    end
+
+    local choice = gg.choice(layoutTypes, nil, "选择布局类型")
+    if choice then
+        local layoutDef = self._CONTROLS.layouts[choice]
+        self.currentLayout = {
+            type = layoutDef.type,
+            children = {},
+            properties = self:getDefaultProperties(layoutDef.properties),
+            metadata = {
+                created = os.date("%Y-%m-%d %H:%M:%S"),
+                modified = os.date("%Y-%m-%d %H:%M:%S")
+            }
+        }
+        gg.toast(layoutDef.name.."创建成功")
+    end
+end
+
+function UIEditor:addComponent()
+    if not self.currentLayout then
+        gg.alert("请先创建布局")
+        return
+    end
+
+    local widgetList = {}
+    for _, widget in ipairs(self._CONTROLS.widgets) do
+        table.insert(widgetList, widget.icon.." "..widget.name)
+    end
+
+    local choice = gg.choice(widgetList, nil, "添加组件")
+    if choice then
+        local widgetDef = self._CONTROLS.widgets[choice]
+        local newComponent = {
+            type = widgetDef.type,
+            properties = self:getDefaultProperties(widgetDef.properties),
+            metadata = {
+                position = #self.currentLayout.children + 1,
+                added = os.date("%Y-%m-%d %H:%M:%S")
+            }
+        }
+        self:editComponentProperties(newComponent, widgetDef.properties)
+        table.insert(self.currentLayout.children, newComponent)
+    end
+end
+
+function UIEditor:editComponentProperties(component, propertiesDef)
+    local propNames = {}
+    for propName, _ in pairs(propertiesDef) do
+        table.insert(propNames, propName)
+    end
+
+    while true do
+        local choice = gg.choice(propNames, nil, "编辑属性")
+        if not choice then break end
+
+        local propName = propNames[choice]
+        local propDef = propertiesDef[propName]
+        local currentValue = component.properties[propName]
+
+        if propDef.type == "choice" then
+            local newChoice = gg.choice(propDef.options, nil, "选择"..propName)
+            if newChoice then
+                component.properties[propName] = propDef.options[newChoice]
+            end
+        elseif propDef.type == "multi" then
+            local choices = gg.multiChoice(propDef.options, nil, "选择"..propName)
+            if choices then
+                local selected = {}
+                for i, v in ipairs(choices) do
+                    if v then table.insert(selected, propDef.options[i]) end
+                end
+                component.properties[propName] = table.concat(selected, "|")
+            end
+        else
+            local inputType = "text"
+            if propDef.type == "number" then inputType = "number" end
+            local result = gg.prompt({"输入"..propName}, {tostring(currentValue)}, {inputType})
+            if result then
+                component.properties[propName] = propDef.type == "number" and tonumber(result[1]) or result[1]
+            end
+        end
+    end
+end
+
+function UIEditor:generateCode()
+    if not self.currentLayout then
+        return nil, "没有可生成的布局"
+    end
+
+    local code = {
+        "local luajava = require('luajava')",
+        "return function(context)",
+        "    return luajava.loadlayout({"
+    }
+
+    -- 生成布局属性
+    table.insert(code, "        "..self.currentLayout.type..",")
+    for prop, value in pairs(self.currentLayout.properties) do
+        table.insert(code, self:_formatProperty(prop, value, 8))
+    end
+
+    -- 生成子组件
+    for _, child in ipairs(self.currentLayout.children) do
+        table.insert(code, "        {")
+        table.insert(code, "            "..child.type..",")
+        for prop, value in pairs(child.properties) do
+            table.insert(code, self:_formatProperty(prop, value, 12))
+        end
+        table.insert(code, "        },")
+    end
+
+    table.insert(code, "    }, nil, context)")
+    table.insert(code, "end")
+
+    return table.concat(code, "\n")
+end
+
+function UIEditor:_formatProperty(prop, value, indent)
+    local spaces = string.rep(" ", indent)
+    if prop == "background" then
+        return spaces..string.format('background = "%s",', value)
+    elseif prop == "onClick" then
+        return spaces..string.format('onClick = %s,', value)
+    elseif prop == "textColor" then
+        return spaces..string.format('textColor = "%s",', value)
+    else
+        return spaces..string.format('%s = "%s",', prop, value)
+    end
+end
+
+-- 使用示例：
+local config = {
+    outputPath = "/sdcard/MyAppUI/",
+    theme = {
+        primaryColor = "#FF4CAF50",
+        backgroundColor = "#FF212121",
+        textColor = "#FFB0BEC5"
+    }
+}
+
+local editor = UIEditor:new(config)
+editor:start()

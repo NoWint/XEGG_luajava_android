@@ -1,0 +1,664 @@
+huiz=function()
+draw.text(".",100000,1000000)
+end
+
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+changan = {}
+local changan = changan
+local android = import('android.*')
+write=file.write
+function panduan(rec) fille,err = io.open(rec) if fille == nil then return false else return true end end
+read=file.read
+function checkimg(tmp)
+if panduan("/sdcard/长安/图片/"..tmp) ~= true then
+gg.toast("正在加载资源"..tmp)
+download("https://escape2020-1303126286.cos.ap-shenzhen-fsi.myqcloud.com/"..tmp,"/sdcard/长安/图片/"..tmp)
+end
+end
+function 获取图片(txt)
+ntxt=string.sub(string.gsub(txt,"/","."),-10,-1)
+if string.find(tostring(txt),"http")~=nil then
+    if panduan("/sdcard/长安/图片/"..ntxt)==false then
+    download(txt,"/sdcard/长安/图片/"..ntxt)
+    end
+    txt="/sdcard/长安/图片/"..ntxt
+end
+return luajava.getBitmapDrawable(txt)
+end
+ckimg = {
+	"pubgT","pubgG","pubgY","pubgR","leimu","quarkpic",
+	"right","down","xz_gg","yehu",
+	"quarkconfw","arwhitex",
+	'skin',	"star1","star2","heix",
+	'bm_launch','safe','bm_gn',
+	'bm_music','bm_sz','mh',
+	'heir','hei_right',"zhiyin1","lmx",
+	'star1','star2','ringon','ringoff',	'Shimmer2.dex',
+	"blackx",
+}
+for i = 1,#ckimg do
+checkimg(ckimg[i])
+end
+
+
+startmenu=function()
+
+
+
+
+		
+
+
+
+
+
+import("android.media.AudioManager")
+audi = context:getSystemService("audio")
+audiotype = {
+    AudioManager.STREAM_ALARM, --手机闹铃的声音
+    AudioManager.STREAM_MUSIC, --手机音乐的声音
+    AudioManager.STREAM_NOTIFICATION, --系统提示的通知
+    AudioManager.STREAM_RING, --电话铃声的声音
+    AudioManager.STREAM_SYSTEM, --手机系统的声音
+    AudioManager.STREAM_VOICE_CALL, --语音电话的声音
+    AudioManager.STREAM_DTMF, --DTMF音调的声音
+}
+yinl = {}
+for i = 1,#audiotype do
+yinl[i] = {}
+yinl[i].type = audiotype[i]
+yinl[i].min = audi:getStreamMinVolume(audiotype[i])
+yinl[i].max = audi:getStreamMaxVolume(audiotype[i])
+yinl[i].now = audi:getStreamVolume(audiotype[i])
+end
+function jianting2()
+yinln = {}
+for i = 1,#audiotype do
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].min = audi:getStreamMinVolume(audiotype[i])
+yinln[i].max = audi:getStreamMaxVolume(audiotype[i])
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+
+    if yinln[i].now > yinl[i].now  then
+        audi:adjustStreamVolume(yinln[i].type,AudioManager.ADJUST_LOWER,0)
+        gg.alert("up")
+    elseif yinln[i].now < yinl[i].now  then
+        audi:adjustStreamVolume(yinln[i].type,AudioManager.ADJUST_RAISE,0)
+        gg.alert("down\n"..yinln[i].now.."\n"..yinl[i].now)
+    end
+end
+
+end
+yltype=0
+function jianting3(func)
+yinln = {}
+for i = 1,#audiotype do
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+    if yinln[i].now > yinl[i].now  then
+        yinl[i].now = yinln[i].now
+        if yltype==1 then
+        yltype=0
+        func()
+        end
+    elseif yinln[i].now < yinl[i].now  then
+        yinl[i].now = yinln[i].now
+        if yltype==0 then
+        yltype=1
+        func()
+        end
+    end
+end
+end
+function jianting(func)
+yinln = {}
+for i = 1,#audiotype do
+yinln[i] = {}
+yinln[i].type = audiotype[i]
+yinln[i].now = audi:getStreamVolume(audiotype[i])
+    if yinln[i].now >= yinl[i].max  then
+       audi:adjustStreamVolume(yinln[i].type,AudioManager.ADJUST_LOWER,0)
+    end
+    if yinln[i].now > yinl[i].now  then
+        audi:setStreamVolume(yinln[i].type,yinl[i].now,0)
+        func()
+    end
+end
+end
+tuic=0
+yinll=1
+
+qhkai=0
+zhubj=floatWindow
+qiehuan=function()
+    if qhkai==0 then
+    	yinll=0
+        qhkai=1
+        draw.remove()
+        gg.toast("隐藏")
+        luajava.runUiThread(function()
+        YoYoImpl:with("FadeOut"):duration(300):playOn(zhubj)
+		end)
+        gg.sleep(400)
+        luajava.runUiThread(function()
+        zhubj:setVisibility(View.GONE)
+        end)
+    else
+        qhkai=0
+        yinll=1
+        huiz()
+        luajava.runUiThread(function() zhubj:setVisibility(View.VISIBLE) end)
+        luajava.runUiThread(function()
+        YoYoImpl:with("FadeIn"):duration(300):playOn(zhubj)
+		
+        end)
+        
+    end
+end
+while true do
+if tuic==1 then break end
+jianting3(qiehuan)
+gg.sleep(330)
+end
+
+luajava.setFloatingWindowHide(false)
+luajava.setFloatingWindowHide(false)
+
+end
+
+
+local ui = require('ui')
+import("android.ext.*")
+vibra = context:getSystemService(Context.VIBRATOR_SERVICE)
+local android = import('android.*')
+local windowManager = require('windowManager')
+local viewManager
+
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+return jianbians
+end
+
+function getRes(x)
+return 获取图片("/sdcard/长安/图片/"..x)
+end
+
+function 获取图片(txt)
+ntxt = string.sub(string.gsub(txt,"/","."),-10,-1)
+if string.find(tostring(txt),"http") ~= nil then
+if panduan("/sdcard/长安/图片/"..ntxt) == false then
+luajava.download(txt,"/sdcard/长安/图片/"..ntxt)
+end
+txt = "/sdcard/长安/图片/"..ntxt
+--txt="https://www.baidu.com/img/flexible/logo/pc/result.png"
+end
+return luajava.getBitmapDrawable(txt)
+end
+
+function getShape00(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({
+	tmp1,tmp2
+})
+return jianbians
+end
+
+function getShape22(tmp0,tmp1,tmp2,tmp3)
+jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(tmp0)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors({
+	tmp1,tmp2
+})
+jianbians:setStroke(3,tmp3)--边框宽度和颜色
+
+return jianbians
+end
+function getButtonBG()
+local selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, getVerticalBG({0x55545454,0x55545454},15))
+selector:addState({
+	-android.R.attr.state_pressed
+}, getVerticalBG({0x44ffffff,0x44ffffff},15,4,0xff232323))
+return selector
+end
+
+function launch(pkg)
+viewManager:setVisibility(View.GONE)
+loadingBox = getLoadingBox(pkg..'\n正在启动...')
+loadingBox['显示']()
+--隐藏()
+gg.setProcess(pkg)
+gg.sleep(500)
+if tostring(gg.getTargetPackage()) == pkg then
+	loadingBox['关闭']()
+gg.toast("进程已选择:"..pkg)
+return 0
+end
+gg.toast("正在启动游戏...")
+
+
+print(gg.isPackageInstalled(pkg))
+app.start(pkg)
+jci=0
+--gg.sleep(5000)
+while true do
+	gg.setProcess(pkg)
+	gg.sleep(400)
+	if tostring(gg.getTargetPackage()) == pkg then
+		loadingBox['关闭']()
+		gg.alert("启动成功")
+		startmenu()
+		break
+	else
+		jci=jci+1
+		if jci==14 then
+			loadingBox['关闭']()
+			gg.alert("自动获取进程失败\n请手动选择游戏进程")
+		viewManager:setVisibility(View.VISIBLE)
+			gg.setProcessX()
+			break
+		end
+	end
+	gg.sleep(100)
+end
+end
+
+function card(cdv)
+logo=cdv[1]
+name=cdv.name
+tags=cdv.js
+func=cdv[2]
+if not x then x = 2 end
+tag = {
+	LinearLayout,
+}
+for i = 1,#tags do
+tag[#tag+1] = {
+	TextView,
+	background = getShape22(45,0x00FF9700,0x00FF9700,0xffFF9700),
+	layout_height = "20dp",
+	padding = "2dp",
+	textColor = 0xffFF9700,
+	layout_marginLeft = "10dp",
+	gravity = "center_vertical",
+	text = " "..tags[i].." ",
+	textSize = "9sp",
+}
+end
+tags = tag
+tmp = luajava.loadlayout(
+	{
+		FrameLayout,
+		layout_height = "wrap_content",
+		layout_width = "fill_parent",
+		{
+			LinearLayout,
+			orientation = "vertical",
+			layout_height = "100dp",
+			layout_marginLeft = "14dp",
+			layout_marginRight = "14dp",
+			layout_marginTop = "10dp",
+			layout_marginBottom = "10dp",
+			layout_width = "match_parent",
+			background=getVerticalBG({0x22ffffff,0x22ffffff},8,5,0xffffffff),
+			{
+				LinearLayout,
+				layout_marginLeft = "10dp",
+				layout_marginRight = "10dp",
+				layout_marginTop = "10dp",
+				layout_marginBottom = "10dp",
+				layout_width = "match_parent",
+				layout_height = "40dp",
+				{
+					ImageView,
+					layout_width = "40dp",
+					layout_height = "40dp",
+					background = 获取图片(logo),
+				},
+				{
+					TextView,
+					layout_height = "40dp",
+					layout_marginLeft = "10dp",
+					gravity = "center_vertical",
+					text = ""..name,
+					textColor="#161616",
+					textSize = "13sp",
+				}
+			},
+			tags
+		},
+		{
+			LinearLayout,
+			onClick = function()
+			luajava.newThread(function() --隐藏() 
+			func() end):start() end,
+			background = getShape00(90,0xff28FEB9,0xff28FEB9,0xff28FEB9),
+			layout_height = "25dp",
+			layout_width = "55dp",
+			layout_gravity = "right",
+			layout_marginRight = "30dp",
+			layout_marginTop = "70dp",
+			gravity = "center",
+			{
+				ImageView,
+				layout_height = "20dp",
+				layout_width = "15dp",
+				background = getRes("rw1"),
+			},
+			{
+				TextView,
+				textColor = "#000000",
+				text = "启动",
+				textSize = "10sp",
+				layout_height = "20dp",
+				gravity = "center",
+				layout_width = "30dp",
+			}
+		}
+	})
+return tmp
+end
+
+local drawerView
+local text_title = string.randomMD5()
+
+local main_titlebar_layout = {
+	LinearLayout,
+	layout_width = "match_parent",
+	backgroundColor = 0x99000000,
+	{
+		ImageView,
+		imageResource = 0x7f020037,
+		layout_height = "30dp",
+		layout_width = "30dp",
+		scaleType = 'fitCenter',
+		onClick = function()
+			drawerView:openDrawer(Gravity.START)
+		end
+	},
+	{
+		TextView,
+		layout_weight = 1,
+		id = luajava.newId(text_title),
+		gravity = "center_vertical",
+		layout_height = "match_parent",
+		onLongClick = function(view)
+			gg.copyText(view:getText(), false)
+		end
+	},
+	{
+		ImageView,
+		imageResource = 0x7f020029,
+		layout_height = "30dp",
+		layout_width = "30dp",
+		scaleType = 'fitCenter',
+		onClick = function(view)
+			-- drawerLayout:openDrawer(Gravity.START)
+			local menu = {
+				{
+					'刷新'
+				},
+				{
+					'搜索'
+				},
+				{
+					'全选'
+				},
+				{
+					'过滤'
+				},
+				{
+					'退出',
+					onClick = function()
+						viewManager:unpark()
+					end
+				}
+			}
+
+			---@type android.widget.PopupMenu
+			local popupMenu = ui.SimplePopupMenu({
+				bindView = view,
+				menu = menu,
+				onSelectedListener = function(parent, view, position)
+					local name = menu[position][1]
+					gg.toast(string.format('没有定义 %q 功能', name))
+				end
+			})
+			popupMenu:show()
+		end
+	}
+}
+
+local mian_layout = {
+	LinearLayout,
+	layout_width = "match_parent",
+	layout_height = "match_parent",
+	orientation = "vertical",
+	background = luajava.getBitmapDrawable("/sdcard/个人仓库/UI/自制/图片资源/星光背景"),
+	{
+		LinearLayout,
+		--backgroundColor = 0x50000000,
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		orientation = "vertical",
+		paddingEnd = '50dp',
+		main_titlebar_layout,
+		{
+		LinearLayout,
+		--backgroundColor = 0x50000000,
+		--background = luajava.getBitmapDrawable("/sdcard/个人仓库/UI/自制/图片资源/星光背景"),
+		layout_width = "match_parent",
+		layout_height = "match_parent",
+		orientation = "vertical",
+		gravity = "center_vertical",
+		paddingEnd = '50dp',
+			{
+			Button,
+			layout_width = 'fill_parent',
+			layout_hight = "60dp",
+			layout_margin = '10dp',
+			textSize = '15sp',
+			background = getButtonBG(),
+			textColor = "#00A3FF",
+			text = "启动辅助",
+			onClick = function()
+			luajava.startThread(function()
+			viewManager:setVisibility(View.GONE)
+			gg.alert("正在启动")
+			startmenu()
+			tuic=1
+			end)
+			end
+			},
+						card({"/sdcard/长安/图片/pubgT",
+						name="PUBG（台湾服）",
+						js={
+							"PUBG🐔启动",
+							"🐔台湾服"
+						},
+						function()
+						launch("com.rekoo.pubgm")
+						end
+					}),
+					card({"/sdcard/长安/图片/pubgG",
+						name="PUBG（全球服）",
+						js={
+							"PUBG🐔启动",
+							"🐔全球服"
+						},
+						function()
+						launch("com.tencent.ig")
+						end
+					}),
+					card({"/sdcard/长安/图片/pubgY",
+						name="PUBG（越南服）",
+						js={
+						    "PUBG🐔启动",
+						   	"🐔越南服"
+						},
+						function()
+						launch("com.vng.pubgmobile")
+						end
+					}),
+					card({"/sdcard/长安/图片/pubgR",
+						name="PUBG（日韩服）",
+						js={
+						    "PUBG🐔启动",
+						    "🐔日韩服"
+						},
+						function()
+						launch("com.pubg.krmobile")
+						end
+					})
+		}
+	}
+}
+
+local drawer_titlebar_layout = {
+	LinearLayout,
+	backgroundColor = 0x50000000,
+	layout_width = "match_parent",
+	orientation = "vertical",
+	{
+		LinearLayout,
+		layout_width = "match_parent",
+		{
+			ImageView,
+			imageResource = 0x7f02002c,
+			layout_height = "30dp",
+			layout_width = "30dp",
+			scaleType = 'fitCenter'
+		},
+		{
+			TextView,
+			layout_weight = 1,
+			gravity = "center_vertical",
+			text = app.name,
+			layout_height = "match_parent"
+		},
+		{
+			ImageView,
+			imageResource = 0x7f020029,
+			layout_height = "30dp",
+			layout_width = "30dp",
+			scaleType = 'fitCenter',
+			onClick = function(view)
+				local menu = {
+					{
+						'退出',
+						onClick = function(item)
+							viewManager:unpark()
+						end
+					}
+				}
+
+				---@type android.widget.PopupMenu
+				local popupMenu = ui.SimplePopupMenu({
+					bindView = view,
+					menu = menu,
+					onSelectedListener = function(parent, view, position)
+						-- 当菜单不存在 onClick 回调函数,则进入 onSelectedListener
+
+						local name = menu[position][1]
+						gg.toast(string.format('没有定义 %q 功能', name))
+					end
+				})
+				popupMenu:show()
+			end
+		}
+	}
+}
+
+local expandableList_layout = {
+	'ui.SimpleExpandableListView',
+	layout_width = "match_parent",
+	{
+		'本地',
+		{
+			'根储存',
+			thread = function()
+				gg.alert('Hello World')
+			end
+		},
+		{
+			'内部储存'
+		}
+	},
+	{
+		'网络'
+	},
+	{
+		'工具',
+		{
+			'插件管理'
+		},
+		{
+			'远程管理'
+		},
+		{
+			'屏幕取色'
+		},
+		{
+			'安装包管理'
+		},
+		{
+			'文本编辑器'
+		},
+		{
+			'终端模拟器'
+		},
+		{
+			'Actvity 记录'
+		},
+		{
+			'Smali 指令查询'
+		}
+	}
+}
+
+local drawer_layout = {
+	LinearLayout,
+	layout_gravity = Gravity.START,
+	layout_height = "match_parent",
+	layout_width = "320dp",
+	backgroundColor = 0xb0000000,
+	orientation = "vertical",
+	drawer_titlebar_layout,
+	expandableList_layout
+}
+
+drawerView = luajava.loadlayout({
+	'ui.DrawerLayoutx',
+	layout_width = "match_parent",
+	layout_height = "match_parent",
+	mian_layout,
+	drawer_layout
+})
+
+
+
+viewManager = windowManager:bindView(drawerView)
+
+-- ui.DrawerLayoutx 的容器的宽高必须是 MATCH_PARENT 
+viewManager:addView({
+width = WindowManager.LayoutParams.MATCH_PARENT,
+--	width="70",
+	height = WindowManager.LayoutParams.MATCH_PARENT
+})
+
+gg.setVisible(false)
+--viewManager:wait()
+bloc = luajava.getBlock()
+bloc('join')

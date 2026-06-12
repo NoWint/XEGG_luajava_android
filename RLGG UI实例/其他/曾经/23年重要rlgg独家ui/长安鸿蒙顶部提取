@@ -1,0 +1,146 @@
+function 获取图片(txt)
+ntxt = string.sub(string.gsub(txt,"/","."),-10,-1)
+if string.find(tostring(txt),"http") ~= nil then
+if panduan("/sdcard/长安/图片/"..ntxt) == false then
+luajava.download(txt,"/sdcard/长安/图片/"..ntxt)
+end
+txt = "/sdcard/长安/图片/"..ntxt
+--txt="https://www.baidu.com/img/flexible/logo/pc/result.png"
+end
+return luajava.getBitmapDrawable(txt)
+end
+function getRes(x)
+return 获取图片("/sdcard/长安/图片/"..x)
+end
+function topSelect()
+local selector = luajava.getStateListDrawable()
+selector:addState({
+	android.R.attr.state_pressed
+}, getVerticalBG({0x22161616,0x22161616},30))
+selector:addState({
+	-android.R.attr.state_pressed
+}, empty)
+return selector
+end
+function getCorner(gtvb1,gtvb3,gtvb4,gtvb5,g1,g2,g3,g4)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+jianbians:setCornerRadii({g1,g1,g2,g2,g3,g3,g4,g4})
+return jianbians
+end
+function getVerticalBG(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.new(GradientDrawable)
+jianbians:setCornerRadius(gtvb3)
+jianbians:setGradientType(GradientDrawable.LINEAR_GRADIENT)
+jianbians:setColors(gtvb1)
+jianbians:setStroke(gtvb4,gtvb5)--边框宽度和颜色
+return jianbians
+end
+function newbg(gtvb1,gtvb3,gtvb4,gtvb5)
+if not gtvb4 then gtvb4 = 0 gtvb5 = 0xff000000 end
+local jianbians = luajava.loadlayout({
+GradientDrawable,
+color = {背景颜色},
+cornerRadius=45,
+gradientType = GradientDrawable.LINEAR_GRADIENT,
+orientation = GradientDrawable.Orientation.TOP_BOTTOM ,
+strokeWidth = 10,
+strokeColor = gtvb5
+})
+return jianbians
+end
+topbar = luajava.loadlayout({
+	LinearLayout,
+	layout_width="fill_parent",
+	layout_height="35dp",
+	background=getCorner({0xffffffff,0xffffffff},15,0,0xff232323,20,20,0,0),
+	onClick=function() end,
+	onTouch=hanshu,
+	{LinearLayout,
+	layout_width="35dp",
+	layout_height="match_parent",
+	gravity="center",
+	{
+			LinearLayout,
+			gravity="center",
+			background=获取图片(xfcpic),
+			layout_width = "20dp",
+			layout_height = "20dp",
+			layout_marginLeft = "5dp",
+			onClick = 隐藏,
+			onTouch = hanshu,
+			
+		}
+	},
+	{LinearLayout,
+	layout_width="wrap_content",
+	layout_height="match_parent",
+	gravity="center",
+	{
+			LinearLayout,
+			id='cvv',
+			layout_width='100dp',
+			layout_height='match_parent',
+			gravity="center",
+		}
+	},
+	{LinearLayout,
+		layout_width="fill_parent",
+		layout_marginLeft='-80dp',
+		layout_weight=1,
+		layout_height="match_parent",
+		gravity="center",
+		{LinearLayout,
+		layout_height="match_parent",
+		layout_width="80dp",
+		background=topSelect(),
+		onClick=function() end,
+		gravity="center",
+		onTouch=hanshu,
+		{LinearLayout,
+		layout_height="5dp",
+		layout_width="60dp",
+		background=getVerticalBG({0xff161616,0xff161616},20)
+		
+		}
+		}
+		},
+	{LinearLayout,
+	layout_width="35dp",
+	layout_height="match_parent",
+	gravity="center",
+	{
+			ImageView,
+			padding = "5dp",
+			id="lockui",
+			src = getRes("skin"),
+			background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+			layout_width = "20dp",
+			layout_height = "20dp",
+			layout_marginRight = "5dp",
+			onClick = changebg,
+			onTouch = hanshu,
+		}
+	},
+	{LinearLayout,
+	layout_width="35dp",
+	layout_height="match_parent",
+	gravity="center",
+	{
+			ImageView,
+			padding = "5dp",
+			src = getRes("heix"),
+			background=getVerticalBG({0xffE6E6E6,0xffE6E6E6},90),
+			layout_width = "20dp",
+			layout_height = "20dp",
+			layout_marginRight = "5dp",
+			onClick = 隐藏,
+			onTouch = hanshu,
+		}
+	}
+})

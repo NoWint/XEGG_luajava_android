@@ -1,0 +1,188 @@
+
+local YunzhuTransition = {}
+
+-- 初始化动画对象
+function YunzhuTransition.new()
+    local transition = {
+        animationTime = 300,           -- 默认动画时长（ms）
+        startView = nil,               -- 起始 View
+        endView = nil,                 -- 目标 View
+        startRadius = 0,               -- 起始半径
+        endRadius = 0,                 -- 结束半径
+        hasRadius = false,             -- 是否设置了半径
+        interpolator = nil,            -- 插值器（默认加速减速）
+        startCallback = nil,           -- 动画开始回调
+        endCallback = nil,             -- 动画结束回调
+        interruptEnabled = true,       -- 是否允许中断
+    }
+    return setmetatable(transition, { __index = YunzhuTransition })
+end
+
+-- 设置动画时长
+function YunzhuTransition:setDuration(duration)
+    self.animationTime = duration
+    return self
+end
+
+-- 设置起始 View
+function YunzhuTransition:setStartView(view)
+    self.startView = view
+    return self
+end
+
+-- 设置目标 View
+function YunzhuTransition:setEndView(view)
+    self.endView = view
+    return self
+end
+
+-- 设置圆形动画半径
+function YunzhuTransition:setRadius(startRadius, endRadius)
+    self.startRadius = startRadius
+    self.endRadius = endRadius
+    self.hasRadius = true
+    return self
+end
+
+-- 设置动画开始回调
+function YunzhuTransition:setStartCallback(callback)
+    self.startCallback = callback
+    return self
+end
+
+-- 设置动画结束回调
+function YunzhuTransition:setEndCallback(callback)
+    self.endCallback = callback
+    return self
+end
+
+-- 设置插值器（如加速、减速等）
+function YunzhuTransition:setInterpolator(interpolator)
+    self.interpolator = interpolator or luajava.bindClass("android.view.animation.AccelerateDecelerateInterpolator")()
+    return self
+end
+
+-- 设置是否允许中断动画
+function YunzhuTransition:setInterruptEnabled(enabled)
+    self.interruptEnabled = enabled
+    return self
+end
+
+-- 获取 View 的中心坐标（用于计算圆形动画的起始点）
+local function getViewCenter(view)
+    local x = view:getX() + view:getWidth() / 2
+    local y = view:getY() + view:getHeight() / 2
+    return x, y
+end
+
+-- 启动圆形揭示动画
+function YunzhuTransition:start()
+    if not self.endView then
+        error("EndView must be set!")
+    end
+
+    -- 如果没有设置半径，则计算默认半径（从起始 View 到目标 View 的最大距离）
+    if not self.hasRadius then
+        local startX, startY = getViewCenter(self.startView or self.endView)
+        local endX, endY = getViewCenter(self.endView)
+        self.startRadius = 0
+        self.endRadius = math.sqrt((endX - startX)^2 + (endY - startY)^2)
+    end
+
+    -- 获取动画中心点（默认从起始 View 中心开始）
+    local centerX, centerY = getViewCenter(self.startView or self.endView)
+
+    -- 创建圆形揭示动画（Android API）
+    local ViewAnimationUtils = luajava.bindClass("android.view.ViewAnimationUtils")
+    local anim = ViewAnimationUtils.createYunzhuTransition(
+        self.endView,
+        centerX,
+        centerY,
+        self.startRadius,
+        self.endRadius
+    )
+
+    -- 设置动画时长
+    anim:setDuration(self.animationTime)
+
+    -- 设置插值器（默认加速减速）
+    if self.interpolator then
+        anim:setInterpolator(self.interpolator)
+    end
+
+    -- 动画开始回调
+    if self.startCallback then
+        anim:addListener(luajava.createProxy("android.animation.Animator$AnimatorListener", {
+            onAnimationStart = function()
+                self.startCallback()
+            end,
+            onAnimationEnd = function()
+                if self.endCallback then
+                    self.endCallback()
+                end
+            end,
+            onAnimationCancel = function() end,
+            onAnimationRepeat = function() end
+        }))
+    end
+
+    -- 启动动画
+    anim:start()
+
+    return self
+end
+
+-- 导出动画库
+return YunzhuTransition
+
+---
+
+
+--以下调用
+
+-- 加载动画库
+--local YunzhuTransition = require("YunzhuTransition")
+
+-- 定义两个 View（假设已经通过 luajava.loadlayout 或其他方式创建）
+local xuanfuqiu = luajava.getIdView("xuanfuqiu")       -- 第一个 View
+local floatwindow = luajava.getIdView("floatwindow") -- 第二个 View
+
+-- 初始状态：xuanfuqiu 显示，floatwindow 隐藏
+xuanfuqiu:setVisibility(gg.VIEW_VISIBLE)
+floatwindow:setVisibility(gg.VIEW_GONE)
+
+-- 切换到 floatwindow（圆形展开）
+local function showFloatWindow()
+    local revealAnim = YunzhuTransition.new()
+        :setStartView(xuanfuqiu)
+        :setEndView(floatwindow)
+        :setRadius(0, 1000)
+        :setDuration(500)
+        :setStartCallback(function()
+            xuanfuqiu:setVisibility(gg.VIEW_GONE)
+        end)
+        :start()
+end
+
+-- 切换回 xuanfuqiu（圆形收缩）
+local function hideFloatWindow()
+    local hideAnim = YunzhuTransition.new()
+        :setStartView(floatwindow)
+        :setEndView(xuanfuqiu)
+        :setRadius(1000, 0)
+        :setDuration(500)
+        :setStartCallback(function()
+            floatwindow:setVisibility(gg.VIEW_GONE)
+        end)
+        :start()
+end
+
+-- 示例：点击按钮切换
+local button = luajava.getIdView("switchButton")
+button.onClick = function()
+    if floatwindow:getVisibility() == gg.VIEW_GONE then
+        showFloatWindow()  -- 显示 floatwindow
+    else
+        hideFloatWindow() -- 隐藏 floatwindow，显示 xuanfuqiu
+    end
+end
