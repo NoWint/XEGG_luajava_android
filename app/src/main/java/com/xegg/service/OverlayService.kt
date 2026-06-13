@@ -4,13 +4,27 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.graphics.Typeface
 import android.os.IBinder
 import android.view.*
-import android.widget.*
+import android.widget.FrameLayout
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.xegg.MainActivity
 import com.xegg.bridge.XeggBridge
-import com.xegg.R
+import com.xegg.ui.theme.XeggTheme
 
 class OverlayService : Service() {
 
@@ -23,32 +37,8 @@ class OverlayService : Service() {
 
     private var windowManager: WindowManager? = null
     private var floatingIcon: View? = null
-    private var expandedPanel: View? = null
+    private var panelView: View? = null
     private var isExpanded = false
-
-    // 搜索状态
-    private var searchValue = ""
-    private var searchType = 2 // I32
-    private var resultCount = 0
-    private var savedItems = mutableListOf<SavedItem>()
-    private var scriptOutput = ""
-
-    // MD3 颜色 (深色主题)
-    private val CPrimary = 0xFF5DDBB2.toInt()       // Green80
-    private val COnPrimary = 0xFF002112.toInt()      // Green10
-    private val CPrimaryContainer = 0xFF005037.toInt() // Green30
-    private val COnPrimaryContainer = 0xFF82F7CD.toInt() // Green90
-    private val CSurface = 0xFF1A1C19.toInt()        // Neutral10
-    private val CSurfaceContainer = 0xFF1D1F1B.toInt() // NeutralVariant10
-    private val CSurfaceHigh = 0xFF2F312D.toInt()    // Neutral20
-    private val COnSurface = 0xFFE2E1DC.toInt()      // Neutral90
-    private val COnSurfaceVariant = 0xFFC8C9C2.toInt() // NeutralVariant80
-    private val COutline = 0xFF787A74.toInt()        // NeutralVariant50
-    private val COutlineVariant = 0xFF494B45.toInt() // NeutralVariant30
-    private val CError = 0xFFFFB4AB.toInt()          // Red80
-    private val COnError = 0xFF410002.toInt()        // Red10
-
-    data class SavedItem(val addr: Long, var value: String, val type: Int, var locked: Boolean = false)
 
     override fun onCreate() {
         super.onCreate()
@@ -62,576 +52,87 @@ class OverlayService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         removeFloatingIcon()
-        removeExpandedPanel()
+        removePanel()
         isRunning = false
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    // --- 悬浮图标 ---
+    // --- 悬浮球 ---
 
     @SuppressLint("ClickableViewAccessibility")
     private fun showFloatingIcon() {
         if (floatingIcon != null) return
-
         val size = dp(48)
         val params = WindowManager.LayoutParams(
             size, size,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = 0
-            y = 200
-        }
+        ).apply { gravity = Gravity.TOP or Gravity.START; x = 0; y = 200 }
 
-        // MD3 FAB 风格：圆角方形 + primary 色
-        val icon = ImageView(this).apply {
-            setImageDrawable(android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                cornerRadius = dp(14).toFloat()
-                setColor(CPrimaryContainer)
-                setStroke(dp(1), COutlineVariant)
-            })
-            elevation = dp(3).toFloat()
-            setPadding(dp(10), dp(10), dp(10), dp(10))
-            setImageResource(android.R.drawable.ic_menu_search)
-            setColorFilter(COnPrimaryContainer)
-        }
-
-        var initialX = 0; var initialY = 0
-        var initialTouchX = 0f; var initialTouchY = 0f
-        var isDragging = false
-
-        icon.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x; initialY = params.y
-                    initialTouchX = event.rawX; initialTouchY = event.rawY
-                    isDragging = false; true
+        val icon = ComposeView(this).apply {
+            setContent {
+                XeggTheme {
+                    FAB { togglePanel() }
                 }
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - initialTouchX
-                    val dy = event.rawY - initialTouchY
-                    if (dx * dx + dy * dy > 100) isDragging = true
-                    params.x = initialX + dx.toInt()
-                    params.y = initialY + dy.toInt()
-                    windowManager?.updateViewLayout(icon, params)
-                    true
-                }
-                MotionEvent.ACTION_UP -> { if (!isDragging) togglePanel(); true }
-                else -> false
             }
         }
 
+        var ix = 0; var iy = 0; var itx = 0f; var ity = 0f; var dragging = false
+        icon.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> { ix = params.x; iy = params.y; itx = event.rawX; ity = event.rawY; dragging = false; true }
+                MotionEvent.ACTION_MOVE -> { val dx = event.rawX - itx; val dy = event.rawY - ity; if (dx*dx+dy*dy > 100) dragging = true; params.x = ix + dx.toInt(); params.y = iy + dy.toInt(); windowManager?.updateViewLayout(icon, params); true }
+                MotionEvent.ACTION_UP -> { if (!dragging) togglePanel(); true }
+                else -> false
+            }
+        }
         floatingIcon = icon
         windowManager?.addView(icon, params)
     }
 
-    private fun removeFloatingIcon() {
-        floatingIcon?.let { windowManager?.removeView(it); floatingIcon = null }
-    }
+    private fun removeFloatingIcon() { floatingIcon?.let { windowManager?.removeView(it); floatingIcon = null } }
 
     // --- 展开面板 ---
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun showExpandedPanel() {
-        if (expandedPanel != null) return
-
-        val w = dp(320); val h = dp(480)
+    private fun showPanel() {
+        if (panelView != null) return
+        val w = dp(340); val h = dp(520)
         val params = WindowManager.LayoutParams(
             w, h,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply { gravity = Gravity.CENTER }
 
-        val panel = createPanelView()
+        val container = FrameLayout(this)
+        val composeView = ComposeView(this).apply {
+            setContent {
+                XeggTheme { OverlayPanel(onClose = { togglePanel() }) }
+            }
+        }
+        container.addView(composeView, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
 
-        val dragBar = panel.findViewWithTag<View>("drag")
+        // 拖拽
         var ix = 0; var iy = 0; var itx = 0f; var ity = 0f
-        dragBar.setOnTouchListener { _, event ->
+        container.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> { ix = params.x; iy = params.y; itx = event.rawX; ity = event.rawY; true }
-                MotionEvent.ACTION_MOVE -> { params.x = ix + (event.rawX - itx).toInt(); params.y = iy + (event.rawY - ity).toInt(); windowManager?.updateViewLayout(panel, params); true }
+                MotionEvent.ACTION_MOVE -> { params.x = ix + (event.rawX - itx).toInt(); params.y = iy + (event.rawY - ity).toInt(); windowManager?.updateViewLayout(container, params); true }
                 else -> false
             }
         }
 
-        expandedPanel = panel
-        windowManager?.addView(panel, params)
+        panelView = container
+        windowManager?.addView(container, params)
     }
 
-    private fun removeExpandedPanel() {
-        expandedPanel?.let { windowManager?.removeView(it); expandedPanel = null }
-    }
+    private fun removePanel() { panelView?.let { windowManager?.removeView(it); panelView = null } }
+    private fun togglePanel() { if (isExpanded) { removePanel(); isExpanded = false } else { showPanel(); isExpanded = true } }
 
-    private fun togglePanel() {
-        if (isExpanded) { removeExpandedPanel(); isExpanded = false }
-        else { showExpandedPanel(); isExpanded = true }
-    }
-
-    // --- 面板 UI ---
-
-    @SuppressLint("SetTextI18n")
-    private fun createPanelView(): LinearLayout {
-        val currentTab = intArrayOf(0)
-
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(CSurface)
-                cornerRadius = dp(16).toFloat()
-                setStroke(dp(1), COutlineVariant)
-            }
-            clipToOutline = true
-
-            // === 顶栏 (MD3 TopAppBar 风格) ===
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setBackgroundColor(CSurfaceContainer)
-                setPadding(dp(8), dp(12), dp(8), dp(12))
-                gravity = Gravity.CENTER_VERTICAL
-                tag = "drag"
-
-                addView(TextView(context).apply {
-                    text = "XEGG"
-                    setTextColor(CPrimary)
-                    textSize = 18f
-                    setTypeface(typeface, Typeface.BOLD)
-                    setPadding(dp(8), 0, dp(8), 0)
-                })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, 0, 1f) })
-                addView(TextView(context).apply {
-                    text = if (XeggBridge.nativeIsAttached()) "已连接" else "未连接"
-                    setTextColor(if (XeggBridge.nativeIsAttached()) CPrimary else CError)
-                    textSize = 12f
-                    tag = "status"
-                    setPadding(dp(8), dp(4), dp(8), dp(4))
-                    background = android.graphics.drawable.GradientDrawable().apply {
-                        setColor(if (XeggBridge.nativeIsAttached()) CPrimaryContainer else CError.copy(alpha = 0.15f))
-                        cornerRadius = dp(8).toFloat()
-                    }
-                })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(8), 0) })
-                addView(TextView(context).apply {
-                    text = "X"
-                    setTextColor(COnSurfaceVariant)
-                    textSize = 16f
-                    setPadding(dp(8), 0, dp(8), 0)
-                    setOnClickListener { togglePanel() }
-                })
-            })
-
-            // === Tab 栏 (MD3 SecondaryTabRow 风格) ===
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setBackgroundColor(CSurfaceContainer)
-                setPadding(dp(4), 0, dp(4), dp(4))
-                val tabBar = this
-                listOf("搜索", "保存", "脚本", "设置").forEachIndexed { index, name ->
-                    addView(TextView(context).apply {
-                        text = name
-                        setTextColor(if (index == 0) CPrimary else COnSurfaceVariant)
-                        textSize = 13f
-                        setPadding(dp(12), dp(8), dp(12), dp(8))
-                        tag = "tab_$index"
-                        background = if (index == 0) android.graphics.drawable.GradientDrawable().apply {
-                            setColor(CPrimaryContainer)
-                            cornerRadius = dp(8).toFloat()
-                        } else null
-                        setOnClickListener {
-                            currentTab[0] = index
-                            updateTabContent(tabBar, index)
-                        }
-                    })
-                }
-            })
-
-            // === 内容区域 ===
-            addView(FrameLayout(context).apply {
-                id = R.id.content_area
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-                setBackgroundColor(CSurface)
-                addView(createSearchView())
-            })
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun updateTabContent(tabBar: LinearLayout, tabIndex: Int) {
-        for (i in 0 until tabBar.childCount) {
-            val tab = tabBar.getChildAt(i) as? TextView ?: continue
-            tab.setTextColor(if (i == tabIndex) CPrimary else COnSurfaceVariant)
-            tab.background = if (i == tabIndex) android.graphics.drawable.GradientDrawable().apply {
-                setColor(CPrimaryContainer)
-                cornerRadius = dp(8).toFloat()
-            } else null
-        }
-        val panel = expandedPanel as? LinearLayout ?: return
-        val content = panel.findViewById<FrameLayout>(R.id.content_area)
-        content.removeAllViews()
-        when (tabIndex) {
-            0 -> content.addView(createSearchView())
-            1 -> content.addView(createSavedView())
-            2 -> content.addView(createScriptView())
-            3 -> content.addView(createSettingsView())
-        }
-    }
-
-    // --- 搜索页 ---
-
-    @SuppressLint("SetTextI18n")
-    private fun createSearchView(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-
-            // 值输入
-            addView(EditText(context).apply {
-                hint = "输入搜索值"
-                setTextColor(COnSurface)
-                setHintTextColor(COutline)
-                textSize = 14f
-                setPadding(dp(12), dp(12), dp(12), dp(12))
-                background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(CSurfaceContainer)
-                    cornerRadius = dp(12).toFloat()
-                    setStroke(dp(1), COutlineVariant)
-                }
-                id = R.id.search_input
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            })
-
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-
-            // 类型选择
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                val types = listOf("I8","I16","I32","I64","U8","U16","U32","U64","F32","F64")
-                types.forEachIndexed { index, name ->
-                    addView(TextView(context).apply {
-                        text = name
-                        setTextColor(if (index == 2) COnPrimaryContainer else COnSurfaceVariant)
-                        textSize = 11f
-                        setPadding(dp(6), dp(4), dp(6), dp(4))
-                        background = if (index == 2) android.graphics.drawable.GradientDrawable().apply {
-                            setColor(CPrimaryContainer)
-                            cornerRadius = dp(6).toFloat()
-                        } else null
-                        setOnClickListener {
-                            searchType = index
-                            (parent as? LinearLayout)?.let { bar ->
-                                for (i in 0 until bar.childCount) {
-                                    val tv = bar.getChildAt(i) as? TextView ?: continue
-                                    tv.setTextColor(if (i == index) COnPrimaryContainer else COnSurfaceVariant)
-                                    tv.background = if (i == index) android.graphics.drawable.GradientDrawable().apply {
-                                        setColor(CPrimaryContainer)
-                                        cornerRadius = dp(6).toFloat()
-                                    } else null
-                                }
-                            }
-                        }
-                    })
-                }
-            })
-
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-
-            // 搜索按钮行
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                addView(md3Btn("精确搜索") {
-                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@md3Btn
-                    if (input.isEmpty()) return@md3Btn
-                    searchValue = input
-                    resultCount = XeggBridge.nativeSearchNumber(input, searchType, -1)
-                    updateResultDisplay()
-                })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
-                addView(md3OutlinedBtn("再次") {
-                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@md3OutlinedBtn
-                    if (input.isEmpty()) return@md3OutlinedBtn
-                    searchValue = input
-                    resultCount = XeggBridge.nativeRefineSearch(input)
-                    updateResultDisplay()
-                })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
-                addView(md3OutlinedBtn("模糊") {
-                    resultCount = XeggBridge.nativeFuzzySearch(0)
-                    updateResultDisplay()
-                })
-            })
-
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-
-            addView(TextView(context).apply {
-                id = R.id.result_text
-                text = "找到 0 个结果"
-                setTextColor(CPrimary)
-                textSize = 13f
-            })
-
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
-
-            addView(ScrollView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-                addView(LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    id = R.id.result_list_inner
-                })
-            })
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun updateResultDisplay() {
-        val resultText = expandedPanel?.findViewById<TextView>(R.id.result_text)
-        resultText?.text = "找到 $resultCount 个结果"
-
-        val listInner = expandedPanel?.findViewById<LinearLayout>(R.id.result_list_inner)
-        listInner?.removeAllViews()
-
-        val showCount = minOf(resultCount, 50)
-        for (i in 0 until showCount) {
-            val addr = XeggBridge.nativeGetResultAddress(i)
-            val valueBytes = XeggBridge.nativeGetResultValue(i)
-            val valueStr = valueBytes?.let { String(it) } ?: "?"
-            listInner?.addView(LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(0, dp(4), 0, dp(4))
-                addView(TextView(context).apply {
-                    text = "0x${addr.toString(16)}"
-                    setTextColor(COnSurfaceVariant)
-                    textSize = 12f
-                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                })
-                addView(TextView(context).apply {
-                    text = valueStr
-                    setTextColor(COnSurface)
-                    textSize = 12f
-                })
-                addView(TextView(context).apply {
-                    text = "  +"
-                    setTextColor(CPrimary)
-                    textSize = 14f
-                    setOnClickListener {
-                        savedItems.add(SavedItem(addr, valueStr, searchType))
-                        Toast.makeText(this@OverlayService, "已保存", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            })
-        }
-    }
-
-    // --- 保存页 ---
-
-    @SuppressLint("SetTextI18n")
-    private fun createSavedView(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-
-            addView(TextView(context).apply {
-                text = "已保存 (${savedItems.size})"
-                setTextColor(CPrimary)
-                textSize = 14f
-                setTypeface(typeface, Typeface.BOLD)
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-            addView(ScrollView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-                addView(LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    savedItems.forEachIndexed { index, item ->
-                        addView(LinearLayout(context).apply {
-                            orientation = LinearLayout.HORIZONTAL
-                            setPadding(dp(8), dp(6), dp(8), dp(6)
-                            )
-                            background = android.graphics.drawable.GradientDrawable().apply {
-                                setColor(CSurfaceContainer)
-                                cornerRadius = dp(8).toFloat()
-                            }
-                            addView(TextView(context).apply {
-                                text = "0x${item.addr.toString(16)}"
-                                setTextColor(COnSurfaceVariant); textSize = 12f
-                                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                            })
-                            addView(TextView(context).apply {
-                                text = if (item.locked) "锁定" else "解锁"
-                                setTextColor(if (item.locked) CPrimary else COutline)
-                                textSize = 11f
-                                setPadding(dp(6), dp(2), dp(6), dp(2))
-                                background = android.graphics.drawable.GradientDrawable().apply {
-                                    setColor(if (item.locked) CPrimaryContainer else CSurfaceHigh)
-                                    cornerRadius = dp(4).toFloat()
-                                }
-                                setOnClickListener {
-                                    item.locked = !item.locked
-                                    text = if (item.locked) "锁定" else "解锁"
-                                    setTextColor(if (item.locked) CPrimary else COutline)
-                                    background = android.graphics.drawable.GradientDrawable().apply {
-                                        setColor(if (item.locked) CPrimaryContainer else CSurfaceHigh)
-                                        cornerRadius = dp(4).toFloat()
-                                    }
-                                }
-                            })
-                            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
-                            addView(EditText(context).apply {
-                                hint = item.value
-                                setTextColor(COnSurface); setHintTextColor(COutline)
-                                textSize = 12f
-                                maxWidth = dp(70)
-                                setPadding(dp(6), dp(2), dp(6), dp(2))
-                                background = android.graphics.drawable.GradientDrawable().apply {
-                                    setColor(CSurfaceHigh)
-                                    cornerRadius = dp(4).toFloat()
-                                }
-                                setOnEditorActionListener { v, _, _ ->
-                                    val nv = v.text.toString()
-                                    if (nv.isNotEmpty()) {
-                                        val bytes = nv.toByteArray()
-                                        XeggBridge.nativeSetValue(item.addr, bytes)
-                                        item.value = nv
-                                    }
-                                    true
-                                }
-                            })
-                        })
-                        addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
-                    }
-                })
-            })
-        }
-    }
-
-    // --- 脚本页 ---
-
-    @SuppressLint("SetTextI18n")
-    private fun createScriptView(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-
-            addView(TextView(context).apply {
-                text = "Lua 脚本"
-                setTextColor(CPrimary); textSize = 14f; setTypeface(typeface, Typeface.BOLD)
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-            addView(EditText(context).apply {
-                hint = "/sdcard/script.lua"
-                setTextColor(COnSurface); setHintTextColor(COutline)
-                textSize = 13f
-                setPadding(dp(12), dp(10), dp(12), dp(10))
-                background = android.graphics.drawable.GradientDrawable().apply {
-                    setColor(CSurfaceContainer)
-                    cornerRadius = dp(12).toFloat()
-                    setStroke(dp(1), COutlineVariant)
-                }
-                id = R.id.script_path
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-            addView(md3Btn("执行脚本") {
-                val path = (expandedPanel?.findViewById<EditText>(R.id.script_path))?.text?.toString() ?: return@md3Btn
-                if (path.isEmpty()) return@md3Btn
-                val success = XeggBridge.nativeExecFile(path)
-                scriptOutput = if (success) "执行完成" else "执行失败"
-                updateScriptOutput()
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-            addView(ScrollView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-                addView(TextView(context).apply {
-                    id = R.id.script_output
-                    text = scriptOutput.ifEmpty { "等待执行..." }
-                    setTextColor(COnSurfaceVariant); textSize = 12f
-                })
-            })
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun updateScriptOutput() {
-        expandedPanel?.findViewById<TextView>(R.id.script_output)?.text = scriptOutput
-    }
-
-    // --- 设置页 ---
-
-    @SuppressLint("SetTextI18n")
-    private fun createSettingsView(): LinearLayout {
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-
-            addView(TextView(context).apply {
-                text = "变速齿轮"
-                setTextColor(CPrimary); textSize = 14f; setTypeface(typeface, Typeface.BOLD)
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
-            addView(LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                listOf("0.5x", "1x", "2x", "5x").forEach { speed ->
-                    addView(md3OutlinedBtn(speed) {
-                        val s = speed.removeSuffix("x").toDouble()
-                        XeggBridge.nativeSetSpeed(s)
-                    })
-                    addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
-                }
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(16)) })
-            addView(md3OutlinedBtn("断开连接") {
-                XeggBridge.nativeDetach()
-                val st = expandedPanel?.findViewWithTag<TextView>("status")
-                st?.text = "未连接"; st?.setTextColor(CError)
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
-            addView(md3OutlinedBtn("清除结果") {
-                XeggBridge.nativeClearResults()
-                resultCount = 0
-                updateResultDisplay()
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
-            addView(md3OutlinedBtn("打开主界面") {
-                startActivity(Intent(this@OverlayService, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
-            addView(md3OutlinedBtn("停止悬浮窗") { stopSelf() })
-        }
-    }
-
-    // --- MD3 风格按钮 ---
-
-    private fun md3Btn(text: String, onClick: () -> Unit): TextView {
-        return TextView(this).apply {
-            this.text = text
-            setTextColor(COnPrimary)
-            textSize = 13f
-            setPadding(dp(16), dp(8), dp(16), dp(8))
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(CPrimary)
-                cornerRadius = dp(20).toFloat()
-            }
-            setOnClickListener { onClick() }
-        }
-    }
-
-    private fun md3OutlinedBtn(text: String, onClick: () -> Unit): TextView {
-        return TextView(this).apply {
-            this.text = text
-            setTextColor(CPrimary)
-            textSize = 13f
-            setPadding(dp(12), dp(6), dp(12), dp(6))
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(0x00000000)
-                cornerRadius = dp(20).toFloat()
-                setStroke(dp(1), COutline)
-            }
-            setOnClickListener { onClick() }
-        }
-    }
-
-    private fun dp(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+    // --- 通知 ---
 
     private fun createNotificationChannel() {
         val ch = NotificationChannel(CHANNEL_ID, "XEGG 悬浮窗", NotificationManager.IMPORTANCE_LOW)
@@ -639,18 +140,451 @@ class OverlayService : Service() {
     }
 
     private fun createNotification(): Notification {
-        val pi = PendingIntent.getActivity(this, 0,
-            Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("XEGG")
-            .setContentText("悬浮窗运行中")
-            .setSmallIcon(android.R.drawable.ic_menu_compass)
-            .setContentIntent(pi)
-            .build()
+        val pi = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        return Notification.Builder(this, CHANNEL_ID).setContentTitle("XEGG").setContentText("悬浮窗运行中").setSmallIcon(android.R.drawable.ic_menu_compass).setContentIntent(pi).build()
     }
 
-    private fun Int.copy(alpha: Float): Int {
-        val a = (255 * alpha).toInt().coerceIn(0, 255)
-        return (this and 0x00FFFFFF) or (a shl 24)
+    private fun dp(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+}
+
+// --- Compose UI 组件 ---
+
+@Composable
+private fun FAB(onClick: () -> Unit) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = Modifier.size(48.dp),
+        shape = MaterialTheme.shapes.large,
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    ) {
+        Icon(Icons.Filled.Search, "XEGG", modifier = Modifier.size(24.dp))
+    }
+}
+
+// --- 主面板 ---
+
+data class SavedItem(val addr: Long, var value: String, val type: Int, var locked: Boolean = false)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun OverlayPanel(onClose: () -> Unit) {
+    var currentTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("搜索", "已保存", "内存", "脚本", "加速", "设置")
+    val icons = listOf(Icons.Outlined.Search, Icons.Outlined.Bookmark, Icons.Outlined.Memory, Icons.Outlined.Code, Icons.Outlined.Speed, Icons.Outlined.Settings)
+
+    // 全局状态
+    var searchValue by remember { mutableStateOf("") }
+    var searchType by remember { mutableIntStateOf(XeggBridge.TYPE_I32) }
+    var searchMode by remember { mutableIntStateOf(0) } // 0=精确, 1=模糊, 2=组合, 3=范围
+    var fuzzyCondition by remember { mutableIntStateOf(XeggBridge.FUZZY_UNCHANGED) }
+    var regionFilter by remember { mutableIntStateOf(XeggBridge.REGION_ALL) }
+    var resultCount by remember { mutableIntStateOf(0) }
+    var savedItems by remember { mutableStateOf(mutableListOf<SavedItem>()) }
+    var scriptPath by remember { mutableStateOf("") }
+    var scriptCode by remember { mutableStateOf("") }
+    var scriptOutput by remember { mutableStateOf("") }
+    var speedValue by remember { mutableFloatStateOf(1.0f) }
+    var memAddr by remember { mutableStateOf("") }
+    var memDump by remember { mutableStateOf("") }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface,
+        shape = MaterialTheme.shapes.extraLarge,
+        tonalElevation = 6.dp
+    ) {
+        Column {
+            // 顶栏
+            TopAppBar(
+                title = {
+                    Text("XEGG", style = MaterialTheme.typography.titleLarge)
+                },
+                navigationIcon = {
+                    Icon(Icons.Filled.Search, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 12.dp).size(24.dp))
+                },
+                actions = {
+                    Text(
+                        if (XeggBridge.nativeIsAttached()) "已连接" else "未连接",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (XeggBridge.nativeIsAttached()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    IconButton(onClick = onClose) {
+                        Icon(Icons.Filled.Close, "关闭")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+            )
+
+            // Tab 栏
+            ScrollableTabRow(
+                selectedTabIndex = currentTab,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
+                edgePadding = 8.dp,
+                divider = {}
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = currentTab == index,
+                        onClick = { currentTab = index },
+                        text = { Text(title, style = MaterialTheme.typography.labelMedium) },
+                        icon = { Icon(icons[index], null, modifier = Modifier.size(18.dp)) },
+                    )
+                }
+            }
+
+            // 内容区
+            when (currentTab) {
+                0 -> SearchTab(
+                    searchValue = searchValue, onSearchValueChange = { searchValue = it },
+                    searchType = searchType, onSearchTypeChange = { searchType = it },
+                    searchMode = searchMode, onSearchModeChange = { searchMode = it },
+                    fuzzyCondition = fuzzyCondition, onFuzzyConditionChange = { fuzzyCondition = it },
+                    regionFilter = regionFilter, onRegionFilterChange = { regionFilter = it },
+                    resultCount = resultCount, onResultCountChange = { resultCount = it },
+                    onSaveItem = { addr, value, type -> savedItems = savedItems.toMutableList().apply { add(SavedItem(addr, value, type)) } }
+                )
+                1 -> SavedTab(
+                    items = savedItems, onItemsChange = { savedItems = it }
+                )
+                2 -> MemoryTab(
+                    addr = memAddr, onAddrChange = { memAddr = it },
+                    dump = memDump, onDumpChange = { memDump = it }
+                )
+                3 -> ScriptTab(
+                    path = scriptPath, onPathChange = { scriptPath = it },
+                    code = scriptCode, onCodeChange = { scriptCode = it },
+                    output = scriptOutput, onOutputChange = { scriptOutput = it }
+                )
+                4 -> SpeedTab(
+                    speed = speedValue, onSpeedChange = { speedValue = it }
+                )
+                5 -> SettingsTab(onClose = onClose)
+            }
+        }
+    }
+}
+
+// --- 搜索 Tab ---
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchTab(
+    searchValue: String, onSearchValueChange: (String) -> Unit,
+    searchType: Int, onSearchTypeChange: (Int) -> Unit,
+    searchMode: Int, onSearchModeChange: (Int) -> Unit,
+    fuzzyCondition: Int, onFuzzyConditionChange: (Int) -> Unit,
+    regionFilter: Int, onRegionFilterChange: (Int) -> Unit,
+    resultCount: Int, onResultCountChange: (Int) -> Unit,
+    onSaveItem: (Long, String, Int) -> Unit
+) {
+    val typeNames = listOf("I8","I16","I32","I64","U8","U16","U32","U64","F32","F64","UTF8","Hex")
+    val typeCodes = listOf(0,1,2,3,4,5,6,7,8,9,10,11)
+    val modeNames = listOf("精确","模糊","组合","范围")
+    val fuzzyNames = listOf("相等","不等","大于","小于","增加","减少")
+    val fuzzyCodes = listOf(XeggBridge.FUZZY_UNCHANGED, XeggBridge.FUZZY_CHANGED, XeggBridge.FUZZY_INCREASED, XeggBridge.FUZZY_DECREASED, 4, 5)
+    val regionNames = listOf("All","Ca","Cb","Cd","Ce","Cf","Ch")
+    val regionCodes = listOf(-1,1,2,4,8,16,32)
+
+    var showResults by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // 搜索值
+        OutlinedTextField(
+            value = searchValue, onValueChange = onSearchValueChange,
+            label = { Text("搜索值") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        // 搜索模式
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            modeNames.forEachIndexed { i, name ->
+                FilterChip(selected = searchMode == i, onClick = { onSearchModeChange(i) }, label = { Text(name, style = MaterialTheme.typography.labelSmall) })
+            }
+        }
+
+        // 数据类型
+        Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            typeNames.forEachIndexed { i, name ->
+                FilterChip(selected = searchType == typeCodes[i], onClick = { onSearchTypeChange(typeCodes[i]) }, label = { Text(name, style = MaterialTheme.typography.labelSmall) })
+            }
+        }
+
+        // 模糊条件
+        if (searchMode == 1) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                fuzzyNames.forEachIndexed { i, name ->
+                    FilterChip(selected = fuzzyCondition == fuzzyCodes[i], onClick = { onFuzzyConditionChange(fuzzyCodes[i]) }, label = { Text(name, style = MaterialTheme.typography.labelSmall) })
+                }
+            }
+        }
+
+        // 区域过滤
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            regionNames.forEachIndexed { i, name ->
+                FilterChip(selected = regionFilter == regionCodes[i], onClick = { onRegionFilterChange(regionCodes[i]) }, label = { Text(name, style = MaterialTheme.typography.labelSmall) })
+            }
+        }
+
+        // 操作按钮
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = {
+                if (searchValue.isNotEmpty()) {
+                    onResultCountChange(XeggBridge.nativeSearchNumber(searchValue, searchType, regionFilter))
+                    showResults = true
+                }
+            }, modifier = Modifier.weight(1f), enabled = searchValue.isNotEmpty()) {
+                Icon(Icons.Filled.Search, null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("搜索", style = MaterialTheme.typography.labelMedium)
+            }
+            OutlinedButton(onClick = {
+                if (searchValue.isNotEmpty()) onResultCountChange(XeggBridge.nativeRefineSearch(searchValue))
+            }, modifier = Modifier.weight(1f), enabled = resultCount > 0) {
+                Text("继续", style = MaterialTheme.typography.labelMedium)
+            }
+            OutlinedButton(onClick = {
+                XeggBridge.nativeClearResults(); onResultCountChange(0); showResults = false
+            }, modifier = Modifier.weight(1f)) {
+                Text("重置", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+
+        // 结果统计
+        if (resultCount > 0) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text("找到 $resultCount 个结果", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+                TextButton(onClick = { showResults = !showResults }) { Text(if (showResults) "收起" else "展开") }
+            }
+        }
+
+        // 结果列表
+        if (showResults && resultCount > 0) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                val count = minOf(resultCount, 100)
+                items(List(count) { it }) { index ->
+                    val addr = XeggBridge.nativeGetResultAddress(index)
+                    val valueBytes = XeggBridge.nativeGetResultValue(index)
+                    val valueStr = valueBytes?.let { String(it) } ?: "?"
+                    ListItem(
+                        headlineContent = { Text("0x${addr.toString(16)}", style = MaterialTheme.typography.bodySmall) },
+                        supportingContent = { Text(valueStr, style = MaterialTheme.typography.labelSmall) },
+                        trailingContent = {
+                            Row {
+                                IconButton(onClick = { onSaveItem(addr, valueStr, searchType) }) {
+                                    Icon(Icons.Outlined.BookmarkAdd, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+                                }
+                                IconButton(onClick = { XeggBridge.nativeSetValue(addr, valueBytes ?: ByteArray(0)) }) {
+                                    Icon(Icons.Outlined.Edit, null, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        },
+                        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+                    )
+                }
+                if (resultCount > 100) {
+                    item { Text("仅显示前 100 条", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+                }
+            }
+        }
+    }
+}
+
+// --- 已保存 Tab ---
+
+@Composable
+private fun SavedTab(items: MutableList<SavedItem>, onItemsChange: (MutableList<SavedItem>) -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("已保存 (${items.size})", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            if (items.isNotEmpty()) {
+                OutlinedButton(onClick = {
+                    items.forEach { it.locked = true }
+                    onItemsChange(items.toMutableList())
+                }) { Text("全部锁定", style = MaterialTheme.typography.labelSmall) }
+                Spacer(Modifier.width(4.dp))
+                OutlinedButton(onClick = { onItemsChange(mutableListOf()) }) { Text("清空", style = MaterialTheme.typography.labelSmall) }
+            }
+        }
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(items.indices.toList()) { index ->
+                val item = items[index]
+                var editValue by remember { mutableStateOf(item.value) }
+                ListItem(
+                    headlineContent = { Text("0x${item.addr.toString(16)}", style = MaterialTheme.typography.bodySmall) },
+                    supportingContent = {
+                        OutlinedTextField(
+                            value = editValue, onValueChange = { editValue = it },
+                            modifier = Modifier.width(80.dp),
+                            textStyle = MaterialTheme.typography.bodySmall,
+                            singleLine = true,
+                        )
+                    },
+                    trailingContent = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(checked = item.locked, onCheckedChange = {
+                                item.locked = it
+                                onItemsChange(items.toMutableList())
+                            }, modifier = Modifier.height(24.dp))
+                            IconButton(onClick = {
+                                if (editValue.isNotEmpty()) {
+                                    XeggBridge.nativeSetValue(item.addr, editValue.toByteArray())
+                                    item.value = editValue
+                                }
+                            }) { Icon(Icons.Filled.Check, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary) }
+                            IconButton(onClick = {
+                                val newList = items.toMutableList()
+                                newList.removeAt(index)
+                                onItemsChange(newList)
+                            }) { Icon(Icons.Filled.Delete, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error) }
+                        }
+                    },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
+                )
+            }
+        }
+    }
+}
+
+// --- 内存 Tab ---
+
+@Composable
+private fun MemoryTab(addr: String, onAddrChange: (String) -> Unit, dump: String, onDumpChange: (String) -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(value = addr, onValueChange = onAddrChange, label = { Text("地址") }, modifier = Modifier.weight(1f), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.width(6.dp))
+            Button(onClick = {
+                val a = addr.removePrefix("0x").toLongOrNull(16) ?: 0L
+                if (a > 0) onDumpChange(XeggBridge.nativeHexDump(a, 256) ?: "读取失败")
+            }) { Text("查看", style = MaterialTheme.typography.labelMedium) }
+        }
+        if (dump.isNotEmpty()) {
+            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                androidx.compose.foundation.text.BasicText(
+                    text = dump,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        } else {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Text("输入地址查看内存", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+// --- 脚本 Tab ---
+
+@Composable
+private fun ScriptTab(path: String, onPathChange: (String) -> Unit, code: String, onCodeChange: (String) -> Unit, output: String, onOutputChange: (String) -> Unit) {
+    var isRunning by remember { mutableStateOf(false) }
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        OutlinedTextField(value = path, onValueChange = onPathChange, label = { Text("脚本路径") }, placeholder = { Text("/sdcard/script.lua") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Button(onClick = {
+                if (path.isNotEmpty()) {
+                    isRunning = true
+                    val success = XeggBridge.nativeExecFile(path)
+                    onOutputChange(output + (if (success) "[完成] 执行成功\n" else "[错误] 执行失败\n"))
+                    isRunning = false
+                }
+            }, enabled = path.isNotEmpty() && !isRunning, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Filled.PlayArrow, null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("执行文件", style = MaterialTheme.typography.labelMedium)
+            }
+            if (isRunning) {
+                OutlinedButton(onClick = { XeggBridge.nativeStopScript(); isRunning = false; onOutputChange(output + "[停止]\n") }) {
+                    Text("停止", style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+        OutlinedTextField(value = code, onValueChange = onCodeChange, label = { Text("内联代码") }, placeholder = { Text("gg.toast('Hello')") }, modifier = Modifier.fillMaxWidth().weight(1f), maxLines = Int.MAX_VALUE)
+        Button(onClick = {
+            if (code.isNotEmpty()) {
+                val success = XeggBridge.nativeExecScript(code)
+                onOutputChange(output + (if (success) "[完成] 内联执行成功\n" else "[错误] 内联执行失败\n"))
+            }
+        }, enabled = code.isNotEmpty() && !isRunning, modifier = Modifier.fillMaxWidth()) {
+            Text("执行代码", style = MaterialTheme.typography.labelMedium)
+        }
+        if (output.isNotEmpty()) {
+            Card(modifier = Modifier.heightIn(max = 120.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("输出", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { onOutputChange("") }) { Text("清空", style = MaterialTheme.typography.labelSmall) }
+                    }
+                    androidx.compose.foundation.text.BasicText(text = output, style = androidx.compose.ui.text.TextStyle(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, fontSize = MaterialTheme.typography.labelSmall.fontSize, color = MaterialTheme.colorScheme.onSurfaceVariant))
+                }
+            }
+        }
+    }
+}
+
+// --- 加速 Tab ---
+
+@Composable
+private fun SpeedTab(speed: Float, onSpeedChange: (Float) -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("变速齿轮", style = MaterialTheme.typography.titleMedium)
+        Text(String.format("%.1fx", speed), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+        Slider(value = speed, onValueChange = { onSpeedChange(it); XeggBridge.nativeSetSpeed(it.toDouble()) }, valueRange = 0.1f..10f, steps = 98, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(0.5f, 1f, 2f, 5f, 10f).forEach { s ->
+                FilterChip(selected = speed == s, onClick = { onSpeedChange(s); XeggBridge.nativeSetSpeed(s.toDouble()) }, label = { Text("${s}x", style = MaterialTheme.typography.labelSmall) })
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { XeggBridge.nativeInjectSpeedHack() }, modifier = Modifier.weight(1f)) { Text("注入", style = MaterialTheme.typography.labelMedium) }
+            OutlinedButton(onClick = { XeggBridge.nativeRemoveSpeedHack() }, modifier = Modifier.weight(1f)) { Text("移除", style = MaterialTheme.typography.labelMedium) }
+        }
+    }
+}
+
+// --- 设置 Tab ---
+
+@Composable
+private fun SettingsTab(onClose: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // 附加状态
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+            ListItem(
+                headlineContent = { Text(if (XeggBridge.nativeIsAttached()) "已附加" else "未附加") },
+                leadingContent = { Icon(if (XeggBridge.nativeIsAttached()) Icons.Filled.CheckCircle else Icons.Filled.Cancel, null, tint = if (XeggBridge.nativeIsAttached()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error) },
+                trailingContent = {
+                    if (XeggBridge.nativeIsAttached()) {
+                        OutlinedButton(onClick = { XeggBridge.nativeDetach() }) { Text("断开", color = MaterialTheme.colorScheme.error) }
+                    }
+                }
+            )
+        }
+
+        HorizontalDivider()
+
+        // 操作
+        OutlinedButton(onClick = { /* 打开主界面 */ }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.OpenInNew, null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("打开主界面", style = MaterialTheme.typography.labelMedium)
+        }
+        OutlinedButton(onClick = { onClose() }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+            Icon(Icons.Outlined.Close, null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("停止悬浮窗", style = MaterialTheme.typography.labelMedium)
+        }
     }
 }
