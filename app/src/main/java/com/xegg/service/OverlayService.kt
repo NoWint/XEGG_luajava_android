@@ -19,14 +19,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.xegg.MainActivity
 import com.xegg.bridge.XeggBridge
 import com.xegg.ui.theme.XeggTheme
 
-class OverlayService : Service() {
+class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
     companion object {
         private const val CHANNEL_ID = "xegg_overlay"
@@ -40,20 +55,33 @@ class OverlayService : Service() {
     private var panelView: View? = null
     private var isExpanded = false
 
+    private val lifecycleRegistry = LifecycleRegistry(this)
+    private val appViewModelStore = ViewModelStore()
+    private val savedStateController = SavedStateRegistryController.create(this)
+
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
+    override val viewModelStore: ViewModelStore get() = appViewModelStore
+    override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
+
     override fun onCreate() {
         super.onCreate()
+        savedStateController.performRestore(null)
+        lifecycleRegistry.currentState = Lifecycle.State.CREATED
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
         isRunning = true
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         showFloatingIcon()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         removeFloatingIcon()
         removePanel()
         isRunning = false
+        appViewModelStore.clear()
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -71,11 +99,17 @@ class OverlayService : Service() {
             PixelFormat.TRANSLUCENT
         ).apply { gravity = Gravity.TOP or Gravity.START; x = 0; y = 200 }
 
+        val lifecycleOwner: LifecycleOwner = this
+        val vmOwner: ViewModelStoreOwner = this
+        val savedOwner: SavedStateRegistryOwner = this
         val icon = ComposeView(this).apply {
-            setContent {
-                XeggTheme {
-                    FAB { togglePanel() }
-                }
+            setViewTreeLifecycleOwner(lifecycleOwner)
+            setViewTreeViewModelStoreOwner(vmOwner)
+            setViewTreeSavedStateRegistryOwner(savedOwner)
+        }
+        icon.setContent {
+            XeggTheme {
+                FAB { togglePanel() }
             }
         }
 
@@ -107,23 +141,22 @@ class OverlayService : Service() {
             PixelFormat.TRANSLUCENT
         ).apply { gravity = Gravity.CENTER }
 
+        val lcOwner: LifecycleOwner = this
+        val vmOwner: ViewModelStoreOwner = this
+        val ssOwner: SavedStateRegistryOwner = this
         val container = FrameLayout(this)
         val composeView = ComposeView(this).apply {
-            setContent {
-                XeggTheme { OverlayPanel(onClose = { togglePanel() }) }
-            }
+            setViewTreeLifecycleOwner(lcOwner)
+            setViewTreeViewModelStoreOwner(vmOwner)
+            setViewTreeSavedStateRegistryOwner(ssOwner)
+        }
+        composeView.setContent {
+            XeggTheme { OverlayPanel(onClose = { togglePanel() }, onDrag = { dx, dy ->
+                params.x += dx; params.y += dy
+                windowManager?.updateViewLayout(container, params)
+            }) }
         }
         container.addView(composeView, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
-
-        // 拖拽
-        var ix = 0; var iy = 0; var itx = 0f; var ity = 0f
-        container.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> { ix = params.x; iy = params.y; itx = event.rawX; ity = event.rawY; true }
-                MotionEvent.ACTION_MOVE -> { params.x = ix + (event.rawX - itx).toInt(); params.y = iy + (event.rawY - ity).toInt(); windowManager?.updateViewLayout(container, params); true }
-                else -> false
-            }
-        }
 
         panelView = container
         windowManager?.addView(container, params)
@@ -145,6 +178,24 @@ class OverlayService : Service() {
     }
 
     private fun dp(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+
+    // --- Service LifecycleOwner ---
+    private class ServiceLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+        private val lifecycleRegistry = LifecycleRegistry(this)
+        private val savedStateController = SavedStateRegistryController.create(this)
+        private val store = ViewModelStore()
+
+        init { savedStateController.performRestore(null) }
+
+        override val lifecycle: Lifecycle get() = lifecycleRegistry
+        override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
+        override val viewModelStore: ViewModelStore get() = store
+
+        fun onCreate() { savedStateController.performRestore(null); lifecycleRegistry.currentState = Lifecycle.State.CREATED }
+        fun onStart() { lifecycleRegistry.currentState = Lifecycle.State.STARTED }
+        fun onStop() { lifecycleRegistry.currentState = Lifecycle.State.CREATED }
+        fun onDestroy() { lifecycleRegistry.currentState = Lifecycle.State.DESTROYED; store.clear() }
+    }
 }
 
 // --- Compose UI 组件 ---
@@ -171,7 +222,7 @@ data class SavedItem(val addr: Long, var value: String, val type: Int, var locke
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OverlayPanel(onClose: () -> Unit) {
+private fun OverlayPanel(onClose: () -> Unit, onDrag: (Int, Int) -> Unit) {
     var currentTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("搜索", "已保存", "内存", "脚本", "加速", "设置")
     val icons = listOf(Icons.Outlined.Search, Icons.Outlined.Bookmark, Icons.Outlined.Memory, Icons.Outlined.Code, Icons.Outlined.Speed, Icons.Outlined.Settings)
@@ -191,6 +242,11 @@ private fun OverlayPanel(onClose: () -> Unit) {
     var memAddr by remember { mutableStateOf("") }
     var memDump by remember { mutableStateOf("") }
 
+    // 拖拽状态
+    var dragStartX by remember { mutableFloatStateOf(0f) }
+    var dragStartY by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
@@ -198,8 +254,28 @@ private fun OverlayPanel(onClose: () -> Unit) {
         tonalElevation = 6.dp
     ) {
         Column {
-            // 顶栏
+            // 顶栏 - 可拖拽区域
             TopAppBar(
+                modifier = Modifier.pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        var offsetX = 0f
+                        var offsetY = 0f
+                        do {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach { change ->
+                                offsetX += change.positionChange().x
+                                offsetY += change.positionChange().y
+                                change.consume()
+                            }
+                            if (offsetX != 0f || offsetY != 0f) {
+                                onDrag(offsetX.toInt(), offsetY.toInt())
+                                offsetX = 0f
+                                offsetY = 0f
+                            }
+                        } while (event.changes.any { it.pressed })
+                    }
+                },
                 title = {
                     Text("XEGG", style = MaterialTheme.typography.titleLarge)
                 },
@@ -239,6 +315,7 @@ private fun OverlayPanel(onClose: () -> Unit) {
             }
 
             // 内容区
+            val ctx = LocalContext.current
             when (currentTab) {
                 0 -> SearchTab(
                     searchValue = searchValue, onSearchValueChange = { searchValue = it },
@@ -264,7 +341,11 @@ private fun OverlayPanel(onClose: () -> Unit) {
                 4 -> SpeedTab(
                     speed = speedValue, onSpeedChange = { speedValue = it }
                 )
-                5 -> SettingsTab(onClose = onClose)
+                5 -> SettingsTab(onClose = onClose, onOpenMain = {
+                    ctx.startActivity(Intent(ctx, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                })
             }
         }
     }
@@ -283,15 +364,20 @@ private fun SearchTab(
     resultCount: Int, onResultCountChange: (Int) -> Unit,
     onSaveItem: (Long, String, Int) -> Unit
 ) {
-    val typeNames = listOf("I8","I16","I32","I64","U8","U16","U32","U64","F32","F64","UTF8","Hex")
+    val typeNames = listOf("I8","I16","I32","I64","U8","U16","U32","U64","F32","F64","UTF8","UTF16")
     val typeCodes = listOf(0,1,2,3,4,5,6,7,8,9,10,11)
-    val modeNames = listOf("精确","模糊","组合","范围")
+    val modeNames = listOf("精确","模糊","范围","字符串","增量")
     val fuzzyNames = listOf("相等","不等","大于","小于","增加","减少")
     val fuzzyCodes = listOf(XeggBridge.FUZZY_UNCHANGED, XeggBridge.FUZZY_CHANGED, XeggBridge.FUZZY_INCREASED, XeggBridge.FUZZY_DECREASED, 4, 5)
     val regionNames = listOf("All","Ca","Cb","Cd","Ce","Cf","Ch")
     val regionCodes = listOf(-1,1,2,4,8,16,32)
 
     var showResults by remember { mutableStateOf(false) }
+    var rangeMin by remember { mutableStateOf("") }
+    var rangeMax by remember { mutableStateOf("") }
+    var incrementalDelta by remember { mutableStateOf("") }
+    var batchFormula by remember { mutableStateOf("") }
+    var showBatchModify by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // 搜索值
@@ -301,6 +387,19 @@ private fun SearchTab(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
+
+        // 范围搜索输入
+        if (searchMode == 2) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(value = rangeMin, onValueChange = { rangeMin = it }, label = { Text("最小") }, modifier = Modifier.weight(1f), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(value = rangeMax, onValueChange = { rangeMax = it }, label = { Text("最大") }, modifier = Modifier.weight(1f), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+            }
+        }
+
+        // 增量搜索输入
+        if (searchMode == 4) {
+            OutlinedTextField(value = incrementalDelta, onValueChange = { incrementalDelta = it }, label = { Text("变化量") }, modifier = Modifier.fillMaxWidth(), singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+        }
 
         // 搜索模式
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -335,11 +434,13 @@ private fun SearchTab(
         // 操作按钮
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
             Button(onClick = {
-                if (searchValue.isNotEmpty()) {
-                    onResultCountChange(XeggBridge.nativeSearchNumber(searchValue, searchType, regionFilter))
-                    showResults = true
+                val count = when (searchMode) {
+                    2 -> if (rangeMin.isNotEmpty() && rangeMax.isNotEmpty()) XeggBridge.nativeRangeSearch(rangeMin, rangeMax, searchType, regionFilter) else -1
+                    3 -> if (searchValue.isNotEmpty()) XeggBridge.nativeStringSearch(searchValue, searchType, regionFilter) else -1
+                    else -> if (searchValue.isNotEmpty()) XeggBridge.nativeSearchNumber(searchValue, searchType, regionFilter) else -1
                 }
-            }, modifier = Modifier.weight(1f), enabled = searchValue.isNotEmpty()) {
+                if (count >= 0) { onResultCountChange(count); showResults = true }
+            }, modifier = Modifier.weight(1f), enabled = searchValue.isNotEmpty() || searchMode == 2) {
                 Icon(Icons.Filled.Search, null, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text("搜索", style = MaterialTheme.typography.labelMedium)
@@ -356,11 +457,21 @@ private fun SearchTab(
             }
         }
 
+        // 增量搜索按钮
+        if (searchMode == 4 && resultCount > 0 && incrementalDelta.isNotEmpty()) {
+            val delta = incrementalDelta.toDoubleOrNull() ?: 0.0
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { onResultCountChange(XeggBridge.nativeIncrementalSearch(XeggBridge.INCREMENTAL_INCREASED, delta)) }, modifier = Modifier.weight(1f)) { Text("增加", style = MaterialTheme.typography.labelSmall) }
+                OutlinedButton(onClick = { onResultCountChange(XeggBridge.nativeIncrementalSearch(XeggBridge.INCREMENTAL_DECREASED, delta)) }, modifier = Modifier.weight(1f)) { Text("减少", style = MaterialTheme.typography.labelSmall) }
+            }
+        }
+
         // 结果统计
         if (resultCount > 0) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Text("找到 $resultCount 个结果", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
-                TextButton(onClick = { showResults = !showResults }) { Text(if (showResults) "收起" else "展开") }
+                TextButton(onClick = { showBatchModify = true }) { Text("批量", style = MaterialTheme.typography.labelSmall) }
+                TextButton(onClick = { showResults = !showResults }) { Text(if (showResults) "收起" else "展开", style = MaterialTheme.typography.labelSmall) }
             }
         }
 
@@ -383,6 +494,9 @@ private fun SearchTab(
                                 IconButton(onClick = { XeggBridge.nativeSetValue(addr, valueBytes ?: ByteArray(0)) }) {
                                     Icon(Icons.Outlined.Edit, null, modifier = Modifier.size(16.dp))
                                 }
+                                IconButton(onClick = { XeggBridge.nativeAddWatch(addr, searchType) }) {
+                                    Icon(Icons.Outlined.Visibility, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.tertiary)
+                                }
                             }
                         },
                         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
@@ -393,10 +507,32 @@ private fun SearchTab(
                 }
             }
         }
+
+        // 批量修改对话框
+        if (showBatchModify) {
+            AlertDialog(
+                onDismissRequest = { showBatchModify = false },
+                title = { Text("批量修改", style = MaterialTheme.typography.titleSmall) },
+                text = {
+                    Column {
+                        Text("格式: value*N, value+N, value/N, value-N, set(N)", style = MaterialTheme.typography.labelSmall)
+                        Spacer(Modifier.height(4.dp))
+                        OutlinedTextField(value = batchFormula, onValueChange = { batchFormula = it }, label = { Text("公式") }, placeholder = { Text("value*2") }, singleLine = true, textStyle = MaterialTheme.typography.bodySmall)
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        if (batchFormula.isNotEmpty()) XeggBridge.nativeBatchModify(batchFormula, searchType)
+                        showBatchModify = false
+                    }) { Text("执行") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showBatchModify = false }) { Text("取消") }
+                }
+            )
+        }
     }
 }
-
-// --- 已保存 Tab ---
 
 @Composable
 private fun SavedTab(items: MutableList<SavedItem>, onItemsChange: (MutableList<SavedItem>) -> Unit) {
@@ -558,7 +694,7 @@ private fun SpeedTab(speed: Float, onSpeedChange: (Float) -> Unit) {
 // --- 设置 Tab ---
 
 @Composable
-private fun SettingsTab(onClose: () -> Unit) {
+private fun SettingsTab(onClose: () -> Unit, onOpenMain: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         // 附加状态
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
@@ -576,7 +712,7 @@ private fun SettingsTab(onClose: () -> Unit) {
         HorizontalDivider()
 
         // 操作
-        OutlinedButton(onClick = { /* 打开主界面 */ }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = onOpenMain, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.OpenInNew, null, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(6.dp))
             Text("打开主界面", style = MaterialTheme.typography.labelMedium)

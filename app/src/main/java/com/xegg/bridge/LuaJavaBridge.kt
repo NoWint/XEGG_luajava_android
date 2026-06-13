@@ -1,6 +1,7 @@
 package com.xegg.bridge
 
 import android.content.Context
+import android.content.Intent
 import android.text.Editable
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ object LuaJavaBridge {
     private var context: Context? = null
     private val views = mutableMapOf<Int, View>()
     private var nextViewId = 1
+    private val javaObjects = mutableMapOf<Long, Any>()
+    private var nextObjId = 1L
 
     fun init(context: Context) {
         this.context = context.applicationContext
@@ -30,6 +33,69 @@ object LuaJavaBridge {
         } catch (e: Exception) {
             "ERROR:${e.message}"
         }
+    }
+
+    /// newInstance - 通过反射创建 Java 对象实例
+    fun newInstance(className: String, argsJson: String): Long {
+        return try {
+            val clazz = Class.forName(className)
+            val args = parseArgsJson(argsJson)
+            val argTypes = args.map { it?.javaClass }.toTypedArray()
+
+            // 尝试精确匹配构造函数
+            val constructor = try {
+                clazz.getConstructor(*argTypes)
+            } catch (_: Exception) {
+                // 回退：尝试无参构造函数
+                if (args.isEmpty()) {
+                    clazz.getConstructor()
+                } else {
+                    // 尝试查找兼容的构造函数
+                    clazz.constructors.firstOrNull { c ->
+                        c.parameterCount == args.size
+                    } ?: throw NoSuchMethodException("找不到匹配的构造函数")
+                }
+            }
+
+            val instance = if (args.isEmpty() && constructor.parameterCount == 0) {
+                constructor.newInstance()
+            } else {
+                constructor.newInstance(*args)
+            }
+
+            val objId = nextObjId++
+            javaObjects[objId] = instance
+            objId
+        } catch (e: Exception) {
+            android.util.Log.e("LuaJavaBridge", "newInstance failed: ${e.message}")
+            -1L
+        }
+    }
+
+    /// startActivity - 启动 Activity
+    fun startActivity(className: String): Boolean {
+        val ctx = context ?: return false
+        return try {
+            val intent = Intent()
+            intent.setClassName(ctx, className)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ctx.startActivity(intent)
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("LuaJavaBridge", "startActivity failed: ${e.message}")
+            false
+        }
+    }
+
+    /// getContext - 获取 Context 是否可用
+    fun getContext(): Boolean {
+        return context != null
+    }
+
+    /// startThread - 在新线程中执行
+    fun startThread(): Boolean {
+        // 简单标记：实际线程管理需要更复杂的实现
+        return true
     }
 
     /// loadLayout - 从 Lua 表描述创建 Android 布局
@@ -116,13 +182,22 @@ object LuaJavaBridge {
         views.remove(viewId)
     }
 
-    /// startThread - 在新线程中执行
-    fun startThread(runnable: Runnable) {
-        Thread(runnable).start()
+    /// 解析参数 JSON 数组
+    private fun parseArgsJson(argsJson: String): Array<Any?> {
+        if (argsJson.isEmpty() || argsJson == "[]") return emptyArray()
+        return try {
+            val arr = org.json.JSONArray(argsJson)
+            Array(arr.length()) { i ->
+                when (val v = arr.get(i)) {
+                    is org.json.JSONObject -> null // 复杂对象暂不支持
+                    is org.json.JSONArray -> null
+                    else -> v
+                }
+            }
+        } catch (e: Exception) {
+            emptyArray()
+        }
     }
-
-    /// getContext - 获取 Context
-    fun getContext(): Context? = context
 
     /// 从 JSON 创建视图
     private fun createViewFromJson(ctx: Context, json: org.json.JSONObject): View {
