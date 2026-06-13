@@ -1,16 +1,23 @@
 package com.xegg.ui.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.xegg.ui.theme.*
 import com.xegg.viewmodel.RunningApp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,30 +49,36 @@ fun HomeScreen(
     if (showPidDialog) {
         AlertDialog(
             onDismissRequest = { showPidDialog = false },
-            title = { Text("通过 PID 附加") },
+            title = { Text("PID 附加", color = NeonGreen) },
+            containerColor = CardDark,
             text = {
                 OutlinedTextField(
                     value = pidInput,
                     onValueChange = { pidInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("进程 PID") },
+                    label = { Text("进程 PID", color = TextSecondary) },
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = NeonGreen,
+                        unfocusedBorderColor = TextMuted,
+                        cursorColor = NeonGreen,
+                    )
                 )
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        val pid = pidInput.toIntOrNull() ?: 0
-                        if (pid > 0) onAttach("pid:$pid")
-                        showPidDialog = false
-                        pidInput = ""
-                    }
-                ) { Text("附加") }
+                TextButton(onClick = {
+                    val pid = pidInput.toIntOrNull() ?: 0
+                    if (pid > 0) onAttach("pid:$pid")
+                    showPidDialog = false
+                    pidInput = ""
+                }) { Text("附加", color = NeonGreen) }
             },
             dismissButton = {
-                TextButton(onClick = { showPidDialog = false }) { Text("取消") }
+                TextButton(onClick = { showPidDialog = false }) { Text("取消", color = TextSecondary) }
             }
         )
     }
@@ -73,24 +86,41 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("XEGG") },
+                title = {
+                    Text("XEGG", color = NeonGreen, style = MaterialTheme.typography.headlineMedium)
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = VoidBlack
                 ),
                 actions = {
+                    // 悬浮窗按钮 - 醒目
+                    FilledTonalButton(
+                        onClick = onStartOverlay,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = NeonGreen.copy(alpha = 0.15f),
+                            contentColor = NeonGreen
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(end = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Launch, null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("悬浮窗", style = MaterialTheme.typography.labelLarge)
+                    }
                     if (!isAttached) {
                         IconButton(onClick = { showPidDialog = true }) {
-                            Icon(Icons.Default.Input, contentDescription = "PID 附加")
+                            Icon(Icons.Default.Input, "PID", tint = TextSecondary)
                         }
                     }
                     IconButton(onClick = onRefresh) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = NeonGreen
                             )
                         } else {
-                            Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                            Icon(Icons.Default.Refresh, "刷新", tint = TextSecondary)
                         }
                     }
                 }
@@ -102,92 +132,91 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(VoidBlack)
         ) {
-            // --- 附加状态卡片 ---
+            // --- 附加状态 ---
             if (isAttached) {
-                Card(
+                // 绿色渐变状态条
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(NeonGreen.copy(alpha = 0.1f), CardDark)
+                            )
+                        )
+                        .border(1.dp, NeonGreen.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                        .padding(12.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(Icons.Default.CheckCircle, null, tint = NeonGreen, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(targetPackage, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text("${accessModeLabel(accessMode)} | ${regionCount} 个内存区域", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(targetPackage, style = MaterialTheme.typography.titleSmall, color = TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text("${accessModeLabel(accessMode)} | ${regionCount} regions", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
                         }
-                        OutlinedButton(onClick = onDetach, colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
-                            Text("断开")
+                        TextButton(onClick = onDetach, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                            Text("断开", color = NeonRed, style = MaterialTheme.typography.labelLarge)
                         }
                     }
                 }
 
-                // 快捷操作
+                // 快捷操作 - 紧凑按钮行
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Button(onClick = onStartOverlay, modifier = Modifier.weight(1f)) {
-                        Icon(Icons.Default.Launch, null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("悬浮窗")
-                    }
-                    Button(onClick = onSearchClick, modifier = Modifier.weight(1f)) {
-                        Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("搜索")
-                    }
-                    OutlinedButton(onClick = onScriptClick, modifier = Modifier.weight(1f)) {
-                        Icon(Icons.Default.Code, null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("脚本")
-                    }
+                    ActionChip(onClick = onSearchClick, icon = Icons.Default.Search, label = "搜索")
+                    ActionChip(onClick = onScriptClick, icon = Icons.Default.Code, label = "脚本")
                 }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = TextMuted.copy(alpha = 0.3f))
             } else {
-                // 未附加：显示权限状态提示
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                // 模式状态
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(CardDark)
+                        .border(1.dp, TextMuted.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .padding(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             when {
                                 isRooted -> Icons.Default.VerifiedUser
                                 shizukuAvailable -> Icons.Default.CheckCircle
                                 else -> Icons.Default.Launch
                             }, null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
+                            tint = when {
+                                isRooted -> NeonGreen
+                                shizukuAvailable -> NeonCyan
+                                else -> NeonOrange
+                            },
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
                             Text(
                                 when {
-                                    isRooted -> "Root 模式就绪"
-                                    shizukuAvailable -> "Shizuku 模式就绪"
-                                    else -> "虚拟空间模式"
+                                    isRooted -> "ROOT"
+                                    shizukuAvailable -> "SHIZUKU"
+                                    else -> "VIRTUAL SPACE"
                                 },
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.labelLarge,
+                                color = when {
+                                    isRooted -> NeonGreen
+                                    shizukuAvailable -> NeonCyan
+                                    else -> NeonOrange
+                                }
                             )
-                            Text(
-                                "点击应用启动并附加",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Text("选择目标应用附加", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
                         }
                     }
                 }
@@ -197,10 +226,20 @@ fun HomeScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("搜索应用...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                placeholder = { Text("搜索应用...", color = TextMuted) },
+                leadingIcon = { Icon(Icons.Default.Search, null, tint = TextMuted, modifier = Modifier.size(18.dp)) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = NeonGreen.copy(alpha = 0.5f),
+                    unfocusedBorderColor = TextMuted.copy(alpha = 0.3f),
+                    cursorColor = NeonGreen,
+                    focusedContainerColor = CardDark,
+                    unfocusedContainerColor = SurfaceDark,
+                )
             )
 
             // --- 应用列表 ---
@@ -216,9 +255,9 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Apps, null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Default.Apps, null, modifier = Modifier.size(40.dp), tint = TextMuted)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("点击右上角刷新获取应用列表", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("点击刷新获取应用列表", color = TextMuted, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             } else {
@@ -233,42 +272,74 @@ fun HomeScreen(
     }
 }
 
+@Composable
+private fun ActionChip(onClick: () -> Unit, icon: androidx.compose.ui.graphics.vector.ImageVector, label: String) {
+    OutlinedButton(
+        onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = NeonGreen,
+        ),
+        border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
+            brush = Brush.horizontalGradient(listOf(NeonGreen.copy(alpha = 0.3f), NeonCyan.copy(alpha = 0.3f)))
+        ),
+        shape = RoundedCornerShape(6.dp)
+    ) {
+        Icon(icon, null, modifier = Modifier.size(14.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(label, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
 private fun accessModeLabel(mode: Int): String = when (mode) {
-    1 -> "Root"
-    2 -> "虚拟空间"
-    3 -> "Shizuku"
-    else -> "未知"
+    1 -> "ROOT"
+    2 -> "VS"
+    3 -> "SHIZUKU"
+    else -> "?"
 }
 
 @Composable
 private fun AppItem(app: RunningApp, isSelected: Boolean, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-        ),
-        onClick = onClick
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 1.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (isSelected) NeonGreen.copy(alpha = 0.08f) else SurfaceDark)
+            .border(
+                width = if (isSelected) 1.dp else 0.dp,
+                color = if (isSelected) NeonGreen.copy(alpha = 0.3f) else androidx.compose.ui.graphics.Color.Transparent,
+                shape = RoundedCornerShape(6.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp).fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Android, null,
-                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(36.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(app.label, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(app.packageName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            // 应用图标占位
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(CardDark),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Android, null,
+                    tint = if (isSelected) NeonGreen else TextMuted,
+                    modifier = Modifier.size(18.dp)
+                )
             }
-            Column(horizontalAlignment = Alignment.End) {
-                if (app.pid > 0) {
-                    Text("PID ${app.pid}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                } else {
-                    Text("点击启动", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                }
-                if (isSelected) Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(app.label, style = MaterialTheme.typography.bodyMedium, color = if (isSelected) NeonGreen else TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(app.packageName, style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (app.pid > 0) {
+                Text("PID ${app.pid}", style = MaterialTheme.typography.labelSmall, color = NeonCyan)
+            } else {
+                Text("START", style = MaterialTheme.typography.labelSmall, color = NeonOrange)
             }
         }
     }

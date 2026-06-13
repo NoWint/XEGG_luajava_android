@@ -10,32 +10,45 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = XeggPrimary,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = XeggDark,
-    surface = XeggSurface,
+    primary = NeonGreen,
+    onPrimary = VoidBlack,
+    primaryContainer = CardDark,
+    onPrimaryContainer = NeonGreen,
+    secondary = NeonCyan,
+    onSecondary = VoidBlack,
+    secondaryContainer = ElevatedDark,
+    onSecondaryContainer = NeonCyan,
+    tertiary = NeonPurple,
+    background = VoidBlack,
+    onBackground = TextPrimary,
+    surface = SurfaceDark,
+    onSurface = TextPrimary,
+    surfaceVariant = CardDark,
+    onSurfaceVariant = TextSecondary,
+    outline = TextMuted,
+    outlineVariant = ElevatedDark,
+    error = NeonRed,
+    onError = VoidBlack,
+    errorContainer = CardDark,
+    onErrorContainer = NeonRed,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = XeggPrimary,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-)
-
+// 强制深色主题
 @Composable
 fun XeggTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true, // 始终深色
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = DarkColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.navigationBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
         }
     }
 
