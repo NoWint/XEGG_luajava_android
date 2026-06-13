@@ -70,13 +70,25 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
         previousAttached = state.isAttached
     }
 
-    // 附加成功后自动启动悬浮窗
-    LaunchedEffect(state.isAttached) {
-        if (state.isAttached && !com.xegg.service.OverlayService.isRunning) {
+    // 启动悬浮窗（检查权限）
+    fun startOverlay() {
+        if (!Settings.canDrawOverlays(context)) {
+            Toast.makeText(context, "请先授予悬浮窗权限", Toast.LENGTH_LONG).show()
+            context.startActivity(Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${context.packageName}")
+            ))
+            return
+        }
+        if (!com.xegg.service.OverlayService.isRunning) {
             val intent = Intent(context, com.xegg.service.OverlayService::class.java)
             context.startForegroundService(intent)
+            Toast.makeText(context, "悬浮窗已启动", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "悬浮窗已在运行", Toast.LENGTH_SHORT).show()
         }
     }
+
     var currentTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -127,6 +139,7 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
                         }
                     }
                 },
+                onStartOverlay = { startOverlay() },
                 modifier = Modifier.padding(padding)
             )
             1 -> SearchScreen(isAttached = state.isAttached, modifier = Modifier.padding(padding))

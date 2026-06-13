@@ -31,6 +31,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onScriptClick: () -> Unit,
     onRequestShizuku: () -> Unit,
+    onStartOverlay: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -133,15 +134,20 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Button(onClick = onStartOverlay, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Default.Launch, null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("悬浮窗")
+                    }
                     Button(onClick = onSearchClick, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("内存搜索")
+                        Text("搜索")
                     }
                     OutlinedButton(onClick = onScriptClick, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Code, null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Lua 脚本")
+                        Text("脚本")
                     }
                 }
 
