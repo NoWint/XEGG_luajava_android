@@ -33,18 +33,20 @@ class OverlayService : Service() {
     private var savedItems = mutableListOf<SavedItem>()
     private var scriptOutput = ""
 
-    // 颜色常量
-    private val C_BG = 0xFF0A0A0F.toInt()
-    private val C_SURFACE = 0xFF14141F.toInt()
-    private val C_CARD = 0xFF1A1A28.toInt()
-    private val C_ELEVATED = 0xFF222236.toInt()
-    private val C_GREEN = 0xFF00FF88.toInt()
-    private val C_CYAN = 0xFF00E5FF.toInt()
-    private val C_RED = 0xFFFF1744.toInt()
-    private val C_ORANGE = 0xFFFF9100.toInt()
-    private val C_TEXT = 0xFFE8E8F0.toInt()
-    private val C_TEXT2 = 0xFF8888AA.toInt()
-    private val C_MUTED = 0xFF555577.toInt()
+    // MD3 颜色 (深色主题)
+    private val CPrimary = 0xFF5DDBB2.toInt()       // Green80
+    private val COnPrimary = 0xFF002112.toInt()      // Green10
+    private val CPrimaryContainer = 0xFF005037.toInt() // Green30
+    private val COnPrimaryContainer = 0xFF82F7CD.toInt() // Green90
+    private val CSurface = 0xFF1A1C19.toInt()        // Neutral10
+    private val CSurfaceContainer = 0xFF1D1F1B.toInt() // NeutralVariant10
+    private val CSurfaceHigh = 0xFF2F312D.toInt()    // Neutral20
+    private val COnSurface = 0xFFE2E1DC.toInt()      // Neutral90
+    private val COnSurfaceVariant = 0xFFC8C9C2.toInt() // NeutralVariant80
+    private val COutline = 0xFF787A74.toInt()        // NeutralVariant50
+    private val COutlineVariant = 0xFF494B45.toInt() // NeutralVariant30
+    private val CError = 0xFFFFB4AB.toInt()          // Red80
+    private val COnError = 0xFF410002.toInt()        // Red10
 
     data class SavedItem(val addr: Long, var value: String, val type: Int, var locked: Boolean = false)
 
@@ -72,7 +74,7 @@ class OverlayService : Service() {
     private fun showFloatingIcon() {
         if (floatingIcon != null) return
 
-        val size = dp(44)
+        val size = dp(48)
         val params = WindowManager.LayoutParams(
             size, size,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -84,12 +86,18 @@ class OverlayService : Service() {
             y = 200
         }
 
+        // MD3 FAB 风格：圆角方形 + primary 色
         val icon = ImageView(this).apply {
             setImageDrawable(android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(C_GREEN)
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = dp(14).toFloat()
+                setColor(CPrimaryContainer)
+                setStroke(dp(1), COutlineVariant)
             })
-            elevation = dp(6).toFloat()
+            elevation = dp(3).toFloat()
+            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setImageResource(android.R.drawable.ic_menu_search)
+            setColorFilter(COnPrimaryContainer)
         }
 
         var initialX = 0; var initialY = 0
@@ -131,7 +139,7 @@ class OverlayService : Service() {
     private fun showExpandedPanel() {
         if (expandedPanel != null) return
 
-        val w = dp(300); val h = dp(440)
+        val w = dp(320); val h = dp(480)
         val params = WindowManager.LayoutParams(
             w, h,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -172,67 +180,67 @@ class OverlayService : Service() {
 
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(C_BG)
-            // 圆角 + 边框
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(C_BG)
-                cornerRadius = dp(12).toFloat()
-                setStroke(dp(1), (C_GREEN and 0x00FFFFFF) or (0x30 shl 24))
+                setColor(CSurface)
+                cornerRadius = dp(16).toFloat()
+                setStroke(dp(1), COutlineVariant)
             }
+            clipToOutline = true
 
-            // === 顶栏 ===
+            // === 顶栏 (MD3 TopAppBar 风格) ===
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setBackgroundColor(C_SURFACE)
-                setPadding(dp(10), dp(8), dp(10), dp(8))
+                setBackgroundColor(CSurfaceContainer)
+                setPadding(dp(8), dp(12), dp(8), dp(12))
                 gravity = Gravity.CENTER_VERTICAL
                 tag = "drag"
 
-                // 拖拽指示条
-                addView(View(context).apply {
-                    setBackgroundColor(C_GREEN)
-                    layoutParams = LinearLayout.LayoutParams(dp(20), dp(3))
-                })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(8), 0) })
                 addView(TextView(context).apply {
                     text = "XEGG"
-                    setTextColor(C_GREEN)
-                    textSize = 15f
-                    typeface = Typeface.MONOSPACE
+                    setTextColor(CPrimary)
+                    textSize = 18f
                     setTypeface(typeface, Typeface.BOLD)
+                    setPadding(dp(8), 0, dp(8), 0)
                 })
                 addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, 0, 1f) })
                 addView(TextView(context).apply {
-                    text = if (XeggBridge.nativeIsAttached()) "● ON" else "○ OFF"
-                    setTextColor(if (XeggBridge.nativeIsAttached()) C_GREEN else C_RED)
-                    textSize = 10f
-                    typeface = Typeface.MONOSPACE
+                    text = if (XeggBridge.nativeIsAttached()) "已连接" else "未连接"
+                    setTextColor(if (XeggBridge.nativeIsAttached()) CPrimary else CError)
+                    textSize = 12f
                     tag = "status"
+                    setPadding(dp(8), dp(4), dp(8), dp(4))
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        setColor(if (XeggBridge.nativeIsAttached()) CPrimaryContainer else CError.copy(alpha = 0.15f))
+                        cornerRadius = dp(8).toFloat()
+                    }
                 })
                 addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(8), 0) })
                 addView(TextView(context).apply {
-                    text = "✕"
-                    setTextColor(C_TEXT2)
+                    text = "X"
+                    setTextColor(COnSurfaceVariant)
                     textSize = 16f
-                    setPadding(dp(6), 0, dp(6), 0)
+                    setPadding(dp(8), 0, dp(8), 0)
                     setOnClickListener { togglePanel() }
                 })
             })
 
-            // === Tab 栏 ===
+            // === Tab 栏 (MD3 SecondaryTabRow 风格) ===
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setBackgroundColor(C_SURFACE)
-                setPadding(0, 0, 0, dp(2))
+                setBackgroundColor(CSurfaceContainer)
+                setPadding(dp(4), 0, dp(4), dp(4))
                 val tabBar = this
                 listOf("搜索", "保存", "脚本", "设置").forEachIndexed { index, name ->
                     addView(TextView(context).apply {
                         text = name
-                        setTextColor(if (index == 0) C_GREEN else C_MUTED)
-                        textSize = 12f
-                        typeface = Typeface.MONOSPACE
-                        setPadding(dp(14), dp(6), dp(14), dp(6))
+                        setTextColor(if (index == 0) CPrimary else COnSurfaceVariant)
+                        textSize = 13f
+                        setPadding(dp(12), dp(8), dp(12), dp(8))
                         tag = "tab_$index"
+                        background = if (index == 0) android.graphics.drawable.GradientDrawable().apply {
+                            setColor(CPrimaryContainer)
+                            cornerRadius = dp(8).toFloat()
+                        } else null
                         setOnClickListener {
                             currentTab[0] = index
                             updateTabContent(tabBar, index)
@@ -245,7 +253,7 @@ class OverlayService : Service() {
             addView(FrameLayout(context).apply {
                 id = R.id.content_area
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-                setBackgroundColor(C_BG)
+                setBackgroundColor(CSurface)
                 addView(createSearchView())
             })
         }
@@ -255,7 +263,11 @@ class OverlayService : Service() {
     private fun updateTabContent(tabBar: LinearLayout, tabIndex: Int) {
         for (i in 0 until tabBar.childCount) {
             val tab = tabBar.getChildAt(i) as? TextView ?: continue
-            tab.setTextColor(if (i == tabIndex) C_GREEN else C_MUTED)
+            tab.setTextColor(if (i == tabIndex) CPrimary else COnSurfaceVariant)
+            tab.background = if (i == tabIndex) android.graphics.drawable.GradientDrawable().apply {
+                setColor(CPrimaryContainer)
+                cornerRadius = dp(8).toFloat()
+            } else null
         }
         val panel = expandedPanel as? LinearLayout ?: return
         val content = panel.findViewById<FrameLayout>(R.id.content_area)
@@ -274,22 +286,25 @@ class OverlayService : Service() {
     private fun createSearchView(): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setPadding(dp(12), dp(12), dp(12), dp(12))
 
             // 值输入
             addView(EditText(context).apply {
                 hint = "输入搜索值"
-                setTextColor(C_TEXT)
-                setHintTextColor(C_MUTED)
-                textSize = 13f
-                typeface = Typeface.MONOSPACE
-                setPadding(dp(8), dp(8), dp(8), dp(8))
-                setBackgroundColor(C_CARD)
+                setTextColor(COnSurface)
+                setHintTextColor(COutline)
+                textSize = 14f
+                setPadding(dp(12), dp(12), dp(12), dp(12))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(CSurfaceContainer)
+                    cornerRadius = dp(12).toFloat()
+                    setStroke(dp(1), COutlineVariant)
+                }
                 id = R.id.search_input
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             })
 
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
 
             // 类型选择
             addView(LinearLayout(context).apply {
@@ -298,18 +313,23 @@ class OverlayService : Service() {
                 types.forEachIndexed { index, name ->
                     addView(TextView(context).apply {
                         text = name
-                        setTextColor(if (index == 2) C_GREEN else C_MUTED)
-                        textSize = 10f
-                        typeface = Typeface.MONOSPACE
-                        setPadding(dp(5), dp(3), dp(5), dp(3))
-                        setBackgroundColor(if (index == 2) (C_GREEN and 0x00FFFFFF or (0x18 shl 24)) else 0x00000000)
+                        setTextColor(if (index == 2) COnPrimaryContainer else COnSurfaceVariant)
+                        textSize = 11f
+                        setPadding(dp(6), dp(4), dp(6), dp(4))
+                        background = if (index == 2) android.graphics.drawable.GradientDrawable().apply {
+                            setColor(CPrimaryContainer)
+                            cornerRadius = dp(6).toFloat()
+                        } else null
                         setOnClickListener {
                             searchType = index
                             (parent as? LinearLayout)?.let { bar ->
                                 for (i in 0 until bar.childCount) {
                                     val tv = bar.getChildAt(i) as? TextView ?: continue
-                                    tv.setTextColor(if (i == index) C_GREEN else C_MUTED)
-                                    tv.setBackgroundColor(if (i == index) (C_GREEN and 0x00FFFFFF or (0x18 shl 24)) else 0x00000000)
+                                    tv.setTextColor(if (i == index) COnPrimaryContainer else COnSurfaceVariant)
+                                    tv.background = if (i == index) android.graphics.drawable.GradientDrawable().apply {
+                                        setColor(CPrimaryContainer)
+                                        cornerRadius = dp(6).toFloat()
+                                    } else null
                                 }
                             }
                         }
@@ -317,41 +337,40 @@ class OverlayService : Service() {
                 }
             })
 
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
 
             // 搜索按钮行
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                addView(neonBtn("精确") {
-                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@neonBtn
-                    if (input.isEmpty()) return@neonBtn
+                addView(md3Btn("精确搜索") {
+                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@md3Btn
+                    if (input.isEmpty()) return@md3Btn
                     searchValue = input
                     resultCount = XeggBridge.nativeSearchNumber(input, searchType, -1)
                     updateResultDisplay()
                 })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(4), 0) })
-                addView(neonBtn("再次") {
-                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@neonBtn
-                    if (input.isEmpty()) return@neonBtn
+                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
+                addView(md3OutlinedBtn("再次") {
+                    val input = (expandedPanel?.findViewById<EditText>(R.id.search_input))?.text?.toString() ?: return@md3OutlinedBtn
+                    if (input.isEmpty()) return@md3OutlinedBtn
                     searchValue = input
                     resultCount = XeggBridge.nativeRefineSearch(input)
                     updateResultDisplay()
                 })
-                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(4), 0) })
-                addView(neonBtn("模糊") {
+                addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
+                addView(md3OutlinedBtn("模糊") {
                     resultCount = XeggBridge.nativeFuzzySearch(0)
                     updateResultDisplay()
                 })
             })
 
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
 
             addView(TextView(context).apply {
                 id = R.id.result_text
-                text = "结果: 0"
-                setTextColor(C_GREEN)
-                textSize = 12f
-                typeface = Typeface.MONOSPACE
+                text = "找到 0 个结果"
+                setTextColor(CPrimary)
+                textSize = 13f
             })
 
             addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
@@ -369,7 +388,7 @@ class OverlayService : Service() {
     @SuppressLint("SetTextI18n")
     private fun updateResultDisplay() {
         val resultText = expandedPanel?.findViewById<TextView>(R.id.result_text)
-        resultText?.text = "结果: $resultCount"
+        resultText?.text = "找到 $resultCount 个结果"
 
         val listInner = expandedPanel?.findViewById<LinearLayout>(R.id.result_list_inner)
         listInner?.removeAllViews()
@@ -381,24 +400,22 @@ class OverlayService : Service() {
             val valueStr = valueBytes?.let { String(it) } ?: "?"
             listInner?.addView(LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(0, dp(2), 0, dp(2))
+                setPadding(0, dp(4), 0, dp(4))
                 addView(TextView(context).apply {
                     text = "0x${addr.toString(16)}"
-                    setTextColor(C_TEXT2)
-                    textSize = 10f
-                    typeface = Typeface.MONOSPACE
+                    setTextColor(COnSurfaceVariant)
+                    textSize = 12f
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 })
                 addView(TextView(context).apply {
                     text = valueStr
-                    setTextColor(C_TEXT)
-                    textSize = 10f
-                    typeface = Typeface.MONOSPACE
+                    setTextColor(COnSurface)
+                    textSize = 12f
                 })
                 addView(TextView(context).apply {
-                    text = " +"
-                    setTextColor(C_GREEN)
-                    textSize = 12f
+                    text = "  +"
+                    setTextColor(CPrimary)
+                    textSize = 14f
                     setOnClickListener {
                         savedItems.add(SavedItem(addr, valueStr, searchType))
                         Toast.makeText(this@OverlayService, "已保存", Toast.LENGTH_SHORT).show()
@@ -414,15 +431,15 @@ class OverlayService : Service() {
     private fun createSavedView(): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setPadding(dp(12), dp(12), dp(12), dp(12))
 
             addView(TextView(context).apply {
                 text = "已保存 (${savedItems.size})"
-                setTextColor(C_GREEN)
-                textSize = 12f
-                typeface = Typeface.MONOSPACE
+                setTextColor(CPrimary)
+                textSize = 14f
+                setTypeface(typeface, Typeface.BOLD)
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
             addView(ScrollView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
                 addView(LinearLayout(context).apply {
@@ -430,27 +447,47 @@ class OverlayService : Service() {
                     savedItems.forEachIndexed { index, item ->
                         addView(LinearLayout(context).apply {
                             orientation = LinearLayout.HORIZONTAL
-                            setPadding(0, dp(3), 0, dp(3)
+                            setPadding(dp(8), dp(6), dp(8), dp(6)
                             )
+                            background = android.graphics.drawable.GradientDrawable().apply {
+                                setColor(CSurfaceContainer)
+                                cornerRadius = dp(8).toFloat()
+                            }
                             addView(TextView(context).apply {
                                 text = "0x${item.addr.toString(16)}"
-                                setTextColor(C_TEXT2); textSize = 10f; typeface = Typeface.MONOSPACE
+                                setTextColor(COnSurfaceVariant); textSize = 12f
                                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                             })
                             addView(TextView(context).apply {
-                                text = if (item.locked) "L" else "U"
-                                setTextColor(if (item.locked) C_GREEN else C_MUTED)
-                                textSize = 11f; typeface = Typeface.MONOSPACE
-                                setPadding(dp(4), 0, dp(4), 0)
-                                setOnClickListener { item.locked = !item.locked; text = if (item.locked) "L" else "U"; setTextColor(if (item.locked) C_GREEN else C_MUTED) }
+                                text = if (item.locked) "锁定" else "解锁"
+                                setTextColor(if (item.locked) CPrimary else COutline)
+                                textSize = 11f
+                                setPadding(dp(6), dp(2), dp(6), dp(2))
+                                background = android.graphics.drawable.GradientDrawable().apply {
+                                    setColor(if (item.locked) CPrimaryContainer else CSurfaceHigh)
+                                    cornerRadius = dp(4).toFloat()
+                                }
+                                setOnClickListener {
+                                    item.locked = !item.locked
+                                    text = if (item.locked) "锁定" else "解锁"
+                                    setTextColor(if (item.locked) CPrimary else COutline)
+                                    background = android.graphics.drawable.GradientDrawable().apply {
+                                        setColor(if (item.locked) CPrimaryContainer else CSurfaceHigh)
+                                        cornerRadius = dp(4).toFloat()
+                                    }
+                                }
                             })
+                            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
                             addView(EditText(context).apply {
                                 hint = item.value
-                                setTextColor(C_TEXT); setHintTextColor(C_MUTED)
-                                textSize = 11f; typeface = Typeface.MONOSPACE
+                                setTextColor(COnSurface); setHintTextColor(COutline)
+                                textSize = 12f
                                 maxWidth = dp(70)
-                                setPadding(dp(4), 0, dp(4), 0)
-                                setBackgroundColor(C_CARD)
+                                setPadding(dp(6), dp(2), dp(6), dp(2))
+                                background = android.graphics.drawable.GradientDrawable().apply {
+                                    setColor(CSurfaceHigh)
+                                    cornerRadius = dp(4).toFloat()
+                                }
                                 setOnEditorActionListener { v, _, _ ->
                                     val nv = v.text.toString()
                                     if (nv.isNotEmpty()) {
@@ -462,6 +499,7 @@ class OverlayService : Service() {
                                 }
                             })
                         })
+                        addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
                     }
                 })
             })
@@ -474,36 +512,40 @@ class OverlayService : Service() {
     private fun createScriptView(): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setPadding(dp(12), dp(12), dp(12), dp(12))
 
             addView(TextView(context).apply {
-                text = "LUA SCRIPT"
-                setTextColor(C_GREEN); textSize = 12f; typeface = Typeface.MONOSPACE
+                text = "Lua 脚本"
+                setTextColor(CPrimary); textSize = 14f; setTypeface(typeface, Typeface.BOLD)
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
             addView(EditText(context).apply {
                 hint = "/sdcard/script.lua"
-                setTextColor(C_TEXT); setHintTextColor(C_MUTED)
-                textSize = 11f; typeface = Typeface.MONOSPACE
-                setPadding(dp(8), dp(8), dp(8), dp(8))
-                setBackgroundColor(C_CARD)
+                setTextColor(COnSurface); setHintTextColor(COutline)
+                textSize = 13f
+                setPadding(dp(12), dp(10), dp(12), dp(10))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(CSurfaceContainer)
+                    cornerRadius = dp(12).toFloat()
+                    setStroke(dp(1), COutlineVariant)
+                }
                 id = R.id.script_path
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
-            addView(neonBtn("执行") {
-                val path = (expandedPanel?.findViewById<EditText>(R.id.script_path))?.text?.toString() ?: return@neonBtn
-                if (path.isEmpty()) return@neonBtn
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
+            addView(md3Btn("执行脚本") {
+                val path = (expandedPanel?.findViewById<EditText>(R.id.script_path))?.text?.toString() ?: return@md3Btn
+                if (path.isEmpty()) return@md3Btn
                 val success = XeggBridge.nativeExecFile(path)
                 scriptOutput = if (success) "执行完成" else "执行失败"
                 updateScriptOutput()
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
             addView(ScrollView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
                 addView(TextView(context).apply {
                     id = R.id.script_output
                     text = scriptOutput.ifEmpty { "等待执行..." }
-                    setTextColor(C_TEXT2); textSize = 10f; typeface = Typeface.MONOSPACE
+                    setTextColor(COnSurfaceVariant); textSize = 12f
                 })
             })
         }
@@ -520,57 +562,70 @@ class OverlayService : Service() {
     private fun createSettingsView(): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setPadding(dp(12), dp(12), dp(12), dp(12))
 
             addView(TextView(context).apply {
-                text = "SPEED HACK"
-                setTextColor(C_CYAN); textSize = 11f; typeface = Typeface.MONOSPACE
+                text = "变速齿轮"
+                setTextColor(CPrimary); textSize = 14f; setTypeface(typeface, Typeface.BOLD)
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(8)) })
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 listOf("0.5x", "1x", "2x", "5x").forEach { speed ->
-                    addView(neonBtn(speed) {
+                    addView(md3OutlinedBtn(speed) {
                         val s = speed.removeSuffix("x").toDouble()
                         XeggBridge.nativeSetSpeed(s)
                     })
-                    addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(4), 0) })
+                    addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(dp(6), 0) })
                 }
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(12)) })
-            addView(neonBtn("断开连接") {
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(16)) })
+            addView(md3OutlinedBtn("断开连接") {
                 XeggBridge.nativeDetach()
                 val st = expandedPanel?.findViewWithTag<TextView>("status")
-                st?.text = "○ OFF"; st?.setTextColor(C_RED)
+                st?.text = "未连接"; st?.setTextColor(CError)
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
-            addView(neonBtn("清除结果") {
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(md3OutlinedBtn("清除结果") {
                 XeggBridge.nativeClearResults()
                 resultCount = 0
                 updateResultDisplay()
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
-            addView(neonBtn("打开主界面") {
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(md3OutlinedBtn("打开主界面") {
                 startActivity(Intent(this@OverlayService, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             })
-            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(4)) })
-            addView(neonBtn("停止悬浮窗") { stopSelf() })
+            addView(Space(context).apply { layoutParams = LinearLayout.LayoutParams(0, dp(6)) })
+            addView(md3OutlinedBtn("停止悬浮窗") { stopSelf() })
         }
     }
 
-    // --- 工具 ---
+    // --- MD3 风格按钮 ---
 
-    private fun neonBtn(text: String, onClick: () -> Unit): TextView {
+    private fun md3Btn(text: String, onClick: () -> Unit): TextView {
         return TextView(this).apply {
             this.text = text
-            setTextColor(C_GREEN)
-            textSize = 11f
-            typeface = Typeface.MONOSPACE
-            setPadding(dp(10), dp(5), dp(10), dp(5))
+            setTextColor(COnPrimary)
+            textSize = 13f
+            setPadding(dp(16), dp(8), dp(16), dp(8))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(C_CARD)
-                cornerRadius = dp(4).toFloat()
-                setStroke(dp(1), (C_GREEN and 0x00FFFFFF) or (0x30 shl 24))
+                setColor(CPrimary)
+                cornerRadius = dp(20).toFloat()
+            }
+            setOnClickListener { onClick() }
+        }
+    }
+
+    private fun md3OutlinedBtn(text: String, onClick: () -> Unit): TextView {
+        return TextView(this).apply {
+            this.text = text
+            setTextColor(CPrimary)
+            textSize = 13f
+            setPadding(dp(12), dp(6), dp(12), dp(6))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(0x00000000)
+                cornerRadius = dp(20).toFloat()
+                setStroke(dp(1), COutline)
             }
             setOnClickListener { onClick() }
         }
@@ -592,5 +647,10 @@ class OverlayService : Service() {
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setContentIntent(pi)
             .build()
+    }
+
+    private fun Int.copy(alpha: Float): Int {
+        val a = (255 * alpha).toInt().coerceIn(0, 255)
+        return (this and 0x00FFFFFF) or (a shl 24)
     }
 }

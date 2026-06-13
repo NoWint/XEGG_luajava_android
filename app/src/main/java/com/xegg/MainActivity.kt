@@ -8,17 +8,19 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.xegg.bridge.ShizukuHelper
 import com.xegg.ui.dump.DumpScreen
@@ -53,6 +55,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// 自适应导航项
+data class NavItem(
+    val label: String,
+    val selectedIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    val unselectedIcon: androidx.compose.ui.graphics.vector.ImageVector,
+)
+
+val navItems = listOf(
+    NavItem("主页", Icons.Filled.Home, Icons.Outlined.Home),
+    NavItem("搜索", Icons.Filled.Search, Icons.Outlined.Search),
+    NavItem("脚本", Icons.Filled.Code, Icons.Outlined.Code),
+    NavItem("设置", Icons.Filled.Settings, Icons.Outlined.Settings),
+    NavItem("Dump", Icons.Filled.Info, Icons.Outlined.Info),
+)
+
 @Composable
 fun MainContent(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
@@ -60,7 +77,7 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
     var previousAttached by remember { mutableStateOf(false) }
 
-    // 监听附加状态变化，显示 Toast
+    // 监听附加状态变化
     LaunchedEffect(state.isAttached) {
         if (state.isAttached && !previousAttached) {
             Toast.makeText(context, "附加成功", Toast.LENGTH_SHORT).show()
@@ -70,7 +87,6 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
         previousAttached = state.isAttached
     }
 
-    // 启动悬浮窗（检查权限）
     fun startOverlay() {
         if (!Settings.canDrawOverlays(context)) {
             Toast.makeText(context, "请先授予悬浮窗权限", Toast.LENGTH_LONG).show()
@@ -91,65 +107,122 @@ fun MainContent(viewModel: MainViewModel = viewModel()) {
 
     var currentTab by remember { mutableIntStateOf(0) }
 
+    // 自适应导航：手机用 NavigationBar，平板用 NavigationRail
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val useRail = configuration.screenWidthDp >= 600
+
     Scaffold(
+        modifier = Modifier,
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(selected = currentTab == 0, onClick = { currentTab = 0 }, icon = { Icon(Icons.Default.Home, null) }, label = { Text("主页") })
-                NavigationBarItem(selected = currentTab == 1, onClick = { currentTab = 1 }, icon = { Icon(Icons.Default.Search, null) }, label = { Text("搜索") })
-                NavigationBarItem(selected = currentTab == 2, onClick = { currentTab = 2 }, icon = { Icon(Icons.Default.Code, null) }, label = { Text("脚本") })
-                NavigationBarItem(selected = currentTab == 3, onClick = { currentTab = 3 }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text("设置") })
-                NavigationBarItem(selected = currentTab == 4, onClick = { currentTab = 4 }, icon = { Icon(Icons.Default.Info, null) }, label = { Text("Dump") })
+            if (!useRail) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it }),
+                ) {
+                    NavigationBar {
+                        navItems.forEachIndexed { index, item ->
+                            NavigationBarItem(
+                                selected = currentTab == index,
+                                onClick = { currentTab = index },
+                                icon = {
+                                    Icon(
+                                        if (currentTab == index) item.selectedIcon else item.unselectedIcon,
+                                        contentDescription = item.label
+                                    )
+                                },
+                                label = { Text(item.label) },
+                            )
+                        }
+                    }
+                }
             }
         }
     ) { padding ->
-        when (currentTab) {
-            0 -> HomeScreen(
-                isAttached = state.isAttached,
-                targetPackage = state.targetPackage,
-                regionCount = state.regionCount,
-                runningApps = state.runningApps,
-                isLoading = state.isLoading,
-                accessMode = state.accessMode,
-                shizukuAvailable = state.shizukuAvailable,
-                isRooted = state.isRooted,
-                statusMessage = state.statusMessage,
-                onRefresh = { viewModel.refreshApps(context) },
-                onAttach = { identifier ->
-                    if (identifier.startsWith("pid:")) {
-                        val pid = identifier.removePrefix("pid:").toIntOrNull() ?: 0
-                        if (pid > 0) viewModel.attachByPid(context, pid)
-                    } else {
-                        viewModel.attach(context, identifier)
+        if (useRail) {
+            // 平板：NavigationRail + 内容区
+            Row(modifier = Modifier.padding(padding)) {
+                NavigationRail {
+                    navItems.forEachIndexed { index, item ->
+                        NavigationRailItem(
+                            selected = currentTab == index,
+                            onClick = { currentTab = index },
+                            icon = {
+                                Icon(
+                                    if (currentTab == index) item.selectedIcon else item.unselectedIcon,
+                                    contentDescription = item.label
+                                )
+                            },
+                            label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                        )
                     }
-                },
-                onDetach = {
-                    viewModel.detach()
-                    Toast.makeText(context, "已断开", Toast.LENGTH_SHORT).show()
-                },
-                onSearchClick = { currentTab = 1 },
-                onScriptClick = { currentTab = 2 },
-                onRequestShizuku = {
-                    activity?.let { act ->
-                        try {
-                            ShizukuHelper.requestPermission(act)
-                        } catch (_: Exception) {
-                            try {
-                                act.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=moe.shizuku.privileged.api")))
-                            } catch (_: Exception) {}
-                        }
-                    }
-                },
-                onStartOverlay = { startOverlay() },
-                modifier = Modifier.padding(padding)
-            )
-            1 -> SearchScreen(isAttached = state.isAttached, modifier = Modifier.padding(padding))
-            2 -> ScriptScreen(isAttached = state.isAttached, modifier = Modifier.padding(padding))
-            3 -> SettingsScreen(
-                isAttached = state.isAttached,
-                onDetach = { viewModel.detach(); Toast.makeText(context, "已断开", Toast.LENGTH_SHORT).show() },
-                modifier = Modifier.padding(padding)
-            )
-            4 -> DumpScreen(isAttached = state.isAttached, modifier = Modifier.padding(padding))
+                }
+                ContentArea(currentTab, state, viewModel, context, activity, { startOverlay() })
+            }
+        } else {
+            // 手机：全屏内容
+            ContentArea(currentTab, state, viewModel, context, activity, { startOverlay() }, Modifier.padding(padding))
         }
+    }
+}
+
+@Composable
+private fun ContentArea(
+    currentTab: Int,
+    state: com.xegg.viewmodel.AppState,
+    viewModel: MainViewModel,
+    context: android.content.Context,
+    activity: android.app.Activity?,
+    startOverlay: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (currentTab) {
+        0 -> HomeScreen(
+            isAttached = state.isAttached,
+            targetPackage = state.targetPackage,
+            regionCount = state.regionCount,
+            runningApps = state.runningApps,
+            isLoading = state.isLoading,
+            accessMode = state.accessMode,
+            shizukuAvailable = state.shizukuAvailable,
+            isRooted = state.isRooted,
+            statusMessage = state.statusMessage,
+            onRefresh = { viewModel.refreshApps(context) },
+            onAttach = { identifier ->
+                if (identifier.startsWith("pid:")) {
+                    val pid = identifier.removePrefix("pid:").toIntOrNull() ?: 0
+                    if (pid > 0) viewModel.attachByPid(context, pid)
+                } else {
+                    viewModel.attach(context, identifier)
+                }
+            },
+            onDetach = {
+                viewModel.detach()
+                Toast.makeText(context, "已断开", Toast.LENGTH_SHORT).show()
+            },
+            onSearchClick = { /* 切到搜索 tab 由外部控制 */ },
+            onScriptClick = { /* 切到脚本 tab */ },
+            onRequestShizuku = {
+                activity?.let { act ->
+                    try {
+                        ShizukuHelper.requestPermission(act)
+                    } catch (_: Exception) {
+                        try {
+                            act.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=moe.shizuku.privileged.api")))
+                        } catch (_: Exception) {}
+                    }
+                }
+            },
+            onStartOverlay = startOverlay,
+            modifier = modifier
+        )
+        1 -> SearchScreen(isAttached = state.isAttached, modifier = modifier)
+        2 -> ScriptScreen(isAttached = state.isAttached, modifier = modifier)
+        3 -> SettingsScreen(
+            isAttached = state.isAttached,
+            onDetach = { viewModel.detach(); Toast.makeText(context, "已断开", Toast.LENGTH_SHORT).show() },
+            modifier = modifier
+        )
+        4 -> DumpScreen(isAttached = state.isAttached, modifier = modifier)
     }
 }
